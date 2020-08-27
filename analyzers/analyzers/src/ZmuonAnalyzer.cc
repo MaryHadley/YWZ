@@ -76,13 +76,13 @@ private:
 
    std::vector<double> lepton1_pt, lepton1_eta, lepton1_phi;
    std::vector<double> lepton1_charge;
-   std::vector<double> lepton1_d0, lepton1_dz, lepton1_dxy;
-   std::vector<double> lepton1_iso03particle, lepton1_iso03hadron, lepton1_iso04hadron, lepton1_iso04particle;
+   std::vector<double> lepton1_d0, lepton1_dz, lepton1_dxy; //recall d0 is the 3D IP
+   std::vector<double> lepton1_iso03particle, lepton1_iso03hadron, lepton1_iso04hadron, lepton1_iso04particle; //these are the R = 0.4 or 0.3 isolation variables 
    std::vector<double> lepton1_impactParameterSignificance;
    std::vector<bool> lepton1_isLooseMuon, lepton1_isSoftMuon, lepton1_isTightMuon;
    std::vector<bool> lepton1_isPFMuon, lepton1_isGlobalMuon, lepton1_isTrackerMuon;
    std::vector<double> lepton1_deltaEta, lepton1_deltaPhi, lepton1_sigmaiEtaEta, lepton1_HoverE;
-   std::vector<double> lepton1_OoEmOoP, lepton1_vtxFitProb, lepton1_missingHits;
+   std::vector<double> lepton1_OoEmOoP, lepton1_vtxFitProb, lepton1_missingHits; //QUESTION! OoEmOop means what? //Note to self: looks these guys on this line aren't filled in yet in this code  
 
    std::vector<double> lepton2_pt, lepton2_eta, lepton2_phi;
    std::vector<double> lepton2_charge;
@@ -92,7 +92,7 @@ private:
    std::vector<bool> lepton2_isLooseMuon, lepton2_isSoftMuon, lepton2_isTightMuon;
    std::vector<bool> lepton2_isPFMuon, lepton2_isGlobalMuon, lepton2_isTrackerMuon;
    std::vector<double> lepton2_deltaEta, lepton2_deltaPhi, lepton2_sigmaiEtaEta, lepton2_HoverE;
-   std::vector<double> lepton2_OoEmOoP, lepton2_vtxFitProb, lepton2_missingHits;
+   std::vector<double> lepton2_OoEmOoP, lepton2_vtxFitProb, lepton2_missingHits; //again, these guys don't appear to be filled yet 
 
    std::vector<double> lepton3_pt, lepton3_eta, lepton3_phi;
    std::vector<double> lepton3_charge;
@@ -102,7 +102,7 @@ private:
    std::vector<bool> lepton3_isLooseMuon, lepton3_isSoftMuon, lepton3_isTightMuon;
    std::vector<bool> lepton3_isPFMuon, lepton3_isGlobalMuon, lepton3_isTrackerMuon;
    std::vector<double> lepton3_deltaEta, lepton3_deltaPhi, lepton3_sigmaiEtaEta, lepton3_HoverE;
-   std::vector<double> lepton3_OoEmOoP, lepton3_vtxFitProb, lepton3_missingHits;
+   std::vector<double> lepton3_OoEmOoP, lepton3_vtxFitProb, lepton3_missingHits; //again, these guys don't appear to be filled yet 
 
    std::vector<double> lepton4_pt, lepton4_eta, lepton4_phi;
    std::vector<double> lepton4_charge;
@@ -112,7 +112,7 @@ private:
    std::vector<bool> lepton4_isLooseMuon, lepton4_isSoftMuon, lepton4_isTightMuon;
    std::vector<bool> lepton4_isPFMuon, lepton4_isGlobalMuon, lepton4_isTrackerMuon;
    std::vector<double> lepton4_deltaEta, lepton4_deltaPhi, lepton4_sigmaiEtaEta, lepton4_HoverE;
-   std::vector<double> lepton4_OoEmOoP, lepton4_vtxFitProb, lepton4_missingHits;
+   std::vector<double> lepton4_OoEmOoP, lepton4_vtxFitProb, lepton4_missingHits; //again, these guys don't appear to be filled yet 
 
    std::vector<double> dimuon1mass, dimuon2mass;
    std::vector<double> dimuon1pt,   dimuon2pt ;
@@ -343,6 +343,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 // FLAG FOR ASSOCIATED PRODUCTION OR RESONANCE SEARCH
 // **************************************************
    bool mc = true;
+   //will need to add something to do if mc is not true aka how to handle the data
 
    triggerlist.clear();
    dimuon1mass.clear(); dimuon2mass.clear();
@@ -448,7 +449,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 //        }
 //    }
 
-   bool keepevent = false;
+   bool keepevent = false; //keepevent defaults to false, which is actually what we want in the end (see line 539)
    for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
     if (triggerBits->accept(i)) {
       triggerlist.push_back(names.triggerName(i));
@@ -457,12 +458,12 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       std::string str3 ("Mu");
       std::size_t foundEle = str.find(str2);
       std::size_t foundMu  = str.find(str3);
-      if (foundEle!=std::string::npos && foundMu==std::string::npos)
+      if (foundEle!=std::string::npos && foundMu==std::string::npos) //BUG?  //Maybe this is me misunderstanding npos, but I would think this is saying if there is an electron and no muon, keep the event, which doesn't make sense...but looking ahead to line 539, maybe this works out ok...
         keepevent = true;
-      if (foundEle!=std::string::npos && foundMu!=std::string::npos)
+      if (foundEle!=std::string::npos && foundMu!=std::string::npos) //This potential bug might get worked out down below, because it seems like you want keepevent to be false in order to go forward (see line 539 )
         keepevent = false;
     }
-   } 
+   } //trigger requirements 
 //   if (keepevent) {
 //      for (int itrig = 0; itrig < (int)triggerlist.size(); itrig++)
 //        std::cout << triggerlist.at(itrig) << std::endl;
@@ -474,34 +475,34 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    edm::Handle<std::vector<reco::Vertex>> reco_vertices;
    iEvent.getByToken(token_vertices, reco_vertices);
 
-   bool first_vertex = true;
+   bool first_vertex = true; //first_vertex defaults to true 
    reco::Vertex primary_vertex;
 
    numberOfVertices.push_back(reco_vertices->size());
-   for (unsigned int vertex=0; vertex < reco_vertices->size(); ++vertex) {
+   for (unsigned int vertex=0; vertex < reco_vertices->size(); ++vertex)  { //loop over vertices, do some selections
      if (    // Criteria copied from twiki (mythical)
-         !((*reco_vertices)[vertex].isFake())
-         && ((*reco_vertices)[vertex].ndof() > 4)
-         && (fabs((*reco_vertices)[vertex].z()) <= 24.0)
-         && ((*reco_vertices)[vertex].position().Rho() <= 2.0)
+         !((*reco_vertices)[vertex].isFake()) //vertex must be true 
+         && ((*reco_vertices)[vertex].ndof() > 4) //vertex must have ndof >4
+         && (fabs((*reco_vertices)[vertex].z()) <= 24.0) //dz of the vertex must be <= 24 cm
+         && ((*reco_vertices)[vertex].position().Rho() <= 2.0)//rho of the vertex must be less than or equal to 2 cm 
         ) {
 //         reco_vert.num++;
 //         reco_vert.x.push_back( (*reco_vertices)[vertex].x() );
 //         reco_vert.y.push_back( (*reco_vertices)[vertex].y() );
 //         reco_vert.z.push_back( (*reco_vertices)[vertex].z() );
 //         // Store first good vertex as "primary"
-//         // vertex is ordered by highest pt, in descending order
+//         // vertex is ordered by highest pt, in descending order //QUESTION! if by default the first vertex is indeed the one with the highest pT, then the below works. Is this a safe assumption though (I'm not 100% sure miniaod sorts things this way, but you probably know more than I do about this)
 //         //std::cout << iEvent.id().event() << "vertex pT: " << sumPtSquared((*reco_vertices)[vertex]) << std::endl;
 //         sumOfVertices.push_back(sumPtSquared((*reco_vertices)[vertex]));
 
           /// <--------- to be tested
           /// <--------- to be tested
-          reco::Vertex it_vertex = (*reco_vertices)[vertex];
+          reco::Vertex it_vertex = (*reco_vertices)[vertex]; //if the vertex meets the requirements, go ahead and do this loop
           double sum = 0.;
           double pT;
           for (reco::Vertex::trackRef_iterator it = it_vertex.tracks_begin(); it != it_vertex.tracks_end(); it++) {
             pT = (**it).pt();
-            sum += pT;
+            sum += pT; //sum up the pT of all the tracks associated with that vertex
             std::cout << pT << " " << sum << std::endl;
           }
           zOfVerticesError.push_back((*reco_vertices)[vertex].zError());
@@ -510,7 +511,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           /// <--------- to be tested
 
 
-         if (first_vertex) {
+         if (first_vertex) { //this ensures that the first vertex that passes the criteria is taken as the primary_vertex, assuming that miniaod does actually order its vertices, this is all good 
            first_vertex = false;
            primary_vertex = (*reco_vertices)[vertex];
            PVx.push_back((*reco_vertices)[vertex].x());
@@ -525,24 +526,24 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       doit = true;
 
    // bypass for non-global muons check
-   doit = true;
+   doit = true; //QUESTION! so doit is always true, so what is the point of the code above where doit was contingent on the event belonging to run NNN
 
-   double muon_mass = 0.1056583715;
-   double upsi_mass_low  = 8.;
-   double upsi_mass_high = 12.;
+   double muon_mass = 0.1056583715; 
+   double upsi_mass_low  = 8.; //selections as from AN 
+   double upsi_mass_high = 12.; //was 11 in AN but I don't think this really matters so much ()
    double Z_mass_low  = 66.;
    double Z_mass_high = 116.;
 
 // high pt muons - low pt muons
 //  if (!nontriggeredevent)
-   if ((int)muons->size()>5 && !keepevent && doit) {
+   if ((int)muons->size()>5 && !keepevent && doit) { //BUG? Shouldn't there be four muons in this final state, so anything with size over 3 should be ok? I think doit is not really doing anything here. And keepevent apparently should be false, so except for the six muon thing, I think this line is ok
      bool save_event = false;
      for (auto iM1 = muons->begin(); iM1 != muons->end(); ++iM1) {
       for (auto iM2 = iM1+1; iM2 != muons->end(); ++iM2) {
         for (auto iM3 = iM2+1; iM3 != muons->end(); ++iM3) {
           for (auto iM4 = iM3+1; iM4 != muons->end(); ++iM4) {
 
-                double pT_cut = 2.5;
+                double pT_cut = 2.5; //QUESTION: where did the 2.5 come from? In the AN i see mu with pT > 4...
 
 //                std::cout << " <<<<<<<<<<<<< ------------------------- entered " << std::endl;
     
@@ -558,7 +559,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                   continue;
                 if (iM1->isTrackerMuon()==false || iM2->isTrackerMuon()==false)
                   continue;
-                if (iM1->isSoftMuon(primary_vertex)==false || iM2->isSoftMuon(primary_vertex)==false)
+                if (iM1->isSoftMuon(primary_vertex)==false || iM2->isSoftMuon(primary_vertex)==false) //QUESTION!: I wouldn't have known isSoftMuon needed to (primary_vertex) argument, is this something you just knew?
                   continue;
 //                 if (iM1->isGlobalMuon()==false || iM2->isGlobalMuon()==false)
 //                  continue;
@@ -577,7 +578,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                   continue;
 //                if (iM3->isGlobalMuon()==false || iM4->isGlobalMuon()==false)
 //                  continue;
-
+               //QUESTION! How did we come up with the dz = 20 and  dxy = 1 cuts?
 
                 math::PtEtaPhiMLorentzVector lepton1(iM1->pt(), iM1->eta(), iM1->phi(), muon_mass);
                 math::PtEtaPhiMLorentzVector lepton2(iM2->pt(), iM2->eta(), iM2->phi(), muon_mass);
@@ -596,7 +597,8 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 double phi_1_2=0.; double phi_1_3=0.; double phi_1_4 = 0.; 
                 double phi_2_3=0.; double phi_2_4=0.; 
                 double phi_3_4=0.; 
-
+                
+                //build all the possible pairs of oppositely charged mu
                 if (iM1->charge() + iM2->charge() == 0) { mass_1_2 = (lepton1 + lepton2).mass(); pt_1_2 = (lepton1 + lepton2).pt(); eta_1_2 = (lepton1 + lepton2).eta(); eta_1_2 = (lepton1 + lepton2).eta(); phi_1_2 = (lepton1 + lepton2).phi();}
                 if (iM1->charge() + iM3->charge() == 0) { mass_1_3 = (lepton1 + lepton3).mass(); pt_1_3 = (lepton1 + lepton3).pt(); eta_1_3 = (lepton1 + lepton3).eta(); eta_1_3 = (lepton1 + lepton3).eta(); phi_1_3 = (lepton1 + lepton3).phi();}
                 if (iM1->charge() + iM4->charge() == 0) { mass_1_4 = (lepton1 + lepton4).mass(); pt_1_4 = (lepton1 + lepton4).pt(); eta_1_4 = (lepton1 + lepton4).eta(); eta_1_4 = (lepton1 + lepton4).eta(); phi_1_4 = (lepton1 + lepton4).phi();}
@@ -645,8 +647,9 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 if (!(match_12_34_56 || match_13_24_56 || 
                       match_14_23_56)) 
                   continue;
+                  //QUESTION: do we need some protection in case there was a matching ambiguity?
 
-                save_event = true;
+                save_event = true; //if we found a good set, turn save_event to true 
 
                 if (match_12_34_56) {dimuon1mass.push_back(mass_1_2); dimuon2mass.push_back(mass_3_4);  dimuon1pt.push_back(pt_1_2); dimuon2pt.push_back(pt_3_4);  dimuon1eta.push_back(eta_1_2); dimuon2eta.push_back(eta_3_4);  dimuon1phi.push_back(phi_1_2); dimuon2phi.push_back(phi_3_4); }
                                                                                                                                                                                                                                                                                                                                                                                                                                                 
@@ -693,13 +696,15 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 const reco::TrackRef track2 = iM2->muonBestTrack();
                 const reco::TrackRef track3 = iM3->muonBestTrack();
                 const reco::TrackRef track4 = iM4->muonBestTrack();
-        
+                
+                //build all the track pairs
                 std::vector<reco::TransientTrack> transient_tracks_muon12; transient_tracks_muon12.clear(); 
                 std::vector<reco::TransientTrack> transient_tracks_muon13; transient_tracks_muon13.clear(); 
                 std::vector<reco::TransientTrack> transient_tracks_muon14; transient_tracks_muon14.clear(); 
                 std::vector<reco::TransientTrack> transient_tracks_muon23; transient_tracks_muon23.clear(); 
                 std::vector<reco::TransientTrack> transient_tracks_muon24; transient_tracks_muon24.clear(); 
                 std::vector<reco::TransientTrack> transient_tracks_muon34; transient_tracks_muon34.clear(); 
+                
 
                 transient_tracks_muon12.push_back((*builder).build(track1.get())); transient_tracks_muon12.push_back((*builder).build(track2.get()));
                 transient_tracks_muon13.push_back((*builder).build(track1.get())); transient_tracks_muon13.push_back((*builder).build(track3.get()));
@@ -715,7 +720,8 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 TransientVertex vtx23; vtx23 = kalman_fitter.vertex(transient_tracks_muon23);
                 TransientVertex vtx24; vtx24 = kalman_fitter.vertex(transient_tracks_muon24);
                 TransientVertex vtx34; vtx34 = kalman_fitter.vertex(transient_tracks_muon34);
-
+                
+                //get vertex info for the pair vertices (assuming they are valid, else push back -1000) //QUESTION: are requirements like the pair having a common vertex with CL > 5% burried in the isValid()
                 if (match_12_34_56) {
                   if (vtx12.isValid()) {
                     dimuon1vtx.push_back(TMath::Prob(vtx12.totalChiSquared(), int(vtx12.degreesOfFreedom())));
@@ -918,17 +924,22 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     upsi_pt_found.clear();
     std::vector<double> Z_pt_found;
     Z_pt_found.clear();
-
+    
+    std::cout << "upsi_pt_found.size() initially:  " << upsi_pt_found.size() <<std::endl; //Mary added for testing 
+    //QUESTION!: I probably just missed something, but is there a reason you don't fill the upsi_pt_found until line 953 (similar question for Z_pt_found). I guess I'm not sure what this loop 
+    //is doing, you said it was a protection against the pythia weirdos (when pythia has a lot of things with similar pT/eta) but I'm not sure I'm understanding what's going on here
+    //wouldn't it make more sense to test the truth pT of the mc particle versus the reco pT of the mc particle?
     bool registered_upsi = false;
     bool registered_Z = false;
 
     for(unsigned int i = 0; i < mc_particles->size(); ++i) {
       const reco::GenParticle* gen_particle = &mc_particles->at(i);
       registered_upsi = false;
-      if (gen_particle->pdgId() == UPSI) {
+      if (gen_particle->pdgId() == UPSI) { 
         for (int iupsi = 0; iupsi < (int)upsi_pt_found.size(); iupsi++) {
           if (TMath::Abs( gen_particle->pt() - upsi_pt_found.at(iupsi) ) < 0.1)
             registered_upsi = true;
+          std::cout << "diff " << (TMath::Abs( gen_particle->pt() - upsi_pt_found.at(iupsi) )) << std::endl; //mary added for testing/understanding this loop
         }
         for (size_t j = 0; j < gen_particle->numberOfDaughters(); ++j) {
           if (TMath::Abs(gen_particle->daughter(j)->pdgId()) == MUON && !registered_upsi) {
@@ -943,6 +954,10 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           }
         }
         upsi_pt_found  .push_back(gen_particle->pt());
+        std::cout << "upsi_pt_found.size() now: " << upsi_pt_found.size() << std::endl; //mary added for testing 
+        for (unsigned int i = 0; i < upsi_pt_found.size(); i++) {
+        std::cout<< "upsi_pt_found.at(i): " << upsi_pt_found.at(i) << std::endl; 
+        }
       }
       if (gen_particle->pdgId() == Z) {
         for (int iZ = 0; iZ < (int)Z_pt_found.size(); iZ++) {
