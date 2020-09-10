@@ -62,6 +62,8 @@ class ZmuonFilter : public edm::stream::EDFilter<> {
       virtual void endStream() override;
       
       edm::EDGetTokenT<std::vector<pat::Muon>> muonsToken_;
+      edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
+      edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
 
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -90,8 +92,8 @@ ZmuonFilter::ZmuonFilter(const edm::ParameterSet& iConfig)
 // it looks like, based on Frank's example here: https://github.com/fojensen/ExcitedTau/blob/master/excitingAnalyzer_cfg.py#L137-L143, that this is how to add it to the cfg
 
 muonsToken_        = consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muonCollection"));
-//triggerBits_       = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"));
-//triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("objects"));
+triggerBits_       = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"));
+triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("objects"));
 
 //in the analyzer, we put these tokens in the analyze function as well as in the class definition like I have here, but based on Frank's example, I don't need to include then up above here, maybe because filter is a bool? Or maybe it's just not strictly necessary 
 
@@ -117,21 +119,36 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {//I think this is the one I want and I can kill of the EVENTSETUP_EXAMPLE
    using namespace edm;
 //since using namespace edm probably don't need to write edm before Handle below, leaving it for now
+ 
  //Trigger
-//   edm::Handle<edm::TriggerResults> triggerBits;
-//   iEvent.getByToken(triggerBits_, triggerBits);
-//   const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
-//   edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
-//   iEvent.getByToken(triggerObjects_, triggerObjects);
-   
-
-   //write trigger bool
+  edm::Handle<edm::TriggerResults> triggerBits;
+  iEvent.getByToken(triggerBits_, triggerBits);
+  const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
+  edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
+  iEvent.getByToken(triggerObjects_, triggerObjects);
+  
+  //muons
+  edm::Handle<std::vector<pat::Muon>> muons;
+  iEvent.getByToken(muonsToken_, muons);
+  
+  //Flag initializations for each event 
+  bool flagAtLeast4Mu = false; 
+  
+  //write number of muons bool
+   if ((int)muons->size() <= 3){
+       return false;
+        }
+    else if  ((int)muons->size() > 3){ 
+        flagAtLeast4Mu = true;
+    
+          }
+          
+        
+   //write trigger 
    //
    //
-   edm::Handle<std::vector<pat::Muon>> muons;
-   iEvent.getByToken(muonsToken_, muons);
 
-    //write muon bool
+    //write longer total charge, pT, eta, invariant mass of the four bool 
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
    iEvent.getByLabel("example",pIn);
@@ -195,7 +212,7 @@ ZmuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
-//I might just kill this guy off
+//Apparently this is needed...
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(ZmuonFilter);
