@@ -133,6 +133,7 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   //Flag initializations for each event 
   bool flagAtLeast4Mu = false; 
+  std::cout << "flagAtLeast4Mu is initialized to: " << flagAtLeast4Mu << std::endl;
   
   //write number of muons bool
    if ((int)muons->size() <= 3){
