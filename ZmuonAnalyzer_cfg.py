@@ -2,6 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("analysis")
 
+options = VarParsing.VarParsing("analysis")
+
+#List of Options
+options.register( "applyZmuonFilter",
+    True,
+    VarParsing.VarParsing.multiplicity.singleton,
+    "Shall we prefilter out some events and never bother giving them to the analyzer? Defaults to True."
+)
+
+
 process.ZmuonAnalyzer = cms.EDAnalyzer("ZmuonAnalyzer",
    muonCollection = cms.InputTag("slimmedMuons"),
    electronCollection = cms.InputTag("slimmedElectrons"),
