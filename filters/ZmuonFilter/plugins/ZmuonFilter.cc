@@ -34,10 +34,14 @@
 //By these I mean things like PhysicsTools, DataFormats, then what you use specifically you specify here in the .cc
 //so for example in my BuildFile.xml I have: <use name="PhysicsTools/UtilAlgos"/> and then here I have stuff that comes out of PhysicsTools
 //Ask John to elaborate on this because I have for instance DataFormats/VertexReco in my BuildFile.xml but then here I actually use DataFormats/PatCandidates and it doesn't complain...
+//I think the answer at this point (after talking to John) is: this is done on a wing and a prayer, maybe ask K.P. later this week
+
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
-
 #include "PhysicsTools/PatUtils/interface/TriggerHelper.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+
+
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -53,8 +57,6 @@ class ZmuonFilter : public edm::stream::EDFilter<> {
       ~ZmuonFilter();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-//I might just want to kill off the fillDescriptions
-//Do I want to kill off beginStream and endStream? I might just leave them, unlike fillDescriptions I don't think leaving them will mess anything up
 
    private:
       virtual void beginStream(edm::StreamID) override;
@@ -64,6 +66,7 @@ class ZmuonFilter : public edm::stream::EDFilter<> {
       edm::EDGetTokenT<std::vector<pat::Muon>> muonsToken_;
       edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
       edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
+      std::vector<std::string> triggerlist;
 
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -135,31 +138,51 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool flagAtLeast4Mu = false; 
   std::cout << "flagAtLeast4Mu is initialized to: " << flagAtLeast4Mu << std::endl;
   
-  //write number of muons bool
+  bool flagPassTrigger = false;
+  std::cout << "flagPassTrigger is initialized to: " << flagPassTrigger << std::endl;
+  
+  //Check if there are at least four mu in the event
    if ((int)muons->size() <= 3){
-       return false;
-        }
-    else if  ((int)muons->size() > 3){ 
+       return false; // If there are not at least four muons, the filter function will return false 
+    }
+   else { 
         flagAtLeast4Mu = true;
     
-          }
-          
-        
-   //write trigger 
-   //
-   //
+    }
+   
+   //Check triggers
+   triggerlist.clear();
+   for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
+       if (triggerBits->accept(i)) {
+           triggerlist.push_back(names.triggerName(i));
+           std::string str (names.triggerName(i));
+           std::string str2 ("Mu"); //Need to change this to DiMu to match what we are going to change it to, but keep this for now
+           std::size_t foundMu = str.find(str2);
+//           std::cout << "Defined foundMu" <<  foundMu << std::endl;
+           
+           if (foundMu != std::string::npos) {
+               flagPassTrigger = true;
+           }
+                
+         }
+    
+   if (!flagPassTrigger) { //If, after going through all the trigger bits, we have not switched the flagPassTrigger to true and it is still false, reject the event 
+       return false;
+   } 
+   }
+   
 
     //write longer total charge, pT, eta, invariant mass of the four bool 
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-#endif
-
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
-   return true;
+// #ifdef THIS_IS_AN_EVENT_EXAMPLE
+//    Handle<ExampleData> pIn;
+//    iEvent.getByLabel("example",pIn);
+// #endif
+// 
+// #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
+//    ESHandle<SetupData> pSetup;
+//    iSetup.get<SetupRecord>().get(pSetup);
+// #endif
+   return false;
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
