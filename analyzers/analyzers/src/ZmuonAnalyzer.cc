@@ -536,7 +536,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // high pt muons - low pt muons
 //  if (!nontriggeredevent)
-   if ((int)muons->size()>3 && !keepevent && doit) { //Fixed bug, initially we accidentally were demanding 6 mu, now we have it right Shouldn't there be four muons in this final state, so anything with size over 3 should be ok? I think doit is not really doing anything here. And keepevent apparently should be false, so except for the six muon thing, I think this line is ok
+   if ((int)muons->size()>3 && !keepevent && doit) { //Fixed bug, initially we accidentally were demanding 6 mu, now we have it right Shouldn't there be four muons in this final state, so anything with size over 3 should be ok? I think doit is not really doing anything here. And keepevent apparently should be false, so except for the six muon thing, I think this line is ok. Also note that changing this to 3 exposed a weakness/lack of protection in the code in the Lxy part. Sometimes dimuon1vtx_xpos is empty, so needed to add a statement right before the Lxy part that tells the code to continue if dimuon1vtx_xpos is empty to prevent things from blowing up
      bool save_event = false;
      for (auto iM1 = muons->begin(); iM1 != muons->end(); ++iM1) {
       for (auto iM2 = iM1+1; iM2 != muons->end(); ++iM2) {
@@ -777,6 +777,11 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                   } else
                     dimuon2vtx.push_back(-1000.);
 
+                }
+                //protection here in case dimuon1vtx_xpos does not exist. without this protection, code fails with an unhelpful complaint about vector sizes. S.L. taught me with these kinds of errors, check the vectors first and see what is unprotected (like this was)
+                //I also put in an analogous protection for diumuon2vtx_xpos
+                if (dimuon1vtx_xpos.size()==0 || dimuon2vtx_xpos.size()==0){
+                    continue;
                 }
 
                 // Lxy part
