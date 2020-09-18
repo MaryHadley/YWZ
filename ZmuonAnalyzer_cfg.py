@@ -5,6 +5,8 @@ process = cms.Process("analysis")
 
 options = VarParsing.VarParsing("analysis")
 
+
+
 #List of Options
 options.register( "applyZmuonFilter",
     True,
@@ -13,6 +15,9 @@ options.register( "applyZmuonFilter",
     "Shall we prefilter out some events and never bother giving them to the analyzer? Defaults to True."
 )
 
+# This needs to go here, after we have defined all the options!
+options.parseArguments()
+print "Options are:", options
 
 process.ZmuonAnalyzer = cms.EDAnalyzer("ZmuonAnalyzer",
    muonCollection = cms.InputTag("slimmedMuons"),
@@ -25,6 +30,13 @@ process.ZmuonAnalyzer = cms.EDAnalyzer("ZmuonAnalyzer",
    pfCands = cms.InputTag("packedPFCandidates")
 
 )
+
+if options.applyZmuonFilter:
+   process.ZmuonFilter = cms.EDFilter("ZmuonFilter",
+     muonCollection = cms.InputTag("slimmedMuons"),
+     bits = cms.InputTag("TriggerResults","", "HLT"),
+     objects = cms.InputTag("selectedPatTrigger"),
+  )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -40,7 +52,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string("mc_ZUpsi_mary_16Sept2020_muBugCorrected.root")
+   fileName = cms.string("mc_ZUpsi_mary_16Sept2020_muBugCorrected_filterApplied.root")
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -60,8 +72,16 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 #                    destinations   = cms.untracked.vstring('messages.txt')
 #)
 
-process.p = cms.Path(
-   process.ZmuonAnalyzer
+if options.applyZmuonFilter:
+    process.p = cms.Path(
+        process.ZmuonFilter * process.ZmuonAnalyzer
+        )
+
+else:
+
+
+    process.p = cms.Path(
+        process.ZmuonAnalyzer
 )
 
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
