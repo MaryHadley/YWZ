@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing #https://twiki.cern.ch/CMSPublic/SWGuideAboutPythonConfigFile#Passing_Command_Line_Arguments_T
 
 process = cms.Process("analysis")
 
@@ -8,6 +9,7 @@ options = VarParsing.VarParsing("analysis")
 options.register( "applyZmuonFilter",
     True,
     VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.bool,
     "Shall we prefilter out some events and never bother giving them to the analyzer? Defaults to True."
 )
 
@@ -38,7 +40,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string("mc_ZUpsi_mary_25August2020.root")
+   fileName = cms.string("mc_ZUpsi_mary_16Sept2020_muBugCorrected.root")
 )
 
 process.maxEvents = cms.untracked.PSet(

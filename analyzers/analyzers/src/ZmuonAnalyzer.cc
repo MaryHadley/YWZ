@@ -536,7 +536,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // high pt muons - low pt muons
 //  if (!nontriggeredevent)
-   if ((int)muons->size()>5 && !keepevent && doit) { //BUG? Shouldn't there be four muons in this final state, so anything with size over 3 should be ok? I think doit is not really doing anything here. And keepevent apparently should be false, so except for the six muon thing, I think this line is ok
+   if ((int)muons->size()>3 && !keepevent && doit) { //Fixed bug, initially we accidentally were demanding 6 mu, now we have it right Shouldn't there be four muons in this final state, so anything with size over 3 should be ok? I think doit is not really doing anything here. And keepevent apparently should be false, so except for the six muon thing, I think this line is ok
      bool save_event = false;
      for (auto iM1 = muons->begin(); iM1 != muons->end(); ++iM1) {
       for (auto iM2 = iM1+1; iM2 != muons->end(); ++iM2) {

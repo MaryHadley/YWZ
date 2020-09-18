@@ -162,6 +162,9 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
            
            if (foundMu != std::string::npos) {
                flagPassTrigger = true;
+               if (flagPassTrigger) { //could get rid of this if and just do a break after flagPassTrigger = true, can't decide right now which is more readable 
+                   break;
+               }
            }
                 
          }
