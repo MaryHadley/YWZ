@@ -40,6 +40,8 @@
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 #include "PhysicsTools/PatUtils/interface/TriggerHelper.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+//#include "DataFormats/HepMCCandidate/interface/GenParticle.h" //do I need this
+//#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h" //do I need this
 
 
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
@@ -66,6 +68,9 @@ class ZmuonFilter : public edm::stream::EDFilter<> {
       edm::EDGetTokenT<std::vector<pat::Muon>> muonsToken_;
       edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
       edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
+//      edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_; //do I need this
+//     edm::EDGetTokenT<pat::PackedCandidateCollection> pfToken_; //do I need this
+      
       std::vector<std::string> triggerlist;
 
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
@@ -97,6 +102,8 @@ ZmuonFilter::ZmuonFilter(const edm::ParameterSet& iConfig)
 muonsToken_        = consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muonCollection"));
 triggerBits_       = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"));
 triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("objects"));
+//genParticlesToken_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"));//do I need this
+//pfToken_ = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCands")); //do I need this
 
 //in the analyzer, we put these tokens in the analyze function as well as in the class definition like I have here, but based on Frank's example, I don't need to include then up above here, maybe because filter is a bool? Or maybe it's just not strictly necessary 
 
@@ -129,6 +136,10 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
   edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
   iEvent.getByToken(triggerObjects_, triggerObjects);
+
+//  edm::Handle<pat::PackedCandidateCollection> pfs; //do I need this
+//  iEvent.getByToken(pfToken_, pfs); //do I need this
+ 
   
   //muons
   edm::Handle<std::vector<pat::Muon>> muons;
@@ -147,21 +158,26 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
    else { 
         flagAtLeast4Mu = true;
+        std::cout << "flatAtLeasat4Mu is true" << std::endl;
     
     }
    
    //Check triggers
    triggerlist.clear();
    for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
+       std::cout << triggerBits->size() << std::endl;
        if (triggerBits->accept(i)) {
+           std::cout << "Got here" << std::endl;
            triggerlist.push_back(names.triggerName(i));
            std::string str (names.triggerName(i));
+           std::cout << "str is: " << str << std::endl;
            std::string str2 ("Mu"); //Need to change this to DiMu to match what we are going to change it to, but keep this for now
            std::size_t foundMu = str.find(str2);
 //           std::cout << "Defined foundMu" <<  foundMu << std::endl;
            
            if (foundMu != std::string::npos) {
                flagPassTrigger = true;
+               std::cout << "flagPassTrigger is true!" << std::endl;
                if (flagPassTrigger) { //could get rid of this if and just do a break after flagPassTrigger = true, can't decide right now which is more readable 
                    break;
                }
@@ -169,10 +185,16 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 
          }
     
-   if (!flagPassTrigger) { //If, after going through all the trigger bits, we have not switched the flagPassTrigger to true and it is still false, reject the event 
+
+    }
+ //  if (!flagPassTrigger) { //If, after going through all the trigger bits, we have not switched the flagPassTrigger to true and it is still false, reject the event 
+  //     return false;
+//   } 
+//   }
+
+ if (!flagPassTrigger) { //If, after going through all the trigger bits, we have not switched the flagPassTrigger to true and it is still false, reject the event 
        return false;
-   } 
-   }
+  }
    
 
     //write longer total charge, pT, eta, invariant mass of the four bool 
@@ -185,7 +207,7 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //    ESHandle<SetupData> pSetup;
 //    iSetup.get<SetupRecord>().get(pSetup);
 // #endif
-   return false;
+   return true; //put this back to false in final version
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------

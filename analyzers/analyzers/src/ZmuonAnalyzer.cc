@@ -454,6 +454,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (triggerBits->accept(i)) {
       triggerlist.push_back(names.triggerName(i));
       std::string str (names.triggerName(i));
+      std::cout << "str is :" << str << std::endl;
       std::string str2 ("Ele");
       std::string str3 ("Mu");
       std::size_t foundEle = str.find(str2);
