@@ -68,11 +68,12 @@ class ZmuonFilter : public edm::stream::EDFilter<> {
       edm::EDGetTokenT<std::vector<pat::Muon>> muonsToken_;
       edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
       edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
-//      edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_; //do I need this
-//     edm::EDGetTokenT<pat::PackedCandidateCollection> pfToken_; //do I need this
+
       
       std::vector<std::string> triggerlist;
-
+      double pTCut, etaCut, invMass4MuCut; 
+      
+      double muon_mass = 0.1056583715; 
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -102,10 +103,10 @@ ZmuonFilter::ZmuonFilter(const edm::ParameterSet& iConfig)
 muonsToken_        = consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muonCollection"));
 triggerBits_       = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("bits"));
 triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("objects"));
-//genParticlesToken_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"));//do I need this
-//pfToken_ = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCands")); //do I need this
 
-//in the analyzer, we put these tokens in the analyze function as well as in the class definition like I have here, but based on Frank's example, I don't need to include then up above here, maybe because filter is a bool? Or maybe it's just not strictly necessary 
+pTCut = iConfig.getParameter<double>("pTCut");
+etaCut = iConfig.getParameter<double>("etaCut");
+invMass4MuCut = iConfig.getParameter<double>("invMass4MuCut");
 
 }
 
@@ -183,19 +184,55 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                }
            }
                 
-         }
+        }
     
 
-    }
- //  if (!flagPassTrigger) { //If, after going through all the trigger bits, we have not switched the flagPassTrigger to true and it is still false, reject the event 
-  //     return false;
-//   } 
-//   }
+  }
 
  if (!flagPassTrigger) { //If, after going through all the trigger bits, we have not switched the flagPassTrigger to true and it is still false, reject the event 
        return false;
   }
-   
+  
+  
+  
+  bool flagTotCharge_pT_Eta_InvMassOf4Mu = false; 
+  std::cout << "flagTotCharge_pT_Eta_InvMassOf4Mu is initialized to: " << flagTotCharge_pT_Eta_InvMassOf4Mu << std::endl; 
+  
+  for (auto iM1 = muons->begin(); iM1 != muons->end(); ++iM1) {
+      if  (flagTotCharge_pT_Eta_InvMassOf4Mu) break;  
+      for (auto iM2 = iM1+1; iM2 != muons->end(); ++iM2) {
+          if (flagTotCharge_pT_Eta_InvMassOf4Mu) break; 
+          for (auto iM3 = iM2+1; iM3 != muons->end(); ++iM3) {
+              if (flagTotCharge_pT_Eta_InvMassOf4Mu) break; 
+              for (auto iM4 = iM3+1; iM4 != muons->end(); ++iM4) {
+                  math::PtEtaPhiMLorentzVector lepton1(iM1->pt(), iM1->eta(), iM1->phi(), muon_mass);
+                  math::PtEtaPhiMLorentzVector lepton2(iM2->pt(), iM2->eta(), iM2->phi(), muon_mass);
+                  math::PtEtaPhiMLorentzVector lepton3(iM3->pt(), iM3->eta(), iM3->phi(), muon_mass);
+                  math::PtEtaPhiMLorentzVector lepton4(iM4->pt(), iM4->eta(), iM4->phi(), muon_mass);
+                  if (iM1->charge() + iM2->charge() + iM3->charge() + iM4->charge() == 0
+                   && iM1->pt() >= pTCut && iM2->pt() >= pTCut && iM3->pt() >= pTCut && iM4->pt() >= pTCut
+                    && iM1->eta() <= etaCut && iM2->eta() <= etaCut && iM3->eta() <= etaCut && iM4->eta() <= etaCut
+                    && (lepton1 + lepton2 + lepton3 + lepton4).mass() >= invMass4MuCut) {
+                   
+                    flagTotCharge_pT_Eta_InvMassOf4Mu = true;
+                    if (flagTotCharge_pT_Eta_InvMassOf4Mu) break;
+                  }
+                    
+             }  
+         }          
+            
+     }
+ }
+  
+  if (!flagTotCharge_pT_Eta_InvMassOf4Mu) { //If, after going through all the sets of 4 mu, we have not flipped our flagTotCharge_pT_Eta_InvMassOf4Mu to true, reject the event
+      return false;
+  }
+  
+  if (flagAtLeast4Mu && flagPassTrigger && flagTotCharge_pT_Eta_InvMassOf4Mu) {
+       return true;
+  }
+          
+      
 
     //write longer total charge, pT, eta, invariant mass of the four bool 
 // #ifdef THIS_IS_AN_EVENT_EXAMPLE
@@ -207,7 +244,7 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //    ESHandle<SetupData> pSetup;
 //    iSetup.get<SetupRecord>().get(pSetup);
 // #endif
-   return true; //put this back to false in final version
+   return false; //this bool defaults to false //I do not think it should ever get down here, I think it should return true or false before then, but I guess it is a protection
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
@@ -258,9 +295,15 @@ void
 ZmuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
+  
+  //Since I do NOT have a cfi, I think I cannot use this and should just leave the default stuff, which is setUnkown and addDefault
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+//  desc.add<double>("ptCut", 0);
+//  desc.add<double>("etaCut", 4);
+ // desc.add<double>("invMass4MuCut", 0);
+ // descriptions.add("filter ZtoMuMu", desc);
+desc.setUnknown();
+descriptions.addDefault(desc);
 //Apparently this is needed...
 }
 //define this as a plug-in

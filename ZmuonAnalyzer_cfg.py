@@ -38,6 +38,9 @@ if options.applyZmuonFilter:
      objects = cms.InputTag("selectedPatTrigger"),
 #     genParticles = cms.InputTag("prunedGenParticles"), #not needed here
 #     pfCands = cms.InputTag("packedPFCandidates")  #not needed here
+     pTCut = cms.double(0.),
+     etaCut = cms.double(4.),
+     invMass4MuCut = cms.double(0.),
   )
 
 process.source = cms.Source("PoolSource",
@@ -54,7 +57,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string("mc_ZUpsi_mary_20Sept2020_muBugCorrected_filterApplied_check1.root")
+   fileName = cms.string("mc_ZUpsi_mary_20Sept2020_muBugCorrected_filterApplied_check2.root")
 )
 
 process.maxEvents = cms.untracked.PSet(
