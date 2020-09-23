@@ -211,7 +211,7 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                   math::PtEtaPhiMLorentzVector lepton4(iM4->pt(), iM4->eta(), iM4->phi(), muon_mass);
                   if (iM1->charge() + iM2->charge() + iM3->charge() + iM4->charge() == 0
                    && iM1->pt() >= pTCut && iM2->pt() >= pTCut && iM3->pt() >= pTCut && iM4->pt() >= pTCut
-                    && iM1->eta() <= etaCut && iM2->eta() <= etaCut && iM3->eta() <= etaCut && iM4->eta() <= etaCut
+                    && fabs(iM1->eta()) <= etaCut && fabs(iM2->eta()) <= etaCut && fabs(iM3->eta()) <= etaCut && fabs(iM4->eta()) <= etaCut
                     && (lepton1 + lepton2 + lepton3 + lepton4).mass() >= invMass4MuCut) {
                    
                     flagTotCharge_pT_Eta_InvMassOf4Mu = true;
@@ -229,12 +229,12 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   if (flagAtLeast4Mu && flagPassTrigger && flagTotCharge_pT_Eta_InvMassOf4Mu) {
-       return true;
+       return true; //If we have found at least four muons in the event, the event has passed our trigger of interest, and we can find at least one quartet of muons that satisfies our pT, eta, total charge, and total invariant mass of the four requirements, keep the event to pass to the analyzer!
   }
           
       
-
-    //write longer total charge, pT, eta, invariant mass of the four bool 
+//Some examples of how to do things that might be helpful for reference.
+    
 // #ifdef THIS_IS_AN_EVENT_EXAMPLE
 //    Handle<ExampleData> pIn;
 //    iEvent.getByLabel("example",pIn);
@@ -244,6 +244,9 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //    ESHandle<SetupData> pSetup;
 //    iSetup.get<SetupRecord>().get(pSetup);
 // #endif
+
+
+
    return false; //this bool defaults to false //I do not think it should ever get down here, I think it should return true or false before then, but I guess it is a protection
 }
 
@@ -296,15 +299,25 @@ ZmuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   
-  //Since I do NOT have a cfi, I think I cannot use this and should just leave the default stuff, which is setUnkown and addDefault
+  
   edm::ParameterSetDescription desc;
-//  desc.add<double>("ptCut", 0);
-//  desc.add<double>("etaCut", 4);
- // desc.add<double>("invMass4MuCut", 0);
- // descriptions.add("filter ZtoMuMu", desc);
-desc.setUnknown();
-descriptions.addDefault(desc);
-//Apparently this is needed...
+//  desc.setUnknown(); // comment back in if you want to go to the default of not knowing what parameters are allowed so do no validation
+//descriptions.addDefault(desc); // // comment back in if you want to go to the default of not knowing what parameters are allowed so do no validation
+//If you wanted to do no validation, comment out all the stuff that is specific to this EDFilter, so muonCollection all the way through the  descriptions.add("ZmuonFilter", desc); line
+
+
+//Needed parameters for the ZmuonFilter 
+ //all values provided are default paramters that can be overwritten in the cfg (probably will never overwrite what muonCollection, bits, and objects are, will change and tune the <blah>Cut variables
+ 
+ desc.add<edm::InputTag>("muonCollection",edm::InputTag("slimmedMuons"));
+ desc.add<edm::InputTag>("bits",edm::InputTag("TriggerResults","", "HLT"));
+ desc.add<edm::InputTag>("objects",edm::InputTag("selectedPatTrigger"));
+ desc.add<double>("pTCut", 0); //these values provided for ptCut, etaCut, invMass4MuCut are defaults and will be overwritten by what you put in the cfg
+ desc.add<double>("etaCut", 4); //I have put in really loose cuts that basically do nothing here
+ desc.add<double>("invMass4MuCut", 0); //Thank you to Gabriele Benelli and Jan-Frederik Schulte for their tips on getting this fillDescription part working!
+descriptions.add("ZmuonFilter", desc);
+
+
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(ZmuonFilter);

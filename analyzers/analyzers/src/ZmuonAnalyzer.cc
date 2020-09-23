@@ -342,7 +342,8 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 // **************************************************
 // FLAG FOR ASSOCIATED PRODUCTION OR RESONANCE SEARCH
 // **************************************************
-   bool mc = true;
+  // bool mc = true;
+  bool mc = false; //testing 2018A SingleMu data
    //will need to add something to do if mc is not true aka how to handle the data
 
    triggerlist.clear();
