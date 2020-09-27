@@ -455,7 +455,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (triggerBits->accept(i)) {
       triggerlist.push_back(names.triggerName(i));
       std::string str (names.triggerName(i));
-      std::cout << "str is :" << str << std::endl;
+ //     std::cout << "str is :" << str << std::endl;
       std::string str2 ("Ele");
       std::string str3 ("Mu");
       std::size_t foundEle = str.find(str2);
@@ -795,7 +795,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 vtx2.SetXYZ(dimuon2vtx_xpos.at(0),dimuon2vtx_ypos.at(0),0);
                 TVector3 vdiff1 = vtx1 - pvtx;
                 TVector3 vdiff2 = vtx2 - pvtx;
-                VertexDistanceXY vdistXY1, vdistXY2;
+                VertexDistanceXY vdistXY1, vdistXY2; //look up VertexDistanceXY documentation here: https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/NanoAOD/plugins/VertexTableProducer.cc, that is for NanoAOD but likely the right idea
                 Measurement1D distXY1, distXY2;
                 double cosAlphaXY1, cosAlphaXY2;
                 if (match_13_24_56) {
@@ -820,6 +820,19 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                   cosAlphaXY2 = vdiff2.Dot(pperp2)/(vdiff2.Perp()*pperp2.Perp());
                   dimuon1lxyctauPV.push_back (distXY1.value()*cosAlphaXY1 * (lepton1+lepton4).mass()/pperp1.Perp()); 
                   dimuon2lxyctauPV.push_back (distXY2.value()*cosAlphaXY2 * (lepton2+lepton3).mass()/pperp2.Perp());
+                  dimuon1lxy.push_back(distXY1.value()); dimuon1lxysig.push_back(distXY1.value()/distXY1.error());
+                  dimuon2lxy.push_back(distXY2.value()); dimuon2lxysig.push_back(distXY2.value()/distXY2.error());
+                }
+                
+                if (match_12_34_56) {
+                  TVector3 pperp1((lepton1+lepton2).px(), (lepton1+lepton2).py(), 0); 
+                  TVector3 pperp2((lepton3+lepton4).px(), (lepton3+lepton4).py(), 0);
+                  distXY1 = vdistXY1.distance(vtx12.vertexState(), primary_vertex);
+                  distXY2 = vdistXY2.distance(vtx34.vertexState(), primary_vertex);
+                  cosAlphaXY1 = vdiff1.Dot(pperp1)/(vdiff1.Perp()*pperp1.Perp());
+                  cosAlphaXY2 = vdiff2.Dot(pperp2)/(vdiff2.Perp()*pperp2.Perp());
+                  dimuon1lxyctauPV.push_back (distXY1.value()*cosAlphaXY1 * (lepton1+lepton2).mass()/pperp1.Perp()); 
+                  dimuon2lxyctauPV.push_back (distXY2.value()*cosAlphaXY2 * (lepton3+lepton4).mass()/pperp2.Perp());
                   dimuon1lxy.push_back(distXY1.value()); dimuon1lxysig.push_back(distXY1.value()/distXY1.error());
                   dimuon2lxy.push_back(distXY2.value()); dimuon2lxysig.push_back(distXY2.value()/distXY2.error());
                 }
@@ -932,7 +945,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     std::vector<double> Z_pt_found;
     Z_pt_found.clear();
     
-    std::cout << "upsi_pt_found.size() initially:  " << upsi_pt_found.size() <<std::endl; //Mary added for testing 
+//    std::cout << "upsi_pt_found.size() initially:  " << upsi_pt_found.size() <<std::endl; //Mary added for testing 
     //QUESTION!: I probably just missed something, but is there a reason you don't fill the upsi_pt_found until line 953 (similar question for Z_pt_found). I guess I'm not sure what this loop 
     //is doing, you said it was a protection against the pythia weirdos (when pythia has a lot of things with similar pT/eta) but I'm not sure I'm understanding what's going on here
     //wouldn't it make more sense to test the truth pT of the mc particle versus the reco pT of the mc particle?
@@ -946,7 +959,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         for (int iupsi = 0; iupsi < (int)upsi_pt_found.size(); iupsi++) {
           if (TMath::Abs( gen_particle->pt() - upsi_pt_found.at(iupsi) ) < 0.1)
             registered_upsi = true;
-          std::cout << "diff " << (TMath::Abs( gen_particle->pt() - upsi_pt_found.at(iupsi) )) << std::endl; //mary added for testing/understanding this loop
+//          std::cout << "diff " << (TMath::Abs( gen_particle->pt() - upsi_pt_found.at(iupsi) )) << std::endl; //mary added for testing/understanding this loop
         }
         for (size_t j = 0; j < gen_particle->numberOfDaughters(); ++j) {
           if (TMath::Abs(gen_particle->daughter(j)->pdgId()) == MUON && !registered_upsi) {
@@ -961,10 +974,10 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           }
         }
         upsi_pt_found  .push_back(gen_particle->pt());
-        std::cout << "upsi_pt_found.size() now: " << upsi_pt_found.size() << std::endl; //mary added for testing 
-        for (unsigned int i = 0; i < upsi_pt_found.size(); i++) {
-        std::cout<< "upsi_pt_found.at(i): " << upsi_pt_found.at(i) << std::endl; 
-        }
+//        std::cout << "upsi_pt_found.size() now: " << upsi_pt_found.size() << std::endl; //mary added for testing 
+//        for (unsigned int i = 0; i < upsi_pt_found.size(); i++) {
+ //       std::cout<< "upsi_pt_found.at(i): " << upsi_pt_found.at(i) << std::endl; 
+ //       }
       }
       if (gen_particle->pdgId() == Z) {
         for (int iZ = 0; iZ < (int)Z_pt_found.size(); iZ++) {

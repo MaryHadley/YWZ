@@ -148,10 +148,10 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   //Flag initializations for each event 
   bool flagAtLeast4Mu = false; 
-  std::cout << "flagAtLeast4Mu is initialized to: " << flagAtLeast4Mu << std::endl;
+//  std::cout << "flagAtLeast4Mu is initialized to: " << flagAtLeast4Mu << std::endl;
   
   bool flagPassTrigger = false;
-  std::cout << "flagPassTrigger is initialized to: " << flagPassTrigger << std::endl;
+//  std::cout << "flagPassTrigger is initialized to: " << flagPassTrigger << std::endl;
   
   //Check if there are at least four mu in the event
    if ((int)muons->size() <= 3){
@@ -166,12 +166,12 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //Check triggers
    triggerlist.clear();
    for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
-       std::cout << triggerBits->size() << std::endl;
+//       std::cout << triggerBits->size() << std::endl;
        if (triggerBits->accept(i)) {
-           std::cout << "Got here" << std::endl;
+//           std::cout << "Got here" << std::endl;
            triggerlist.push_back(names.triggerName(i));
            std::string str (names.triggerName(i));
-           std::cout << "str is: " << str << std::endl;
+//           std::cout << "str is: " << str << std::endl;
            std::string str2 ("Mu"); //Need to change this to DiMu to match what we are going to change it to, but keep this for now
            std::size_t foundMu = str.find(str2);
 //           std::cout << "Defined foundMu" <<  foundMu << std::endl;
@@ -196,7 +196,7 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   
   bool flagTotCharge_pT_Eta_InvMassOf4Mu = false; 
-  std::cout << "flagTotCharge_pT_Eta_InvMassOf4Mu is initialized to: " << flagTotCharge_pT_Eta_InvMassOf4Mu << std::endl; 
+//  std::cout << "flagTotCharge_pT_Eta_InvMassOf4Mu is initialized to: " << flagTotCharge_pT_Eta_InvMassOf4Mu << std::endl; 
   
   for (auto iM1 = muons->begin(); iM1 != muons->end(); ++iM1) {
       if  (flagTotCharge_pT_Eta_InvMassOf4Mu) break;  

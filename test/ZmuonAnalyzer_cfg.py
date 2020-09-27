@@ -45,21 +45,21 @@ if options.applyZmuonFilter:
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
- #                                         "file:../../../miniAOD_01.root",
-#                                          "file:../../../miniAOD_02.root",
-#                                          "file:../../../miniAOD_03.root",
-#                                          "file:../../../miniAOD_04.root",
-#                                          "file:../../../miniAOD_05.root",
-#                                          "file:../../../miniAOD_06.root"
-#                                          "file:../../../miniAOD_lowStats.root",
+                                          "file:../../../miniAOD_01.root",
+                                          "file:../../../miniAOD_02.root",
+                                          "file:../../../miniAOD_03.root",
+                                          "file:../../../miniAOD_04.root",
+                                          "file:../../../miniAOD_05.root",
+                                          "file:../../../miniAOD_06.root"
+                                          "file:../../../miniAOD_lowStats.root",
  #                                          "file:../SingleMu_Run2018A-17Sep2018-v2_F8CDAAA9-11C7-A34F-A059-409CF95EB82A.root"
-                                            "file:../SingleMu_2017B-31Mar2018-v1_FC2B7874-F538-E811-9C29-0025905A60A8.root"
+#                                            "file:../SingleMu_2017B-31Mar2018-v1_FC2B7874-F538-E811-9C29-0025905A60A8.root"
                                       ),
    duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string("mc_ZUpsi_mary_21Sept2020_2017BSingleMuData_test.root")
+   fileName = cms.string("mc_ZUpsi_mary_27Sept2020_test.root")
 )
 
 process.maxEvents = cms.untracked.PSet(
