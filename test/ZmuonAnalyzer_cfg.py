@@ -51,7 +51,7 @@ process.source = cms.Source("PoolSource",
                                           "file:../../../miniAOD_04.root",
                                           "file:../../../miniAOD_05.root",
                                           "file:../../../miniAOD_06.root"
-                                          "file:../../../miniAOD_lowStats.root",
+#                                          "file:../../../miniAOD_lowStats.root",
  #                                          "file:../SingleMu_Run2018A-17Sep2018-v2_F8CDAAA9-11C7-A34F-A059-409CF95EB82A.root"
 #                                            "file:../SingleMu_2017B-31Mar2018-v1_FC2B7874-F538-E811-9C29-0025905A60A8.root"
                                       ),

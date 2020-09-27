@@ -151,6 +151,8 @@ private:
    std::vector<bool> pair_12_34_56;
    std::vector<bool> pair_13_24_56;
    std::vector<bool> pair_14_23_56;
+   
+   std::vector<double> inv4MuMass;
 
 };
 
@@ -293,6 +295,8 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("PVx", &PVx);
    tree->Branch("PVy", &PVy);
    tree->Branch("PVz", &PVz);
+   
+   tree->Branch("inv4MuMass", &inv4MuMass);
 
    treemc = fs->make<TTree>("treemc", "treemc");
    treemc->Branch("truth_Zmuon_pt",  &truth_Zmuon_pt);
@@ -427,6 +431,8 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    pair_12_34_56.clear();    
    pair_13_24_56.clear();    
    pair_14_23_56.clear();
+   
+   inv4MuMass.clear();
 
    truth_Zmuon_pt.clear(); 
    truth_Zmuon_eta.clear();
@@ -919,6 +925,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 lepton4_isPFMuon                   .push_back(iM4->isPFMuon());
                 lepton4_isGlobalMuon               .push_back(iM4->isGlobalMuon());
                 lepton4_isTrackerMuon              .push_back(iM4->isTrackerMuon());
+                inv4MuMass                         .push_back((lepton1 + lepton2 + lepton3 + lepton4).mass());
 
 
           }
