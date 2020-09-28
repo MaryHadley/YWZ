@@ -57,6 +57,8 @@
 #include <iostream>  // std::cout, std::endl
 #include <string>
 
+
+
 class ZmuonAnalyzer : public edm::EDAnalyzer {
 public:
 	explicit ZmuonAnalyzer(const edm::ParameterSet&);
@@ -70,6 +72,8 @@ private:
    edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
    edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
    edm::EDGetTokenT<pat::PackedCandidateCollection> pfToken_;
+   
+   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
    
    bool isMC;
 
@@ -143,7 +147,7 @@ private:
    std::vector<double> truth_Zmuon_pt, truth_Zmuon_eta, truth_Zmuon_phi;
    std::vector<double> truth_Z_pt, truth_Z_eta, truth_Z_phi, truth_Z_mass, truth_Z_pdgid;
 
-   std::vector<double> truth_Jpsimuon_pt, truth_Jpsimuon_eta, truth_Jpsimuon_phi;
+   std::vector<double> truth_Upsimuon_pt, truth_Upsimuon_eta, truth_Upsimuon_phi;
    std::vector<double> truth_Jpsi_pt, truth_Jpsi_eta, truth_Jpsi_phi, truth_Jpsi_mass;
 
    std::vector<double> truth_Jpsi_pdgid;
@@ -162,7 +166,7 @@ private:
    
    std::vector<double> big4MuVtx;
 
-};
+};  
 
 ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
 {
@@ -175,7 +179,7 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    genParticlesToken_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"));
    pfToken_ = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCands"));
    
-   isMC = iConfig.getParameter<bool>("isMC");
+   isMC = iConfig.getParameter<bool>("isMC"); // ***** MC *** gets read in from ZmuonAnalyzer_cfg!
 
    edm::Service<TFileService> fs;
    tree = fs->make<TTree>("tree", "tree");
@@ -323,9 +327,9 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    treemc->Branch("truth_Z_phi",  &truth_Z_phi);
    treemc->Branch("truth_Z_mass", &truth_Z_mass);
    treemc->Branch("truth_Z_pdgid",&truth_Z_pdgid);
-   treemc->Branch("truth_Jpsimuon_pt",  &truth_Jpsimuon_pt);
-   treemc->Branch("truth_Jpsimuon_eta", &truth_Jpsimuon_eta);
-   treemc->Branch("truth_Jpsimuon_phi", &truth_Jpsimuon_phi);
+   treemc->Branch("truth_Upsimuon_pt",  &truth_Upsimuon_pt);
+   treemc->Branch("truth_Upsimuon_eta", &truth_Upsimuon_eta);
+   treemc->Branch("truth_Upsimuon_phi", &truth_Upsimuon_phi);
    treemc->Branch("truth_Jpsi_pt",   &truth_Jpsi_pt);
    treemc->Branch("truth_Jpsi_eta",  &truth_Jpsi_eta);
    treemc->Branch("truth_Jpsi_phi",  &truth_Jpsi_phi);
@@ -363,8 +367,10 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 // FLAG FOR ASSOCIATED PRODUCTION OR RESONANCE SEARCH
 // **************************************************
   // bool mc = true;
-  bool isMC = false; //testing 2018A SingleMu data
-   //will need to add something to do if mc is not true aka how to handle the data
+  
+//  bool isMC = false; //testing 2018A SingleMu data
+//   isMC = iConfig.getParameter<bool>("isMC");
+//Recall that we get MC from the cfg setting, see:  isMC = iConfig.getParameter<bool>("isMC"); line above
 
    triggerlist.clear();
    dimuon1mass.clear(); dimuon2mass.clear();
@@ -457,9 +463,9 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    truth_Zmuon_eta.clear();
    truth_Zmuon_phi.clear();
    truth_Z_pt.clear(); truth_Z_eta.clear(); truth_Z_phi.clear(); truth_Z_mass.clear(); truth_Z_pdgid.clear();
-   truth_Jpsimuon_pt.clear(); 
-   truth_Jpsimuon_eta.clear();
-   truth_Jpsimuon_phi.clear();
+   truth_Upsimuon_pt.clear(); 
+   truth_Upsimuon_eta.clear();
+   truth_Upsimuon_phi.clear();
    truth_Jpsi_pt.clear(); truth_Jpsi_eta.clear(); truth_Jpsi_phi.clear(); truth_Jpsi_mass.clear();
 
    truth_Jpsi_pdgid.clear();  
@@ -1041,9 +1047,9 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         }
         for (size_t j = 0; j < gen_particle->numberOfDaughters(); ++j) {
           if (TMath::Abs(gen_particle->daughter(j)->pdgId()) == MUON && !registered_upsi) {
-            truth_Jpsimuon_pt .push_back(gen_particle->daughter(j)->pt());
-            truth_Jpsimuon_eta.push_back(gen_particle->daughter(j)->eta());
-            truth_Jpsimuon_phi.push_back(gen_particle->daughter(j)->phi());
+            truth_Upsimuon_pt .push_back(gen_particle->daughter(j)->pt());
+            truth_Upsimuon_eta.push_back(gen_particle->daughter(j)->eta());
+            truth_Upsimuon_phi.push_back(gen_particle->daughter(j)->phi());
             truth_Jpsi_pt  .push_back(gen_particle->pt());
             truth_Jpsi_eta .push_back(gen_particle->eta());
             truth_Jpsi_phi .push_back(gen_particle->phi());
@@ -1084,6 +1090,20 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 }
 
+void
+ZmuonAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
+{
+    // Total number of events is the sum of the events in each of these luminosity blocks 
+    edm::Handle nEventsTotalCounter;
+    iLumi.getByLabel("nEventsTotal", nEventsTotalCounter); nEventsTotal +=nEventsTotalCounter->value;
+
+    edm::Handle nEventsFilteredCounter; iLumi.getByLabel("nEventsFiltered",
+    nEventsFilteredCounter); nEventsFiltered +=nEventsFilteredCounter->value; 
+
+}
+
+
+}
 //define this as a plug-in
 DEFINE_FWK_MODULE(ZmuonAnalyzer);
 
