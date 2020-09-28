@@ -70,6 +70,8 @@ private:
    edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
    edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
    edm::EDGetTokenT<pat::PackedCandidateCollection> pfToken_;
+   
+   bool isMC;
 
    TTree * tree;
    TTree * treemc;
@@ -172,6 +174,8 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("objects"));
    genParticlesToken_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"));
    pfToken_ = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCands"));
+   
+   isMC = iConfig.getParameter<bool>("isMC");
 
    edm::Service<TFileService> fs;
    tree = fs->make<TTree>("tree", "tree");
@@ -359,7 +363,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 // FLAG FOR ASSOCIATED PRODUCTION OR RESONANCE SEARCH
 // **************************************************
   // bool mc = true;
-  bool mc = false; //testing 2018A SingleMu data
+  bool isMC = false; //testing 2018A SingleMu data
    //will need to add something to do if mc is not true aka how to handle the data
 
    triggerlist.clear();
@@ -1006,7 +1010,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 // **************
 // MC starts here
 // **************
-   if (mc) {
+   if (isMC) {
     edm::Handle<reco::GenParticleCollection> mc_particles;
     iEvent.getByToken(genParticlesToken_, mc_particles);
 

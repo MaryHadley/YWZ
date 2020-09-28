@@ -15,6 +15,14 @@ options.register( "applyZmuonFilter",
     "Shall we prefilter out some events and never bother giving them to the analyzer? Defaults to True."
 )
 
+options.register("isMC",
+    True,
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.bool,
+    "Is this simulation (aka MC) or is it data we have collected from the CMS detector? Defaults to True."
+            
+)
+
 # This needs to go here, after we have defined all the options!
 options.parseArguments()
 print "Options are:", options
@@ -27,8 +35,8 @@ process.ZmuonAnalyzer = cms.EDAnalyzer("ZmuonAnalyzer",
    genParticles = cms.InputTag("prunedGenParticles"),
    vertexCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
    metTag = cms.InputTag("slimmedMETs"),
-   pfCands = cms.InputTag("packedPFCandidates")
-
+   pfCands = cms.InputTag("packedPFCandidates"),
+   isMC   = cms.bool(options.isMC),
 )
 
 if options.applyZmuonFilter:
