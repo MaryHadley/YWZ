@@ -81,9 +81,10 @@ private:
    std::vector<double> lepton1_impactParameterSignificance;
    std::vector<bool> lepton1_isLooseMuon, lepton1_isSoftMuon, lepton1_isTightMuon;
    std::vector<bool> lepton1_isPFMuon, lepton1_isGlobalMuon, lepton1_isTrackerMuon;
-   std::vector<double> lepton1_deltaEta, lepton1_deltaPhi, lepton1_sigmaiEtaEta, lepton1_HoverE;
-   std::vector<double> lepton1_OoEmOoP, lepton1_vtxFitProb, lepton1_missingHits; //QUESTION! OoEmOop means what? //Note to self: looks these guys on this line aren't filled in yet in this code  
-
+   std::vector<double> lepton1_deltaEta, lepton1_deltaPhi, lepton1_sigmaiEtaEta, lepton1_HoverE; //these are quantities for electrons, I'm leaving the branch here for ease of recycling when we modify the code to deal with the electron channel, but in this case, they will NOT be filled since we just have mu  //see: https://twiki.cern.ch/twiki/bin/view/CMSPublic/EgammaPublicData#H_E
+   std::vector<double> lepton1_OoEmOoP, lepton1_vtxFitProb, lepton1_missingHits; //OoEmOop is 1/E - 1/P, this is an electron quantity, leaving for ease of recycling  when we make a version of the code to do the el channel. The fitProb for a single mu seems nonsensical to us right now (28 Sept. 2020) so is not filled. Waiting for confirmation about right way to implement missing hits from LPC mattermost. //anyway these quantities are probably not that important 
+   std::vector<double> lepton1_validHits;
+   
    std::vector<double> lepton2_pt, lepton2_eta, lepton2_phi;
    std::vector<double> lepton2_charge;
    std::vector<double> lepton2_d0, lepton2_dz, lepton2_dxy;
@@ -91,9 +92,10 @@ private:
    std::vector<double> lepton2_impactParameterSignificance;
    std::vector<bool> lepton2_isLooseMuon, lepton2_isSoftMuon, lepton2_isTightMuon;
    std::vector<bool> lepton2_isPFMuon, lepton2_isGlobalMuon, lepton2_isTrackerMuon;
-   std::vector<double> lepton2_deltaEta, lepton2_deltaPhi, lepton2_sigmaiEtaEta, lepton2_HoverE;
-   std::vector<double> lepton2_OoEmOoP, lepton2_vtxFitProb, lepton2_missingHits; //again, these guys don't appear to be filled yet 
-
+   std::vector<double> lepton2_deltaEta, lepton2_deltaPhi, lepton2_sigmaiEtaEta, lepton2_HoverE; //these are quantities for electrons, I'm leaving the branch here for ease of recycling when we modify the code to deal with the electron channel, but in this case, they will NOT be filled since we just have mu  //see: https://twiki.cern.ch/twiki/bin/view/CMSPublic/EgammaPublicData#H_E
+   std::vector<double> lepton2_OoEmOoP, lepton2_vtxFitProb, lepton2_missingHits; //OoEmOop is 1/E - 1/P, this is an electron quantity, leaving for ease of recycling  when we make a version of the code to do the el channel. The fitProb for a single mu seems nonsensical to us right now (28 Sept. 2020) so is not filled. Waiting for confirmation about right way to implement missing hits from LPC mattermost. //anyway these quantities are probably not that important 
+   std::vector<double> lepton2_validHits;
+   
    std::vector<double> lepton3_pt, lepton3_eta, lepton3_phi;
    std::vector<double> lepton3_charge;
    std::vector<double> lepton3_d0, lepton3_dz, lepton3_dxy;
@@ -101,8 +103,9 @@ private:
    std::vector<double> lepton3_impactParameterSignificance;
    std::vector<bool> lepton3_isLooseMuon, lepton3_isSoftMuon, lepton3_isTightMuon;
    std::vector<bool> lepton3_isPFMuon, lepton3_isGlobalMuon, lepton3_isTrackerMuon;
-   std::vector<double> lepton3_deltaEta, lepton3_deltaPhi, lepton3_sigmaiEtaEta, lepton3_HoverE;
-   std::vector<double> lepton3_OoEmOoP, lepton3_vtxFitProb, lepton3_missingHits; //again, these guys don't appear to be filled yet 
+   std::vector<double> lepton3_deltaEta, lepton3_deltaPhi, lepton3_sigmaiEtaEta, lepton3_HoverE;  //these are quantities for electrons, I'm leaving the branch here for ease of recycling when we modify the code to deal with the electron channel, but in this case, they will NOT be filled since we just have mu  //see: https://twiki.cern.ch/twiki/bin/view/CMSPublic/EgammaPublicData#H_E
+   std::vector<double> lepton3_OoEmOoP, lepton3_vtxFitProb, lepton3_missingHits;//OoEmOop is 1/E - 1/P, this is an electron quantity, leaving for ease of recycling  when we make a version of the code to do the el channel. The fitProb for a single mu seems nonsensical to us right now (28 Sept. 2020) so is not filled. Waiting for confirmation about right way to implement missing hits from LPC mattermost. //anyway these quantities are probably not that important 
+   std::vector<double> lepton3_validHits;
 
    std::vector<double> lepton4_pt, lepton4_eta, lepton4_phi;
    std::vector<double> lepton4_charge;
@@ -111,9 +114,10 @@ private:
    std::vector<double> lepton4_impactParameterSignificance;
    std::vector<bool> lepton4_isLooseMuon, lepton4_isSoftMuon, lepton4_isTightMuon;
    std::vector<bool> lepton4_isPFMuon, lepton4_isGlobalMuon, lepton4_isTrackerMuon;
-   std::vector<double> lepton4_deltaEta, lepton4_deltaPhi, lepton4_sigmaiEtaEta, lepton4_HoverE;
-   std::vector<double> lepton4_OoEmOoP, lepton4_vtxFitProb, lepton4_missingHits; //again, these guys don't appear to be filled yet 
-
+   std::vector<double> lepton4_deltaEta, lepton4_deltaPhi, lepton4_sigmaiEtaEta, lepton4_HoverE; //these are quantities for electrons, I'm leaving the branch here for ease of recycling when we modify the code to deal with the electron channel, but in this case, they will NOT be filled since we just have mu  //see: https://twiki.cern.ch/twiki/bin/view/CMSPublic/EgammaPublicData#H_E
+   std::vector<double> lepton4_OoEmOoP, lepton4_vtxFitProb, lepton4_missingHits; //OoEmOop is 1/E - 1/P, this is an electron quantity, leaving for ease of recycling  when we make a version of the code to do the el channel. The fitProb for a single mu seems nonsensical to us right now (28 Sept. 2020) so is not filled. Waiting for confirmation about right way to implement missing hits from LPC mattermost. //anyway these quantities are probably not that important 
+   std::vector<double> lepton4_validHits;
+   
    std::vector<double> dimuon1mass, dimuon2mass;
    std::vector<double> dimuon1pt,   dimuon2pt ;
    std::vector<double> dimuon1eta,  dimuon2eta;
@@ -153,6 +157,8 @@ private:
    std::vector<bool> pair_14_23_56;
    
    std::vector<double> inv4MuMass;
+   
+   std::vector<double> big4MuVtx;
 
 };
 
@@ -297,6 +303,12 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("PVz", &PVz);
    
    tree->Branch("inv4MuMass", &inv4MuMass);
+   tree->Branch("big4MuVtx", &big4MuVtx);
+   
+   tree->Branch("lepton1_validHits", &lepton1_validHits);
+   tree->Branch("lepton2_validHits", &lepton2_validHits);
+   tree->Branch("lepton3_validHits", &lepton3_validHits);
+   tree->Branch("lepton4_validHits", &lepton4_validHits);
 
    treemc = fs->make<TTree>("treemc", "treemc");
    treemc->Branch("truth_Zmuon_pt",  &truth_Zmuon_pt);
@@ -433,6 +445,9 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    pair_14_23_56.clear();
    
    inv4MuMass.clear();
+   big4MuVtx.clear();
+   
+   lepton1_validHits.clear(); lepton2_validHits.clear(); lepton3_validHits.clear(); lepton4_validHits.clear();
 
    truth_Zmuon_pt.clear(); 
    truth_Zmuon_eta.clear();
@@ -587,7 +602,11 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 //                if (iM3->isGlobalMuon()==false || iM4->isGlobalMuon()==false)
 //                  continue;
                //QUESTION! How did we come up with the dz = 20 and  dxy = 1 cuts?
-
+               
+               
+                
+                
+                
                 math::PtEtaPhiMLorentzVector lepton1(iM1->pt(), iM1->eta(), iM1->phi(), muon_mass);
                 math::PtEtaPhiMLorentzVector lepton2(iM2->pt(), iM2->eta(), iM2->phi(), muon_mass);
                 math::PtEtaPhiMLorentzVector lepton3(iM3->pt(), iM3->eta(), iM3->phi(), muon_mass);
@@ -713,21 +732,58 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 std::vector<reco::TransientTrack> transient_tracks_muon24; transient_tracks_muon24.clear(); 
                 std::vector<reco::TransientTrack> transient_tracks_muon34; transient_tracks_muon34.clear(); 
                 
-
+        
                 transient_tracks_muon12.push_back((*builder).build(track1.get())); transient_tracks_muon12.push_back((*builder).build(track2.get()));
                 transient_tracks_muon13.push_back((*builder).build(track1.get())); transient_tracks_muon13.push_back((*builder).build(track3.get()));
                 transient_tracks_muon14.push_back((*builder).build(track1.get())); transient_tracks_muon14.push_back((*builder).build(track4.get()));
                 transient_tracks_muon23.push_back((*builder).build(track2.get())); transient_tracks_muon23.push_back((*builder).build(track3.get()));
                 transient_tracks_muon24.push_back((*builder).build(track2.get())); transient_tracks_muon24.push_back((*builder).build(track4.get()));
                 transient_tracks_muon34.push_back((*builder).build(track3.get())); transient_tracks_muon34.push_back((*builder).build(track4.get()));
+                
+                //build big 4 mu Vertex
+                
+                std::vector<reco::TransientTrack> transient_tracks_muon1234; transient_tracks_muon1234.clear();
+                transient_tracks_muon1234.push_back((*builder).build(track1.get())); transient_tracks_muon1234.push_back((*builder).build(track2.get())); 
+                transient_tracks_muon1234.push_back((*builder).build(track3.get())); transient_tracks_muon1234.push_back((*builder).build(track4.get()));
+                
+                 //build the tracks for each muon // the stuff for single muons is currently non-compiling garbage and S.L. and I aren't even sure what we would want to build the vertex wrt, so commenting out and if we ever figure out what we meant, then we can fix and uncomment in 
+             //    std::vector<reco::TransientTrack> transient_tracks_muon1; transient_tracks_muon1.clear();
+//                 std::vector<reco::TransientTrack> transient_tracks_muon2; transient_tracks_muon2.clear();
+//                 std::vector<reco::TransientTrack> transient_tracks_muon3; transient_tracks_muon3.clear();
+//                 std::vector<reco::TransientTrack> transient_tracks_muon4; transient_tracks_muon4.clear();
+//                 
+//                 transient_tracks_muon1.push_back((*builder).build(track1.get())); 
+//                 transient_tracks_muon2.push_back((*builder).build(track2.get()));
+//                 transient_tracks_muon3.push_back((*builder).build(track3.get()));
+//                 transient_tracks_muon4.push_back((*builder).build(track4.get()));
+//                 
+                
 
                 KalmanVertexFitter kalman_fitter;
+                //diumon vertices
                 TransientVertex vtx12; vtx12 = kalman_fitter.vertex(transient_tracks_muon12);
                 TransientVertex vtx13; vtx13 = kalman_fitter.vertex(transient_tracks_muon13);
                 TransientVertex vtx14; vtx14 = kalman_fitter.vertex(transient_tracks_muon14);
                 TransientVertex vtx23; vtx23 = kalman_fitter.vertex(transient_tracks_muon23);
                 TransientVertex vtx24; vtx24 = kalman_fitter.vertex(transient_tracks_muon24);
                 TransientVertex vtx34; vtx34 = kalman_fitter.vertex(transient_tracks_muon34);
+                
+                //big 4 mu vtx
+                TransientVertex vtx1234; vtx1234 = kalman_fitter.vertex(transient_tracks_muon1234);
+                
+                if (vtx1234.isValid()) {
+                   big4MuVtx.push_back(TMath::Prob(vtx1234.totalChiSquared(), int(vtx1234.degreesOfFreedom())));
+                
+                }
+                
+                else
+                   big4MuVtx.push_back(-1000.);
+                   
+                   //more of the single mu stuff that is currently meaningless, maybe someday it will find its raison d'etre 
+        //        TransientVertex vtx1; vtx1 = kalman_fitter.vertex(transient_tracks_muon1);
+            //    TransientVertex vtx2; vtx2 = kalman_fitter.vertex(transient_tracks_muon2);
+             //   TransientVertex vtx3; vtx3 = kalman_fitter.vertex(transient_tracks_muon3);
+              //  TransientVertex vtx4; vtx4 = kalman_fitter.vertex(transient_tracks_muon4);
                 
                 //get vertex info for the pair vertices (assuming they are valid, else push back -1000) //QUESTION: are requirements like the pair having a common vertex with CL > 5% burried in the isValid()
                 if (match_12_34_56) {
@@ -926,7 +982,18 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 lepton4_isGlobalMuon               .push_back(iM4->isGlobalMuon());
                 lepton4_isTrackerMuon              .push_back(iM4->isTrackerMuon());
                 inv4MuMass                         .push_back((lepton1 + lepton2 + lepton3 + lepton4).mass());
-
+  
+  
+//Missing hit info, maybe not needed according to S.L., K.P. let me know that this NOT work because pat::Muon doesn't inherit from pat::PackedCandidate so this does not work            
+  //              lepton1_missingHits                .push_back(iM1->muonBestTrack().lostInnerHits());
+ //              lepton2_missingHits                .push_back(iM2->lostInnerHits());
+//                lepton3_missingHits                .push_back(iM3->lostInnerHits());
+ //               lepton4_missingHits                .push_back(iM4->lostInnerHits());
+ 
+               lepton1_validHits                   .push_back(iM1->numberOfValidHits());
+               lepton2_validHits                   .push_back(iM2->numberOfValidHits());
+               lepton3_validHits                   .push_back(iM3->numberOfValidHits());
+               lepton4_validHits                   .push_back(iM4->numberOfValidHits());
 
           }
         }
