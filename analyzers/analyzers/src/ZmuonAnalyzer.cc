@@ -57,6 +57,8 @@
 #include <iostream>  // std::cout, std::endl
 #include <string>
 
+#include "FWCore/Framework/interface/LuminosityBlock.h" //Needed for EventCountProducer 
+
 #include "DataFormats/Common/interface/MergeableCounter.h" //EventCountProducer produces an instance edm::MergeableCounter, so we need this
 
 
@@ -74,9 +76,9 @@ private:
    edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
    edm::EDGetTokenT<pat::PackedCandidateCollection> pfToken_;
    
-//   edm::EDGetTokenT<edm::MergeableCounter> nTotalToken_; // need for EventCountProducer
+   edm::EDGetTokenT<edm::MergeableCounter> nTotalToken_; // need for EventCountProducer
    
-//   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
    
    bool isMC;
 
@@ -187,8 +189,8 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    genParticlesToken_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"));
    pfToken_ = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCands"));
    
-//   nTotalToken_ = consumes<edm::MergeableCounter, // for EventCountProducer
- //  edm::InLumi>(edm::InputTag("nEventsTotal")); //for EventCountProducer 
+   nTotalToken_ = consumes<edm::MergeableCounter, // for EventCountProducer
+   edm::InLumi>(edm::InputTag("nEventsTotal")); //for EventCountProducer 
 
    
    isMC = iConfig.getParameter<bool>("isMC"); // ***** MC *** gets read in from ZmuonAnalyzer_cfg!
@@ -1146,13 +1148,13 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 }
 
-//void
-//ZmuonAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
-//{
+void
+ZmuonAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
+{
 //
-//      edm::Handle<edm::MergeableCounter> nTotalHandle;
- //     iLumi.getByToken(nTotalToken_, nTotalHandle);
- //     int nTot = nTotalHandle->value;
+      edm::Handle<edm::MergeableCounter> nTotalHandle;
+      iLumi.getByToken(nTotalToken_, nTotalHandle);
+      int nTot = nTotalHandle->value;
     // Total number of events is the sum of the events in each of these luminosity blocks 
   //  edm::Handle nEventsTotalCounter;
    // iLumi.getByLabel("nEventsTotal", nEventsTotalCounter); nEventsTotal +=nEventsTotalCounter->value;
@@ -1160,7 +1162,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 //    edm::Handle nEventsFilteredCounter; iLumi.getByLabel("nEventsFiltered",
   //  nEventsFilteredCounter); nEventsFiltered +=nEventsFilteredCounter->value; 
 
-//}
+}
 
 
 //}
