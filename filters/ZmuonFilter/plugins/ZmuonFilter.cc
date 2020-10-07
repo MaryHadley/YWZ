@@ -71,7 +71,7 @@ class ZmuonFilter : public edm::stream::EDFilter<> {
 
       
       std::vector<std::string> triggerlist;
-      double pTCut, etaCut, invMass4MuCut; 
+      double pTCut, etaCut, invMass4MuCut_low, invMass4MuCut_high;
       
       double muon_mass = 0.1056583715; 
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
@@ -106,7 +106,8 @@ triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getPa
 
 pTCut = iConfig.getParameter<double>("pTCut");
 etaCut = iConfig.getParameter<double>("etaCut");
-invMass4MuCut = iConfig.getParameter<double>("invMass4MuCut");
+invMass4MuCut_low = iConfig.getParameter<double>("invMass4MuCut_low");
+invMass4MuCut_high = iConfig.getParameter<double>("invMass4MuCut_high");
 
 }
 
@@ -159,7 +160,7 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
    else { 
         flagAtLeast4Mu = true;
-        std::cout << "flatAtLeasat4Mu is true" << std::endl;
+//        std::cout << "flatAtLeasat4Mu is true" << std::endl;
     
     }
    
@@ -178,7 +179,7 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
            
            if (foundMu != std::string::npos) {
                flagPassTrigger = true;
-               std::cout << "flagPassTrigger is true!" << std::endl;
+//               std::cout << "flagPassTrigger is true!" << std::endl;
                if (flagPassTrigger) { //could get rid of this if and just do a break after flagPassTrigger = true, can't decide right now which is more readable 
                    break;
                }
@@ -212,7 +213,8 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                   if (iM1->charge() + iM2->charge() + iM3->charge() + iM4->charge() == 0
                    && iM1->pt() >= pTCut && iM2->pt() >= pTCut && iM3->pt() >= pTCut && iM4->pt() >= pTCut
                     && fabs(iM1->eta()) <= etaCut && fabs(iM2->eta()) <= etaCut && fabs(iM3->eta()) <= etaCut && fabs(iM4->eta()) <= etaCut
-                    && (lepton1 + lepton2 + lepton3 + lepton4).mass() >= invMass4MuCut) {
+                    && (lepton1 + lepton2 + lepton3 + lepton4).mass() >= invMass4MuCut_low
+                    &&  (lepton1 + lepton2 + lepton3 + lepton4).mass() <= invMass4MuCut_high){
                    
                     flagTotCharge_pT_Eta_InvMassOf4Mu = true;
                     if (flagTotCharge_pT_Eta_InvMassOf4Mu) break;
@@ -312,10 +314,11 @@ ZmuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
  desc.add<edm::InputTag>("muonCollection",edm::InputTag("slimmedMuons"));
  desc.add<edm::InputTag>("bits",edm::InputTag("TriggerResults","", "HLT"));
  desc.add<edm::InputTag>("objects",edm::InputTag("selectedPatTrigger"));
- desc.add<double>("pTCut", 0); //these values provided for ptCut, etaCut, invMass4MuCut are defaults and will be overwritten by what you put in the cfg
+ desc.add<double>("pTCut", 0); //these values provided for ptCut, etaCut, invMass4MuCut_low are defaults and will be overwritten by what you put in the cfg
  desc.add<double>("etaCut", 4); //I have put in really loose cuts that basically do nothing here
- desc.add<double>("invMass4MuCut", 0); //Thank you to Gabriele Benelli and Jan-Frederik Schulte for their tips on getting this fillDescription part working!
-descriptions.add("ZmuonFilter", desc);
+ desc.add<double>("invMass4MuCut_low", 0); //Thank you to Gabriele Benelli and Jan-Frederik Schulte for their tips on getting this fillDescription part working!
+ desc.add<double>("invMass4MuCut_high", 10000);
+ descriptions.add("ZmuonFilter", desc);
 
 
 }

@@ -16,7 +16,7 @@ options.register( "applyZmuonFilter",
 )
 
 options.register("isMC",
-    True,
+    True, #set to false for crab test run
     VarParsing.VarParsing.multiplicity.singleton,
     VarParsing.VarParsing.varType.bool,
     "Is this simulation (aka MC) or is it data we have collected from the CMS detector? Defaults to True."
@@ -48,8 +48,19 @@ if options.applyZmuonFilter:
 #     pfCands = cms.InputTag("packedPFCandidates")  #not needed here
      pTCut = cms.double(0.),
      etaCut = cms.double(4.),
-     invMass4MuCut = cms.double(0.),
+     invMass4MuCut_low = cms.double(0.),
+     invMass4MuCut_high = cms.double(10000.),
   )
+
+#process.maxEvents.input = 1000
+
+#process.maxEvents = cms.untracked.PSet(
+#   input = cms.untracked.int32(40000)
+#   input = cms.untracked.int32(-1)
+ #  input = cms.untracked.int32(1000) #for crab test, just look at 1000 events
+
+#)
+
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -60,21 +71,34 @@ process.source = cms.Source("PoolSource",
                                           "file:../../../miniAOD_05.root",
                                           "file:../../../miniAOD_06.root"
 #                                          "file:../../../miniAOD_lowStats.root",
- #                                          "file:../SingleMu_Run2018A-17Sep2018-v2_F8CDAAA9-11C7-A34F-A059-409CF95EB82A.root"
-#                                            "file:../SingleMu_2017B-31Mar2018-v1_FC2B7874-F538-E811-9C29-0025905A60A8.root"
-                                      ),
-   duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
-)
+#                                           "file:../SingleMu_Run2018A-17Sep2018-v2_F8CDAAA9-11C7-A34F-A059-409CF95EB82A.root",
+#                                            "file:../SingleMu_2017B-31Mar2018-v1_FC2B7874-F538-E811-9C29-0025905A60A8.root",
+#                                            "file:0079D4A1-71DE-AF4B-90E4-115037F02923.root", #DiMu Run18 A
+ #                                             "file:FD881AE8-B6AC-8E4F-9453-2D5E6135D476.root" #DiMu Run18 A
+ #                                            "file:E36DDD08-CC3D-6D49-8C71-C6E8C201A2E5.root" #this is DiMU 2018RunB data
 
-process.TFileService = cms.Service("TFileService",
-   fileName = cms.string("mc_ZUpsi_mary_28Sept2020_test.root")
+                                    ),
+   duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
 
 process.maxEvents = cms.untracked.PSet(
 #   input = cms.untracked.int32(40000)
-   input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(-1)
+   # input = cms.untracked.int32(1000) #for crab test, just look at 1000 events
 
 )
+
+process.TFileService = cms.Service("TFileService",
+   fileName = cms.string("mc_ZUpsi_mary_7Oct2020.root")
+)
+
+#process.maxEvents.input = 1000
+#process.maxEvents = cms.untracked.PSet(
+#   input = cms.untracked.int32(40000)
+#   input = cms.untracked.int32(-1)
+#    input = cms.untracked.int32(1000) #for crab test, just look at 1000 events
+
+#)
 
 process.options = cms.untracked.PSet(
    wantSummary = cms.untracked.bool(True),

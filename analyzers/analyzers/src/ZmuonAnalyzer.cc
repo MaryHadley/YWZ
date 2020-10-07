@@ -57,6 +57,7 @@
 #include <iostream>  // std::cout, std::endl
 #include <string>
 
+#include "DataFormats/Common/interface/MergeableCounter.h" //EventCountProducer produces an instance edm::MergeableCounter, so we need this
 
 
 class ZmuonAnalyzer : public edm::EDAnalyzer {
@@ -73,7 +74,9 @@ private:
    edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
    edm::EDGetTokenT<pat::PackedCandidateCollection> pfToken_;
    
-   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+//   edm::EDGetTokenT<edm::MergeableCounter> nTotalToken_; // need for EventCountProducer
+   
+//   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
    
    bool isMC;
 
@@ -141,6 +144,9 @@ private:
    std::vector<double> dimuon1vtx_zposError, dimuon2vtx_zposError;
    std::vector<unsigned int>  event_number;
    std::vector<unsigned int>  run_number;
+   std::vector<unsigned int> lumi_section;
+   
+   std::vector<unsigned int> save_event_count;
 
    std::vector<double> PVx, PVy, PVz;
 
@@ -148,9 +154,11 @@ private:
    std::vector<double> truth_Z_pt, truth_Z_eta, truth_Z_phi, truth_Z_mass, truth_Z_pdgid;
 
    std::vector<double> truth_Upsimuon_pt, truth_Upsimuon_eta, truth_Upsimuon_phi;
-   std::vector<double> truth_Jpsi_pt, truth_Jpsi_eta, truth_Jpsi_phi, truth_Jpsi_mass;
+   std::vector<double> truth_Upsi_pt, truth_Upsi_eta, truth_Upsi_phi, truth_Upsi_mass;
 
-   std::vector<double> truth_Jpsi_pdgid;
+   std::vector<double> truth_Upsi_pdgid;
+   
+   std::vector<double> loop_enter_check;
 
    std::vector<std::string> triggerlist;
 
@@ -179,6 +187,10 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    genParticlesToken_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"));
    pfToken_ = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCands"));
    
+//   nTotalToken_ = consumes<edm::MergeableCounter, // for EventCountProducer
+ //  edm::InLumi>(edm::InputTag("nEventsTotal")); //for EventCountProducer 
+
+   
    isMC = iConfig.getParameter<bool>("isMC"); // ***** MC *** gets read in from ZmuonAnalyzer_cfg!
 
    edm::Service<TFileService> fs;
@@ -186,6 +198,7 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
 
    tree->Branch("event_number", &event_number);
    tree->Branch("run_number", &run_number);
+   tree->Branch("lumi_section", &lumi_section);
 
    tree->Branch("lepton1_pt",  &lepton1_pt);
    tree->Branch("lepton1_eta", &lepton1_eta);
@@ -297,7 +310,8 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("sixmuonvtx", &sixmuonvtx);
 
    tree->Branch("triggerlist", &triggerlist);
-
+   
+   tree->Branch("save_event_count", &save_event_count);
    tree->Branch("numberOfVertices", &numberOfVertices);
    tree->Branch("zOfVertices",    &zOfVertices);
    tree->Branch("zOfVerticesError",    &zOfVerticesError);
@@ -330,11 +344,12 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    treemc->Branch("truth_Upsimuon_pt",  &truth_Upsimuon_pt);
    treemc->Branch("truth_Upsimuon_eta", &truth_Upsimuon_eta);
    treemc->Branch("truth_Upsimuon_phi", &truth_Upsimuon_phi);
-   treemc->Branch("truth_Jpsi_pt",   &truth_Jpsi_pt);
-   treemc->Branch("truth_Jpsi_eta",  &truth_Jpsi_eta);
-   treemc->Branch("truth_Jpsi_phi",  &truth_Jpsi_phi);
-   treemc->Branch("truth_Jpsi_mass", &truth_Jpsi_mass);
-   treemc->Branch("truth_Jpsi_pdgid", &truth_Jpsi_pdgid);
+   treemc->Branch("truth_Upsi_pt",   &truth_Upsi_pt);
+   treemc->Branch("truth_Upsi_eta",  &truth_Upsi_eta);
+   treemc->Branch("truth_Upsi_phi",  &truth_Upsi_phi);
+   treemc->Branch("truth_Upsi_mass", &truth_Upsi_mass);
+   treemc->Branch("truth_Upsi_pdgid", &truth_Upsi_pdgid);
+   treemc->Branch("loop_enter_check", &loop_enter_check);
 
 }
 
@@ -373,6 +388,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 //Recall that we get MC from the cfg setting, see:  isMC = iConfig.getParameter<bool>("isMC"); line above
 
    triggerlist.clear();
+   save_event_count.clear();
    dimuon1mass.clear(); dimuon2mass.clear();
    dimuon1pt.clear(); dimuon2pt.clear();    
    dimuon1eta.clear(); dimuon2eta.clear();  
@@ -398,7 +414,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    PVy.clear();
    PVz.clear();
 
-   run_number.clear(); event_number.clear();
+   run_number.clear(); event_number.clear(); lumi_section.clear();
 
    lepton1_pt                         .clear();  lepton2_pt                         .clear();
    lepton1_eta                        .clear();  lepton2_eta                        .clear();
@@ -466,9 +482,12 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    truth_Upsimuon_pt.clear(); 
    truth_Upsimuon_eta.clear();
    truth_Upsimuon_phi.clear();
-   truth_Jpsi_pt.clear(); truth_Jpsi_eta.clear(); truth_Jpsi_phi.clear(); truth_Jpsi_mass.clear();
+   truth_Upsi_pt.clear(); truth_Upsi_eta.clear(); truth_Upsi_phi.clear(); truth_Upsi_mass.clear();
 
-   truth_Jpsi_pdgid.clear();  
+   truth_Upsi_pdgid.clear();  
+   loop_enter_check.clear();
+   
+ //  std::cout << "Am here at check 0" << std::endl;
 
 ////   bool nontriggeredevent = true;
 //   for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i)
@@ -481,7 +500,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 //        }
 //    }
 
-   bool keepevent = false; //keepevent defaults to false, which is actually what we want in the end (see line 539)
+   bool event_fails_trigger = false; //defaults to false, which is what we want in the end (see line 539)
    for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
     if (triggerBits->accept(i)) {
       triggerlist.push_back(names.triggerName(i));
@@ -491,13 +510,13 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       std::string str3 ("Mu");
       std::size_t foundEle = str.find(str2);
       std::size_t foundMu  = str.find(str3);
-      if (foundEle!=std::string::npos && foundMu==std::string::npos) //BUG?  //Maybe this is me misunderstanding npos, but I would think this is saying if there is an electron and no muon, keep the event, which doesn't make sense...but looking ahead to line 539, maybe this works out ok...
-        keepevent = true;
-      if (foundEle!=std::string::npos && foundMu!=std::string::npos) //This potential bug might get worked out down below, because it seems like you want keepevent to be false in order to go forward (see line 539 )
-        keepevent = false;
+      if (foundEle!=std::string::npos && foundMu==std::string::npos) 
+        event_fails_trigger = true;
+      if (foundEle!=std::string::npos && foundMu!=std::string::npos)//QUESTION for Greg: do we want to keep events even if they pass the el trigger as long as they also pass mu trigger?
+        event_fails_trigger = false; 
     }
    } //trigger requirements 
-//   if (keepevent) {
+//   if (event_fails_trigger) {
 //      for (int itrig = 0; itrig < (int)triggerlist.size(); itrig++)
 //        std::cout << triggerlist.at(itrig) << std::endl;
 //      std::cout << "--------------\n";
@@ -560,17 +579,20 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    // bypass for non-global muons check
    doit = true; //QUESTION! so doit is always true, so what is the point of the code above where doit was contingent on the event belonging to run NNN
-
+   
+   bool save_event = false; //comment in for test
    double muon_mass = 0.1056583715; 
    double upsi_mass_low  = 8.; //selections as from AN 
    double upsi_mass_high = 12.; //was 11 in AN but I don't think this really matters so much ()
    double Z_mass_low  = 66.;
    double Z_mass_high = 116.;
+   
+//   int save_event_count = 0;
 
 // high pt muons - low pt muons
 //  if (!nontriggeredevent)
-   if ((int)muons->size()>3 && !keepevent && doit) { //Fixed bug, initially we accidentally were demanding 6 mu, now we have it right Shouldn't there be four muons in this final state, so anything with size over 3 should be ok? I think doit is not really doing anything here. And keepevent apparently should be false, so except for the six muon thing, I think this line is ok. Also note that changing this to 3 exposed a weakness/lack of protection in the code in the Lxy part. Sometimes dimuon1vtx_xpos is empty, so needed to add a statement right before the Lxy part that tells the code to continue if dimuon1vtx_xpos is empty to prevent things from blowing up
-     bool save_event = false;
+   if ((int)muons->size()>3 && !event_fails_trigger && doit) { //Fixed bug, initially we accidentally were demanding 6 mu, now we have it right Shouldn't there be four muons in this final state, so anything with size over 3 should be ok? I think doit is not really doing anything here. And event_fails_trigger apparently should be false, so except for the six muon thing, I think this line is ok. Also note that changing this to 3 exposed a weakness/lack of protection in the code in the Lxy part. Sometimes dimuon1vtx_xpos is empty, so needed to add a statement right before the Lxy part that tells the code to continue if dimuon1vtx_xpos is empty to prevent things from blowing up
+//     bool save_event = false; //coment out for test
      for (auto iM1 = muons->begin(); iM1 != muons->end(); ++iM1) {
       for (auto iM2 = iM1+1; iM2 != muons->end(); ++iM2) {
         for (auto iM3 = iM2+1; iM3 != muons->end(); ++iM3) {
@@ -915,6 +937,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
                 event_number.push_back(iEvent.id().event());
                 run_number.push_back(iEvent.run());
+                lumi_section.push_back(iEvent.luminosityBlock());
     
                 lepton1_pt                         .push_back(iM1->pt());  
                 lepton1_eta                        .push_back(iM1->eta());
@@ -991,6 +1014,8 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 lepton4_isPFMuon                   .push_back(iM4->isPFMuon());
                 lepton4_isGlobalMuon               .push_back(iM4->isGlobalMuon());
                 lepton4_isTrackerMuon              .push_back(iM4->isTrackerMuon());
+                
+                
                 inv4MuMass                         .push_back((lepton1 + lepton2 + lepton3 + lepton4).mass());
   
   
@@ -1009,14 +1034,20 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         }
        }
      }
-     if (save_event)
+     if (save_event){
+//       std::cout << "save_event for the data stuff: " << save_event << std::endl;
+        save_event_count.push_back(1);
        tree->Fill();
+      }
    }
-
+//std::cout << "save_event_count: " << save_event_count << std::endl;
+//std::cout << "save_event is: " << save_event << std::endl;
 // **************
 // MC starts here
 // **************
-   if (isMC) {
+   if (isMC && save_event) { //change to (isMC && save_event) for testing 
+//    std::cout << "Am here at check 2 " << std::endl; 
+    loop_enter_check.push_back(1);
     edm::Handle<reco::GenParticleCollection> mc_particles;
     iEvent.getByToken(genParticlesToken_, mc_particles);
 
@@ -1038,6 +1069,8 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     for(unsigned int i = 0; i < mc_particles->size(); ++i) {
       const reco::GenParticle* gen_particle = &mc_particles->at(i);
+//      if (gen_particle->pdgId() != UPSI && gen_particle->pdgId() != MUON && gen_particle->pdgId() != Z)
+  //       std::cout << "NOT AN UPSI, MU, or Z" << std::endl;
       registered_upsi = false;
       if (gen_particle->pdgId() == UPSI) { 
         for (int iupsi = 0; iupsi < (int)upsi_pt_found.size(); iupsi++) {
@@ -1050,11 +1083,13 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
             truth_Upsimuon_pt .push_back(gen_particle->daughter(j)->pt());
             truth_Upsimuon_eta.push_back(gen_particle->daughter(j)->eta());
             truth_Upsimuon_phi.push_back(gen_particle->daughter(j)->phi());
-            truth_Jpsi_pt  .push_back(gen_particle->pt());
-            truth_Jpsi_eta .push_back(gen_particle->eta());
-            truth_Jpsi_phi .push_back(gen_particle->phi());
-            truth_Jpsi_mass.push_back(gen_particle->mass());
-            truth_Jpsi_pdgid.push_back(gen_particle->pdgId());
+            
+            //WARNING THE UPSI INFO NOW BEING FILLED FOR ALL MUONS, NEED TO CLEAN THIS UP WITH A MUON COUNTER TO DO 
+            truth_Upsi_pt  .push_back(gen_particle->pt());
+            truth_Upsi_eta .push_back(gen_particle->eta());
+            truth_Upsi_phi .push_back(gen_particle->phi());
+            truth_Upsi_mass.push_back(gen_particle->mass());
+            truth_Upsi_pdgid.push_back(gen_particle->pdgId());
           }
         }
         upsi_pt_found  .push_back(gen_particle->pt());
@@ -1067,17 +1102,38 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         for (int iZ = 0; iZ < (int)Z_pt_found.size(); iZ++) {
           if (TMath::Abs( gen_particle->pt() - Z_pt_found.at(iZ) ) < 0.1)
             registered_Z = true;
-        }
+        //   if (!registered_Z){
+//             truth_Z_pt  .push_back(gen_particle->pt());
+//             truth_Z_eta .push_back(gen_particle->eta());
+//             truth_Z_phi .push_back(gen_particle->phi());
+//             truth_Z_mass.push_back(gen_particle->mass());
+//             truth_Z_pdgid.push_back(gen_particle->pdgId());
+//           
+//           }
+
+
+         }
+     //    if (!registered_Z) {
+//           truth_Z_pt  .push_back(gen_particle->pt());
+//           truth_Z_eta .push_back(gen_particle->eta());
+//            truth_Z_phi .push_back(gen_particle->phi());
+//            truth_Z_mass.push_back(gen_particle->mass());
+//            truth_Z_pdgid.push_back(gen_particle->pdgId());
+//         
+//         }
+        
         for (size_t j = 0; j < gen_particle->numberOfDaughters(); ++j) {
           if (TMath::Abs(gen_particle->daughter(j)->pdgId()) == MUON && !registered_Z) {
             truth_Zmuon_pt .push_back(gen_particle->daughter(j)->pt());
             truth_Zmuon_eta.push_back(gen_particle->daughter(j)->eta());
             truth_Zmuon_phi.push_back(gen_particle->daughter(j)->phi());
+            
+            //WARNING THE Z'S ARE NOW BEING FILLED FOR EVERY MUON, NEED TO CLEAN THIS UP WITH A MUON COUNTER TO DO
             truth_Z_pt  .push_back(gen_particle->pt());
-            truth_Z_eta .push_back(gen_particle->eta());
-            truth_Z_phi .push_back(gen_particle->phi());
-            truth_Z_mass.push_back(gen_particle->mass());
-            truth_Z_pdgid.push_back(gen_particle->pdgId());
+           truth_Z_eta .push_back(gen_particle->eta());
+           truth_Z_phi .push_back(gen_particle->phi());
+           truth_Z_mass.push_back(gen_particle->mass());
+           truth_Z_pdgid.push_back(gen_particle->pdgId());
           }
         }
         Z_pt_found  .push_back(gen_particle->pt());
@@ -1090,20 +1146,24 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 }
 
-void
-ZmuonAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
-{
+//void
+//ZmuonAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
+//{
+//
+//      edm::Handle<edm::MergeableCounter> nTotalHandle;
+ //     iLumi.getByToken(nTotalToken_, nTotalHandle);
+ //     int nTot = nTotalHandle->value;
     // Total number of events is the sum of the events in each of these luminosity blocks 
-    edm::Handle nEventsTotalCounter;
-    iLumi.getByLabel("nEventsTotal", nEventsTotalCounter); nEventsTotal +=nEventsTotalCounter->value;
+  //  edm::Handle nEventsTotalCounter;
+   // iLumi.getByLabel("nEventsTotal", nEventsTotalCounter); nEventsTotal +=nEventsTotalCounter->value;
+//
+//    edm::Handle nEventsFilteredCounter; iLumi.getByLabel("nEventsFiltered",
+  //  nEventsFilteredCounter); nEventsFiltered +=nEventsFilteredCounter->value; 
 
-    edm::Handle nEventsFilteredCounter; iLumi.getByLabel("nEventsFiltered",
-    nEventsFilteredCounter); nEventsFiltered +=nEventsFilteredCounter->value; 
-
-}
+//}
 
 
-}
+//}
 //define this as a plug-in
 DEFINE_FWK_MODULE(ZmuonAnalyzer);
 
