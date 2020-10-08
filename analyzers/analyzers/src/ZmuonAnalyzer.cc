@@ -77,6 +77,9 @@ private:
    edm::EDGetTokenT<pat::PackedCandidateCollection> pfToken_;
    
    edm::EDGetTokenT<edm::MergeableCounter> nTotalToken_; // need for EventCountProducer
+   edm::EDGetTokenT<edm::MergeableCounter> nFilteredToken_; //need for EventCountProducer
+   
+   std::unordered_map<std::string,TH1*> histContainer_; //for counters
    
    virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
    
@@ -147,6 +150,9 @@ private:
    std::vector<unsigned int>  event_number;
    std::vector<unsigned int>  run_number;
    std::vector<unsigned int> lumi_section;
+   std::vector<unsigned int> orbit_number;
+   std::vector<unsigned int> bunch_crossing;
+//   std::vector<unsigned int> process_ID;
    
    std::vector<unsigned int> save_event_count;
 
@@ -191,16 +197,26 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    
    nTotalToken_ = consumes<edm::MergeableCounter, // for EventCountProducer
    edm::InLumi>(edm::InputTag("nEventsTotal")); //for EventCountProducer 
+   
+   nFilteredToken_ = consumes<edm::MergeableCounter, // for EventCountProducer
+   edm::InLumi>(edm::InputTag("nEventsFiltered")); //for EventCountProducer 
 
    
    isMC = iConfig.getParameter<bool>("isMC"); // ***** MC *** gets read in from ZmuonAnalyzer_cfg!
 
    edm::Service<TFileService> fs;
    tree = fs->make<TTree>("tree", "tree");
-
+   
+   histContainer_["nEventsTotalCounter"]    = fs->make<TH1F>("nEventsTotalCounter", ";nEventsTotalCounter; nEvents",2,0,2);
+   histContainer_["nEventsFilteredCounter"]  = fs->make<TH1F>("nEventsFilteredCounter", ";nEventsFilteredCounter; nEvents",2,0,2);
+   for(std::unordered_map<std::string,TH1*>::iterator it=histContainer_.begin();   it!=histContainer_.end();   it++) it->second->Sumw2(); //call Sumw2 on all the hists in histContainer_   
+   
    tree->Branch("event_number", &event_number);
    tree->Branch("run_number", &run_number);
    tree->Branch("lumi_section", &lumi_section);
+   tree->Branch("bunch_crossing", &bunch_crossing);
+   tree->Branch("orbit_number", &orbit_number);
+//   tree->Branch("process_ID", &process_ID);
 
    tree->Branch("lepton1_pt",  &lepton1_pt);
    tree->Branch("lepton1_eta", &lepton1_eta);
@@ -416,7 +432,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    PVy.clear();
    PVz.clear();
 
-   run_number.clear(); event_number.clear(); lumi_section.clear();
+   run_number.clear(); event_number.clear(); lumi_section.clear(); bunch_crossing.clear(); orbit_number.clear();
 
    lepton1_pt                         .clear();  lepton2_pt                         .clear();
    lepton1_eta                        .clear();  lepton2_eta                        .clear();
@@ -940,6 +956,9 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 event_number.push_back(iEvent.id().event());
                 run_number.push_back(iEvent.run());
                 lumi_section.push_back(iEvent.luminosityBlock());
+                bunch_crossing.push_back(iEvent.bunchCrossing());
+                orbit_number.push_back(iEvent.orbitNumber());
+  //              process_ID.push_back(iEvent.id());
     
                 lepton1_pt                         .push_back(iM1->pt());  
                 lepton1_eta                        .push_back(iM1->eta());
@@ -1151,10 +1170,22 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 void
 ZmuonAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
 {
-//
+//  events seen in each lumi section
       edm::Handle<edm::MergeableCounter> nTotalHandle;
       iLumi.getByToken(nTotalToken_, nTotalHandle);
-      int nTot = nTotalHandle->value;
+      int nTotInThisLS = nTotalHandle->value;
+      
+      histContainer_["nEventsTotalCounter"]->Fill(0); //the number of entries at 0 give us the number of LS total that were looked at at the end of the day
+      histContainer_["nEventsTotalCounter"]->Fill(1, nTotInThisLS); //the number of entries at 1 will give us the total number of events looked at (each lumi section is weighted by the number of events seen in that lumi section)
+      
+      //Events seen in each LS that passed the filter
+      edm::Handle<edm::MergeableCounter> nFilteredHandle;
+      iLumi.getByToken(nFilteredToken_, nFilteredHandle);
+      int nFilteredInThisLS = nFilteredHandle->value;
+      
+      histContainer_["nEventsFilteredCounter"]->Fill(0); //the number of entries at 0 give us the number of LS in total that passed the filter
+      histContainer_["nEventsFilteredCounter"]->Fill(1, nFilteredInThisLS); //the number of entries at 1 will give us the total number of events that passed the filter 
+    
     // Total number of events is the sum of the events in each of these luminosity blocks 
   //  edm::Handle nEventsTotalCounter;
    // iLumi.getByLabel("nEventsTotal", nEventsTotalCounter); nEventsTotal +=nEventsTotalCounter->value;

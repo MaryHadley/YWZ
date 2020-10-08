@@ -51,6 +51,8 @@ if options.applyZmuonFilter:
      invMass4MuCut_low = cms.double(0.),
      invMass4MuCut_high = cms.double(10000.),
   )
+   process.nEventsTotal = cms.EDProducer("EventCountProducer")
+   process.nEventsFiltered = cms.EDProducer("EventCountProducer")
 
 #process.maxEvents.input = 1000
 
@@ -89,7 +91,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string("mc_ZUpsi_mary_7Oct2020.root")
+   fileName = cms.string("mc_ZUpsi_mary_8Oct2020.root")
 )
 
 #process.maxEvents.input = 1000
@@ -113,7 +115,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 if options.applyZmuonFilter:
     process.p = cms.Path(
-        process.ZmuonFilter * process.ZmuonAnalyzer
+         process.nEventsTotal *process.ZmuonFilter * process.ZmuonAnalyzer * process.nEventsFiltered
         )
 
 else:
