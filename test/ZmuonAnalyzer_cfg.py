@@ -36,6 +36,8 @@ process.ZmuonAnalyzer = cms.EDAnalyzer("ZmuonAnalyzer",
    vertexCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
    metTag = cms.InputTag("slimmedMETs"),
    pfCands = cms.InputTag("packedPFCandidates"),
+   rho     = cms.InputTag("fixedGridRhoFastjetAll"), #Median energy density, see: https://arxiv.org/pdf/0707.1378.pdf
+  #Might add Pileup here later if I think it is something we might change ever, but at the moment is hard-coded in the analyzer
    isMC   = cms.bool(options.isMC),
 )
 
@@ -91,7 +93,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string("mc_ZUpsi_mary_8Oct2020.root")
+   fileName = cms.string("mc_ZUpsi_mary_10Oct2020.root")
 )
 
 #process.maxEvents.input = 1000

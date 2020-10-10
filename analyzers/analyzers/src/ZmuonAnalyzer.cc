@@ -50,6 +50,8 @@
 
 #include "PhysicsTools/PatUtils/interface/TriggerHelper.h"
 
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" //for pileup 
+
 #include <math.h>
 #include <TMath.h>
 #include <TLorentzVector.h>
@@ -81,9 +83,15 @@ private:
    
    std::unordered_map<std::string,TH1*> histContainer_; //for counters
    
+   edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puToken_; //for pileup
+   
+   edm::EDGetTokenT<double> rhoToken_; //rho, median energy density, see: https://arxiv.org/pdf/0707.1378.pdf
+   
    virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
    
    bool isMC;
+   
+   int PU, PU_True;
 
    TTree * tree;
    TTree * treemc;
@@ -147,6 +155,7 @@ private:
    std::vector<double> dimuon1vtx_xposError, dimuon2vtx_xposError;
    std::vector<double> dimuon1vtx_yposError, dimuon2vtx_yposError;
    std::vector<double> dimuon1vtx_zposError, dimuon2vtx_zposError;
+   std::vector<double> rho;
    std::vector<unsigned int>  event_number;
    std::vector<unsigned int>  run_number;
    std::vector<unsigned int> lumi_section;
@@ -195,6 +204,10 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    genParticlesToken_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"));
    pfToken_ = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCands"));
    
+   puToken_ = consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("slimmedAddPileupInfo"));  //hard coding this because I doubt I will change it, for pileup HARDCODED 
+   
+   rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho"));
+  
    nTotalToken_ = consumes<edm::MergeableCounter, // for EventCountProducer
    edm::InLumi>(edm::InputTag("nEventsTotal")); //for EventCountProducer 
    
@@ -203,12 +216,15 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
 
    
    isMC = iConfig.getParameter<bool>("isMC"); // ***** MC *** gets read in from ZmuonAnalyzer_cfg!
-
+   
    edm::Service<TFileService> fs;
    tree = fs->make<TTree>("tree", "tree");
    
+   //counter histograms 
    histContainer_["nEventsTotalCounter"]    = fs->make<TH1F>("nEventsTotalCounter", ";nEventsTotalCounter; nEvents",2,0,2);
    histContainer_["nEventsFilteredCounter"]  = fs->make<TH1F>("nEventsFilteredCounter", ";nEventsFilteredCounter; nEvents",2,0,2);
+   histContainer_["PU"]                      =  fs->make<TH1F>("PU",      ";Pileup observed;Events",100,0,100);
+   histContainer_["PU_True"]                 =  fs->make<TH1F>("PU_True",  ";Pileup true;Events",100,0,100);
    for(std::unordered_map<std::string,TH1*>::iterator it=histContainer_.begin();   it!=histContainer_.end();   it++) it->second->Sumw2(); //call Sumw2 on all the hists in histContainer_   
    
    tree->Branch("event_number", &event_number);
@@ -217,6 +233,8 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("bunch_crossing", &bunch_crossing);
    tree->Branch("orbit_number", &orbit_number);
 //   tree->Branch("process_ID", &process_ID);
+   
+   tree->Branch("rho", &rho);
 
    tree->Branch("lepton1_pt",  &lepton1_pt);
    tree->Branch("lepton1_eta", &lepton1_eta);
@@ -379,6 +397,13 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    edm::ESHandle<TransientTrackBuilder> builder;
    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
 
+//Rho, the median energy desnity //
+
+  edm::Handle< double > rhoH;
+  iEvent.getByToken(rhoToken_,rhoH);
+//  float rho=*rhoH;
+  rho.clear();
+  rho.push_back(*rhoH);
 // *******
 // TRIGGER
 // *******
@@ -594,7 +619,11 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    bool doit = false;
    if (iEvent.run() == 319077 || iEvent.run() == 319659 || iEvent.run() == 324205 || iEvent.run() == 322348)
       doit = true;
+      
 
+   
+  
+   
    // bypass for non-global muons check
    doit = true; //QUESTION! so doit is always true, so what is the point of the code above where doit was contingent on the event belonging to run NNN
    
@@ -1068,6 +1097,22 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 // **************
    if (isMC && save_event) { //change to (isMC && save_event) for testing 
 //    std::cout << "Am here at check 2 " << std::endl; 
+
+//*****
+//PILEUP, observed and true 
+//*****
+   edm::Handle<std::vector <PileupSummaryInfo> > PupInfo;
+   iEvent.getByToken(puToken_,PupInfo);
+   std::vector<PileupSummaryInfo>::const_iterator ipu;   
+   for (ipu = PupInfo->begin(); ipu != PupInfo->end(); ++ipu){
+      if ( ipu->getBunchCrossing() != 0 ) continue; // storing detailed PU info only for BX=0
+      PU = ipu->getPU_NumInteractions();
+      PU_True = ipu->getTrueNumInteractions();
+       }
+    histContainer_["PU"]->Fill(PU);
+    histContainer_["PU_True"]->Fill(PU_True);
+   
+    
     loop_enter_check.push_back(1);
     edm::Handle<reco::GenParticleCollection> mc_particles;
     iEvent.getByToken(genParticlesToken_, mc_particles);
