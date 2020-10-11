@@ -92,6 +92,8 @@ private:
    bool isMC;
    
    int PU, PU_True;
+   
+   double iTrkWeightOfRecoVtxTrk;
 
    TTree * tree;
    TTree * treemc;
@@ -190,6 +192,8 @@ private:
    std::vector<double> inv4MuMass;
    
    std::vector<double> big4MuVtx;
+   
+   std::vector<double> TrkWeightsRecoVtxTrks;
 
 };  
 
@@ -363,6 +367,8 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("inv4MuMass", &inv4MuMass);
    tree->Branch("big4MuVtx", &big4MuVtx);
    
+   tree->Branch("TrkWeightsRecoVtxTrks", &TrkWeightsRecoVtxTrks);
+   
    tree->Branch("lepton1_validHits", &lepton1_validHits);
    tree->Branch("lepton2_validHits", &lepton2_validHits);
    tree->Branch("lepton3_validHits", &lepton3_validHits);
@@ -530,6 +536,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    truth_Upsi_pdgid.clear();  
    loop_enter_check.clear();
    rho.clear();
+ //  TrkWeightsRecoVtxTrks.clear();
    
  //  std::cout << "Am here at check 0" << std::endl;
 
@@ -600,9 +607,15 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
             pT = (**it).pt();
             sum += pT; //sum up the pT of all the tracks associated with that vertex
             std::cout << pT << " " << sum << std::endl;
-          }
+            iTrkWeightOfRecoVtxTrk = it_vertex.trackWeight(*it);
+            TrkWeightsRecoVtxTrks.push_back(iTrkWeightOfRecoVtxTrk);
+            std::cout << it_vertex.trackWeight(*it) << std::endl;
+          }          
+
+           
           zOfVerticesError.push_back((*reco_vertices)[vertex].zError());
           zOfVertices.push_back((*reco_vertices)[vertex].z());
+          std::cout << "Test" << std::endl;
           /// <--------- to be tested
           /// <--------- to be tested
 
