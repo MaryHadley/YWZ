@@ -601,21 +601,28 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           /// <--------- to be tested
           /// <--------- to be tested
           reco::Vertex it_vertex = (*reco_vertices)[vertex]; //if the vertex meets the requirements, go ahead and do this loop
+ //         std::cout << "Got here" << std::endl;
           double sum = 0.;
           double pT;
+          //It appears trackSize is always 0 and so this loop never fires
+          std::cout <<  "it_vertex.tracksSize() " << it_vertex.tracksSize();
           for (reco::Vertex::trackRef_iterator it = it_vertex.tracks_begin(); it != it_vertex.tracks_end(); it++) {
+//            for (auto it = it_vertex.tracks_begin(); it != it_vertex.tracks_end(); it++){
+ //           std::cout << "Also got here" << std::endl;
             pT = (**it).pt();
             sum += pT; //sum up the pT of all the tracks associated with that vertex
             std::cout << pT << " " << sum << std::endl;
             iTrkWeightOfRecoVtxTrk = it_vertex.trackWeight(*it);
             TrkWeightsRecoVtxTrks.push_back(iTrkWeightOfRecoVtxTrk);
             std::cout << it_vertex.trackWeight(*it) << std::endl;
-          }          
+          } 
+          
+                  
 
            
           zOfVerticesError.push_back((*reco_vertices)[vertex].zError());
           zOfVertices.push_back((*reco_vertices)[vertex].z());
-          std::cout << "Test" << std::endl;
+//          std::cout << "Test" << std::endl;
           /// <--------- to be tested
           /// <--------- to be tested
 
