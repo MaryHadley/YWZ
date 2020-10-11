@@ -399,11 +399,11 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 //Rho, the median energy desnity //
 
-  edm::Handle< double > rhoH;
-  iEvent.getByToken(rhoToken_,rhoH);
-//  float rho=*rhoH;
-  rho.clear();
-  rho.push_back(*rhoH);
+ //  edm::Handle< double > rhoH;
+//   iEvent.getByToken(rhoToken_,rhoH);
+// //  float rho=*rhoH;
+//   rho.clear();
+//   rho.push_back(*rhoH);
 // *******
 // TRIGGER
 // *******
@@ -529,6 +529,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    truth_Upsi_pdgid.clear();  
    loop_enter_check.clear();
+   rho.clear();
    
  //  std::cout << "Am here at check 0" << std::endl;
 
@@ -988,6 +989,14 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 bunch_crossing.push_back(iEvent.bunchCrossing());
                 orbit_number.push_back(iEvent.orbitNumber());
   //              process_ID.push_back(iEvent.id());
+  
+                //Rho, the median energy desnity //
+
+                edm::Handle< double > rhoH;
+                iEvent.getByToken(rhoToken_,rhoH);
+              //  float rho=*rhoH;
+             // rho.clear();
+                rho.push_back(*rhoH);
     
                 lepton1_pt                         .push_back(iM1->pt());  
                 lepton1_eta                        .push_back(iM1->eta());
