@@ -15,8 +15,8 @@ rm -rf YWZ
 cmsenv   
 scram b    
 
-git init
-git set remote YWZ https://github.com/MaryHadley/YWZ/
+git init  
+git set remote YWZ https://github.com/MaryHadley/YWZ  
  
 **To run**  
 cmsRun ZmuonAnalyzer_cfg.py  
