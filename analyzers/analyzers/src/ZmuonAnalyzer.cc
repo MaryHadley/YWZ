@@ -208,8 +208,9 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    genParticlesToken_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"));
    pfToken_ = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCands"));
    
-   puToken_ = consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("slimmedAddPileupInfo"));  //hard coding this because I doubt I will change it, for pileup HARDCODED 
-   
+   if (isMC){
+     puToken_ = consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("slimmedAddPileupInfo"));  //hard coding this because I doubt I will change it, for pileup HARDCODED 
+   }
    rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho"));
   
    nTotalToken_ = consumes<edm::MergeableCounter, // for EventCountProducer

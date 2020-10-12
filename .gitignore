@@ -1,0 +1,12 @@
+*.root
+#.*
+..*
+*.pyc
+*/*/*/*.pyc
+filters/ZmuonFilter/python/__init__.pyc
+*.pkl
+*.tgz
+*.log
+*PSet.*
+*PSet*.*
+test/*

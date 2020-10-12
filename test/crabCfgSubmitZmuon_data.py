@@ -1,6 +1,6 @@
 #Usage: 
 #python crabCfgSubmitZmuon_data.py (to submit jobs)
-# ./multicrab.py (to check jobs)
+# ./multicrab.py (to check jobs) -w <workAreaName> -c <command to launch, e.g. status>
 #Credit to Maximilian Heindl and this github repo for idea of how to write this crab cfg: https://github.com/CMSHCALCalib/RadDam/blob/master/HFmonitoring/nTuplizer/ggAnalysis/ggNtuplizer/test/crabConfig_data.py
 
 
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     
     #Common configuration
     
-    config.General.workArea     = 'Zmuon_DataJobs_UL2018A_SingleMu_proofOfConcept'
+    config.General.workArea     = 'Zmuon_DataJobs_UL2018A_DoubleMu_proofOfConcept_12Oct2020'
     config.General.transferLogs = False
 #    config.JobType.maxMemoryMB = 5000 #Let's try the default to start and see if it works 
 #    config.JobType.maxJobRuntimeMin = 2750 #Let's try the default to start and see if it works 
@@ -53,18 +53,18 @@ if __name__ == '__main__':
     
     
     
-    #Run2018A SingleMu (to show that it is a dimu problem, we hope)   
-    config.General.requestName = "SingleMuUL_Run2018A"
-    config.Data.inputDataset = "/SingleMuon/Run2018D-12Nov2019_UL2018-v4/MINIAOD"
-    config.Data.outLFNDirBase = "/store/user/mhadley/Zmuon_DataJobs_SingleMu_UL2018A_proofOfConcept"
-    p = Process(target=submit, args=(config,))
-    p.start()
-    p.join()
+    # Run2018A SingleMu  
+#     config.General.requestName = "SingleMuUL_Run2018A"
+#     config.Data.inputDataset = "/SingleMuon/Run2018D-12Nov2019_UL2018-v4/MINIAOD"
+#     config.Data.outLFNDirBase = "/store/user/mhadley/Zmuon_DataJobs_SingleMu_UL2018A_proofOfConcept_12Oct2020"
+#     p = Process(target=submit, args=(config,))
+#     p.start()
+#     p.join()
 
     # Run2018A
     config.General.requestName = 'DoubleMuUL_Run2018A' 
     config.Data.inputDataset   = '/DoubleMuon/Run2018A-12Nov2019_UL2018-v2/MINIAOD' 
-    config.Data.outLFNDirBase  = '/store/user/mhadley/Zmuon_DataJobs_UL2018_smallTest'
+    config.Data.outLFNDirBase  = '/store/user/mhadley/Zmuon_DataJobs_UL2018_smallTest_12Oct2020'
     p = Process(target=submit, args=(config,))
     p.start()
     p.join()
