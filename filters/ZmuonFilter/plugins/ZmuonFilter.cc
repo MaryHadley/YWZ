@@ -40,8 +40,8 @@
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 #include "PhysicsTools/PatUtils/interface/TriggerHelper.h"
 #include "FWCore/Common/interface/TriggerNames.h"
-//#include "DataFormats/HepMCCandidate/interface/GenParticle.h" //do I need this
-//#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h" //do I need this
+//#include "DataFormats/HepMCCandidate/interface/GenParticle.h" 
+//#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h" 
 
 
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
@@ -173,7 +173,8 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
            triggerlist.push_back(names.triggerName(i));
            std::string str (names.triggerName(i));
 //           std::cout << "str is: " << str << std::endl;
-           std::string str2 ("Mu"); //Need to change this to DiMu to match what we are going to change it to, but keep this for now
+           std::string str2 ("Mu");//confirmed that Mu is the right thing to search even for the DoubleMuon Dataset we will be using, see: https://twiki.cern.ch/twiki/bin/view/CMS/HLTPathsRunIIList
+         
            std::size_t foundMu = str.find(str2);
 //           std::cout << "Defined foundMu" <<  foundMu << std::endl;
            
@@ -215,7 +216,10 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                     && fabs(iM1->eta()) <= etaCut && fabs(iM2->eta()) <= etaCut && fabs(iM3->eta()) <= etaCut && fabs(iM4->eta()) <= etaCut
                     && (lepton1 + lepton2 + lepton3 + lepton4).mass() >= invMass4MuCut_low
                     &&  (lepton1 + lepton2 + lepton3 + lepton4).mass() <= invMass4MuCut_high){
-                   
+ //                   std::cout << "invMass4Mu is  " <<(lepton1 + lepton2 + lepton3 + lepton4).mass() << std::endl;  //Recall that for events with more than one Y+Z candidate, the inv4MuMass might be over 120, but don't freak out, you are just guaranteeing there is at least 1 candidate in the event in the right range 
+                 //   if ((lepton1 + lepton2 + lepton3 + lepton4).mass() > 120) {
+                 //      std::cout << "BARK" << std::endl;
+                  //  }
                     flagTotCharge_pT_Eta_InvMassOf4Mu = true;
                     if (flagTotCharge_pT_Eta_InvMassOf4Mu) break;
                   }

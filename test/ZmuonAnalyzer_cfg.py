@@ -48,10 +48,10 @@ if options.applyZmuonFilter:
      objects = cms.InputTag("selectedPatTrigger"),
 #     genParticles = cms.InputTag("prunedGenParticles"), #not needed here
 #     pfCands = cms.InputTag("packedPFCandidates")  #not needed here
-     pTCut = cms.double(0.),
-     etaCut = cms.double(4.),
-     invMass4MuCut_low = cms.double(0.),
-     invMass4MuCut_high = cms.double(10000.),
+     pTCut = cms.double(2.),
+     etaCut = cms.double(3.),
+     invMass4MuCut_low = cms.double(60.),
+     invMass4MuCut_high = cms.double(120.),
   )
    process.nEventsTotal = cms.EDProducer("EventCountProducer")
    process.nEventsFiltered = cms.EDProducer("EventCountProducer")
@@ -93,7 +93,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string("mc_ZUpsi_mary_10Oct2020.root")
+   fileName = cms.string("mc_ZUpsi_mary_12Oct2020_preCrabTest.root")
 )
 
 #process.maxEvents.input = 1000

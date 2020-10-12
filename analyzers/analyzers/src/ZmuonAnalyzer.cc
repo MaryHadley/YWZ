@@ -193,7 +193,7 @@ private:
    
    std::vector<double> big4MuVtx;
    
-   std::vector<double> TrkWeightsRecoVtxTrks;
+//   std::vector<double> TrkWeightsRecoVtxTrks;
 
 };  
 
@@ -367,7 +367,7 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("inv4MuMass", &inv4MuMass);
    tree->Branch("big4MuVtx", &big4MuVtx);
    
-   tree->Branch("TrkWeightsRecoVtxTrks", &TrkWeightsRecoVtxTrks);
+//   tree->Branch("TrkWeightsRecoVtxTrks", &TrkWeightsRecoVtxTrks);
    
    tree->Branch("lepton1_validHits", &lepton1_validHits);
    tree->Branch("lepton2_validHits", &lepton2_validHits);
@@ -558,12 +558,14 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       std::string str (names.triggerName(i));
  //     std::cout << "str is :" << str << std::endl;
       std::string str2 ("Ele");
-      std::string str3 ("Mu");
+      std::string str3 ("Mu"); //confirmed that Mu is the right thing to search even for the DoubleMuon Dataset we will be using, see: https://twiki.cern.ch/twiki/bin/view/CMS/HLTPathsRunIIList
       std::size_t foundEle = str.find(str2);
       std::size_t foundMu  = str.find(str3);
-      if (foundEle!=std::string::npos && foundMu==std::string::npos) 
+//      if (foundEle!=std::string::npos && foundMu==std::string::npos) /Confirmed with Greg that we want to not check the electron trigger here, only the muon. Original code is commented out but kept for posterity.
+      if (foundMu==std::string::npos) 
         event_fails_trigger = true;
-      if (foundEle!=std::string::npos && foundMu!=std::string::npos)//QUESTION for Greg: do we want to keep events even if they pass the el trigger as long as they also pass mu trigger?
+ //     if (foundEle!=std::string::npos && foundMu!=std::string::npos)//Confirmed with Greg that we want to not check the electron trigger here, only the muon. Original code is commented out but kept for posterity.
+      if (foundMu!=std::string::npos)  
         event_fails_trigger = false; 
     }
    } //trigger requirements 
@@ -594,7 +596,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 //         reco_vert.y.push_back( (*reco_vertices)[vertex].y() );
 //         reco_vert.z.push_back( (*reco_vertices)[vertex].z() );
 //         // Store first good vertex as "primary"
-//         // vertex is ordered by highest pt, in descending order //QUESTION! if by default the first vertex is indeed the one with the highest pT, then the below works. Is this a safe assumption though (I'm not 100% sure miniaod sorts things this way, but you probably know more than I do about this)
+//         // vertex is ordered by highest pt, in descending order //This is basically true, see email from Michal Bluj dated 7 Oct. 2020
 //         //std::cout << iEvent.id().event() << "vertex pT: " << sumPtSquared((*reco_vertices)[vertex]) << std::endl;
 //         sumOfVertices.push_back(sumPtSquared((*reco_vertices)[vertex]));
 
@@ -602,21 +604,23 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           /// <--------- to be tested
           reco::Vertex it_vertex = (*reco_vertices)[vertex]; //if the vertex meets the requirements, go ahead and do this loop
  //         std::cout << "Got here" << std::endl;
-          double sum = 0.;
-          double pT;
-          //It appears trackSize is always 0 and so this loop never fires
-          std::cout <<  "it_vertex.tracksSize() " << it_vertex.tracksSize();
-          for (reco::Vertex::trackRef_iterator it = it_vertex.tracks_begin(); it != it_vertex.tracks_end(); it++) {
-//            for (auto it = it_vertex.tracks_begin(); it != it_vertex.tracks_end(); it++){
- //           std::cout << "Also got here" << std::endl;
-            pT = (**it).pt();
-            sum += pT; //sum up the pT of all the tracks associated with that vertex
-            std::cout << pT << " " << sum << std::endl;
-            iTrkWeightOfRecoVtxTrk = it_vertex.trackWeight(*it);
-            TrkWeightsRecoVtxTrks.push_back(iTrkWeightOfRecoVtxTrk);
-            std::cout << it_vertex.trackWeight(*it) << std::endl;
-          } 
-          
+ 
+ //Confirmed with tracking experts that track info is NOT stored in miniAOD  (see email from Wolfram Erdmann from 12 Oct. 2020 )
+   //        double sum = 0.;
+//           double pT;
+//           //It appears trackSize is always 0 and so this loop never fires
+//           std::cout <<  "it_vertex.tracksSize() " << it_vertex.tracksSize();
+    //       for (reco::Vertex::trackRef_iterator it = it_vertex.tracks_begin(); it != it_vertex.tracks_end(); it++) {
+// //            for (auto it = it_vertex.tracks_begin(); it != it_vertex.tracks_end(); it++){
+//  //           std::cout << "Also got here" << std::endl;
+//             pT = (**it).pt();
+//             sum += pT; //sum up the pT of all the tracks associated with that vertex
+//             std::cout << pT << " " << sum << std::endl;
+//             iTrkWeightOfRecoVtxTrk = it_vertex.trackWeight(*it);
+//             TrkWeightsRecoVtxTrks.push_back(iTrkWeightOfRecoVtxTrk);
+//             std::cout << it_vertex.trackWeight(*it) << std::endl;
+//           } 
+//           
                   
 
            
@@ -649,9 +653,10 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    doit = true; //QUESTION! so doit is always true, so what is the point of the code above where doit was contingent on the event belonging to run NNN
    
    bool save_event = false; //comment in for test
+   //Cut values 
    double muon_mass = 0.1056583715; 
    double upsi_mass_low  = 8.; //selections as from AN 
-   double upsi_mass_high = 12.; //was 11 in AN but I don't think this really matters so much ()
+   double upsi_mass_high = 12.; //was 11 in AN but I don't think this really matters so much, can tighten in next step 
    double Z_mass_low  = 66.;
    double Z_mass_high = 116.;
    
@@ -666,7 +671,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         for (auto iM3 = iM2+1; iM3 != muons->end(); ++iM3) {
           for (auto iM4 = iM3+1; iM4 != muons->end(); ++iM4) {
 
-                double pT_cut = 2.5; //QUESTION: where did the 2.5 come from? In the AN i see mu with pT > 4...
+                double pT_cut = 2.5; // we cut looser here and then harder (pT > 4) in phase 2 code
 
 //                std::cout << " <<<<<<<<<<<<< ------------------------- entered " << std::endl;
     
@@ -682,7 +687,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                   continue;
                 if (iM1->isTrackerMuon()==false || iM2->isTrackerMuon()==false)
                   continue;
-                if (iM1->isSoftMuon(primary_vertex)==false || iM2->isSoftMuon(primary_vertex)==false) //QUESTION!: I wouldn't have known isSoftMuon needed to (primary_vertex) argument, is this something you just knew?
+                if (iM1->isSoftMuon(primary_vertex)==false || iM2->isSoftMuon(primary_vertex)==false) //QUESTION!: I wouldn't have known isSoftMuon needed to (primary_vertex) argument, is this something you just knew? //Apparently you get compilation errors if you forget it
                   continue;
 //                 if (iM1->isGlobalMuon()==false || iM2->isGlobalMuon()==false)
 //                  continue;
@@ -701,7 +706,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                   continue;
 //                if (iM3->isGlobalMuon()==false || iM4->isGlobalMuon()==false)
 //                  continue;
-               //QUESTION! How did we come up with the dz = 20 and  dxy = 1 cuts?
+               //These cuts (dz = 20, dxy =1 )  come from the definition of the soft muon. S.L. pretty sure that if WE remove this cut, it won't make a difference...Probably obsolete.
                
                
                 
@@ -774,8 +779,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 if (!(match_12_34_56 || match_13_24_56 || 
                       match_14_23_56)) 
                   continue;
-                  //QUESTION: do we need some protection in case there was a matching ambiguity?
-
+                  //At this point, we might have more than 1 Y+Z candidate in each event (aka matching ambiguity). We will sort this out in the phase 2 code, not here.
                 save_event = true; //if we found a good set, turn save_event to true 
 
                 if (match_12_34_56) {dimuon1mass.push_back(mass_1_2); dimuon2mass.push_back(mass_3_4);  dimuon1pt.push_back(pt_1_2); dimuon2pt.push_back(pt_3_4);  dimuon1eta.push_back(eta_1_2); dimuon2eta.push_back(eta_3_4);  dimuon1phi.push_back(phi_1_2); dimuon2phi.push_back(phi_3_4); }
