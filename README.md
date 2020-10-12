@@ -4,8 +4,8 @@
 
 mkdir someDummyWorkAreaName # change this to whatever you want :)  
 cd someDummyWorkAreaName  
-cmsrel CMSSW_10_2_9  
-cd CMSSW_10_2_9/src  
+cmsrel CMSSW_10_6_2  #10_6_X needed for UL
+cd CMSSW_10_6_2/src  
 git clone https://github.com/MaryHadley/YWZ  
 cmsenv  
 scram b  
