@@ -1,4 +1,7 @@
-Set up instructions on lxplus (sl7)
+*YWZ*   
+
+
+*Set up instructions on lxplus (sl7)*  
 
 mkdir someDummyWorkAreaName # change this to whatever you want :)
 cd someDummyWorkAreaName
