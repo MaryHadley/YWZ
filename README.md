@@ -1,4 +1,4 @@
-#Heading 1 **YWZ**
+#**YWZ**
 
 
 *Set up instructions on lxplus (sl7)*  
