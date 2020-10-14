@@ -1,14 +1,14 @@
 # **YWZ**
 
 
-*Set up instructions on lxplus (sl7)*    
+**Set up instructions on lxplus (sl7)**    
 
 mkdir someDummyWorkAreaName # change this to whatever you want :)  
 cd someDummyWorkAreaName  
 cmsrel CMSSW_10_6_2 #10_6_X needed for UL  
 cd CMSSW_10_6_2/src  
 git clone https://github.com/MaryHadley/YWZ  
-This is a bit of a hack to get things to compile, will try to fix later. In the meantime, the hack works.  
+**This is a bit of a hack to get things to compile, will try to fix later. In the meantime, the hack works.**  
 cd YWZ  
 mv * ..  
 cd ..  
