@@ -1130,7 +1130,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 // MC starts here
 // **************
    if (isMC && save_event) { //change to (isMC && save_event) for testing 
-//    std::cout << "Am here at check 2 " << std::endl; 
+    std::cout << "Am here at check 2 " << std::endl; 
 
 //*****
 //PILEUP, observed and true 
