@@ -93,7 +93,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string("mc_ZUpsi_mary_12Oct2020_preCrabTest_short.root")
+   fileName = cms.string("data_ZUpsi.root")
 )
 
 #process.maxEvents.input = 1000
@@ -119,7 +119,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 if options.applyZmuonFilter:
     process.p = cms.Path(
-         process.nEventsTotal *process.ZmuonFilter * process.ZmuonAnalyzer * process.nEventsFiltered
+         process.nEventsTotal *process.ZmuonFilter *process.nEventsFiltered * process.ZmuonAnalyzer 
         )
 
 else:

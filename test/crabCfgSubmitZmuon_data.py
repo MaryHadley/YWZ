@@ -22,7 +22,7 @@ if __name__ == '__main__':
     
     #Common configuration
     
-    config.General.workArea     = 'Zmuon_DataJobs_UL2018ABCD_DoubleMu_12October2020'
+    config.General.workArea     = 'Zmuon_DataJobs_UL2018ABCD_DoubleMu_15October2020_bugInFilterOrderFixed'
     config.General.transferLogs = False
 #    config.JobType.maxMemoryMB = 5000 #Let's try the default to start and see if it works 
 #    config.JobType.maxJobRuntimeMin = 2750 #Let's try the default to start and see if it works 
