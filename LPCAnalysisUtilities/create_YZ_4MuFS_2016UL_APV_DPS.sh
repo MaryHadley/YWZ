@@ -62,7 +62,7 @@ echo FINISHED AOD STEP
 
 #MiniAOD cmsDriver command
 echo RUNNING MINIAOD STEP
-cmsDriver_2016UL.py  --python_filename run_cfg_YZ_4Mu_FS_DPS_APV_MiniStep_2016UL.py  --eventcontent MINIAODSIM --customise Configuration/DataProcessing/Utils.addMonitoring --datatier MINIAODSIM --fileout file:YZ_4MuFS_DPS_APV_MiniAOD_2016UL.root --conditions 106X_mcRun2_asymptotic_preVFP_v8 --step PAT --geometry DB:Extended --filein file:YZ_4MuFS_DPS_APV_AOD_2016UL.root --era Run2_2016 --runUnscheduled --no_exec --mc -n $nEVENTS
+cmsDriver_2016UL.py  --python_filename run_cfg_YZ_4Mu_FS_DPS_APV_MiniAODStep_2016UL.py  --eventcontent MINIAODSIM --customise Configuration/DataProcessing/Utils.addMonitoring --datatier MINIAODSIM --fileout file:YZ_4MuFS_DPS_APV_MiniAOD_2016UL.root --conditions 106X_mcRun2_asymptotic_preVFP_v8 --step PAT --geometry DB:Extended --filein file:YZ_4MuFS_DPS_APV_AOD_2016UL.root --era Run2_2016 --runUnscheduled --no_exec --mc -n $nEVENTS
 echo FINISHED MINIAOD STEP
 
 
