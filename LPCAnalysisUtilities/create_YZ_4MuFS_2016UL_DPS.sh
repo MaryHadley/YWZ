@@ -3,7 +3,7 @@
 ## Notes ###
 ############
 #ZY -> 4 mu (DPS)
-#Thank you to Jordan Martins for his help!
+#Thank you to Jordan Martins, Leonardo Lunerti for their help!
 #################
 
 export SCRAM_ARCH=slc7_amd64_gcc700
