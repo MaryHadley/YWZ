@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import * # this setting is probably fine
 from Configuration.Generator.MCTunes2017.PythiaCP5Settings_cfi import * # to be checked 
-from Configuration.Generator.PSweightsPythia.PythiaPSweightsSettings_cfi import * #I'm going to guess not needed 
+#from Configuration.Generator.PSweightsPythia.PythiaPSweightsSettings_cfi import * #I'm going to guess not needed 
 
 generator = cms.EDFilter("Pythia8GeneratorFilter",
                                  comEnergy = cms.double(13000.0),
@@ -36,13 +36,18 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
 
        #Make Z with first hard scatter 
        'WeakZ0:gmZmode = 0', #0 is the default and includes full Z/gamma* structure with interference included. see: http://home.thep.lu.se/~torbjorn/pythia81html/Welcome.html Note that all output particles will have the Z code, 23.
+       'PhaseSpace:mHatMin = 75.', # suggested by: http://skands.physics.monash.edu/slides/worksheet8165-asp.pdf
+       'PhaseSpace:mHatMax = 120.', #suggested by: http://skands.physics.monash.edu/slides/worksheet8165-asp.pdf
        '23:onMode = off',
        '23:onIfMatch = 13 -13', #mu- mu+ pair
        'PartonLevel:MPI = on', #check this? is it needed?  Looks like not needed, is the same as the default, see: http://home.thep.lu.se/~torbjorn/pythia82html/MasterSwitches.html
+       #Make bottomonium with second hard scatter, second hard scatter will have smaller factorization scale than first, so order does indeed matter 
        'SecondHard:generate = on',
        'SecondHard:Bottomonium = on', 
        #I think Bottomonium will decay automatically, see: mayDecay: a flag telling whether a particle species may decay or not, offering the main user switch. Whether a given particle of this kind then actually will decay also depends on it having allowed decay channels, and on other flags for particle decays (or resonance decays). All particles with tau0 below 1000 mm (aka 1 m)are by default initialized to allow decays. http://home.thep.lu.se/~torbjorn/pythia82html/ParticleDataScheme.html
       # Per Steve Mrenna's advice, don't restrict decays, deal with things with a filter 
+      #Do we want to use Bottomonium on? Or do we want to specify the Y(nS) as above in the long list (but change settings from on, off, off to on, on, on). If we use Bottomonium, we will get chi_b's as well see:  Bottomonium:all   (default = off)
+#Common switch for the group of bottomonium production, e.g. Upsilon and chi_b (http://home.thep.lu.se/~torbjorn/pythia82html/OniaProcesses.html)
      
       ),
 
