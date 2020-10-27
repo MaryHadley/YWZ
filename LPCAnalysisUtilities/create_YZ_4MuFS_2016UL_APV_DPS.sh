@@ -4,7 +4,7 @@
 ###Notes####
 ##########
 #YZ->4 mu (DPS) 2016 UL APV Defect modeled
-#Thank you to Jordan Martins for his help with this
+#Thank you to Jordan Martins, Leonardo Lunerti for their help with this
 
 
 export SCRAM_ARCH=slc7_amd64_gcc700
