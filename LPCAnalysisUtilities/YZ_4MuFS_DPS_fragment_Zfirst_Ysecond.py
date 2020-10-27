@@ -62,3 +62,7 @@ FourMuonFilter = cms.EDFilter("FourMuonFilter", #I know how to make this guy, I 
 )
 
 ProductionFilterSequence = cms.Sequence(generator * FourMuonFilter) #*upsilonfilter
+
+
+
+
