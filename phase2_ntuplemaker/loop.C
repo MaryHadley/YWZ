@@ -28,15 +28,15 @@ void run(string file){//, string file2){
 
 
   // h i s t o g r a m s
-  TH1F *h_reco_Z_mass    = new TH1F("h_reco_Z_mass",    "h_reco_Z_mass", 20, 66., 116.);  h_reco_Z_mass   ->SetXTitle("m_{#mu#mu} [GeV]"); 
-  TH1F *h_reco_Upsi_mass = new TH1F("h_reco_Upsi_mass", "h_reco_Upsi_mass", 20, 8., 12.); h_reco_Upsi_mass->SetXTitle("m_{#mu#mu} [GeV]");
+  TH1F *h_reco_Z_mass    = new TH1F("h_reco_Z_mass",    "h_reco_Z_mass", 20, 66., 116.);  h_reco_Z_mass   ->SetXTitle("m_{#mu#mu} [GeV]"); //might want to change the binning, this is currently 20 bins to cover a range of 5
+  TH1F *h_reco_Upsi_mass = new TH1F("h_reco_Upsi_mass", "h_reco_Upsi_mass", 20, 8., 12.); h_reco_Upsi_mass->SetXTitle("m_{#mu#mu} [GeV]"); //20 bins here to cover a range of 4 
 
-  TH1F *h_truth_Z_mass    = new TH1F("h_truth_Z_mass",    "h_truth_Z_mass", 20, 66., 116.);  h_truth_Z_mass->SetMarkerSize(0);
-  TH1F *h_truth_Upsi_mass = new TH1F("h_truth_Upsi_mass", "h_truth_Upsi_mass", 20, 8., 12.); h_truth_Upsi_mass->SetMarkerSize(0);
+  TH1F *h_truth_Z_mass    = new TH1F("h_truth_Z_mass",    "h_truth_Z_mass", 20, 66., 116.);  h_truth_Z_mass->SetMarkerSize(0); //If I change the binning above, would also want to change it here so the truth and recovered plots have same scale 
+  TH1F *h_truth_Upsi_mass = new TH1F("h_truth_Upsi_mass", "h_truth_Upsi_mass", 20, 8., 12.); h_truth_Upsi_mass->SetMarkerSize(0); //same comment as above for the upsi truth and recovered mass plots 
 
 
   // v a r i a b l e s
-  double muon_mass = 105.6583 / 1000.;
+  double muon_mass = 105.6583 / 1000.; //get mass in GeV
 
   // n e w  s k i m m e d   r o o t   f i l e
   double mass1, mass2;
@@ -50,7 +50,7 @@ void run(string file){//, string file2){
 //////    D A T A    //////
 ///////////////////////////
 
-  int entries = (TREE->fChain)->GetEntries();
+  int entries = (TREE->fChain)->GetEntries(); //might want to change to GetEntriesFast by that can wait
   for(int iEntry=0; iEntry<entries; iEntry++) {
     (TREE->fChain)->GetEntry(iEntry);
 
@@ -58,7 +58,7 @@ void run(string file){//, string file2){
     double temp_comparison_pt_z = 0;
     mass1 = 0.; mass2 = 0.;
 
-    for (int i=0; i<(int)TREE->lepton1_pt->size(); i++) {
+    for (int i=0; i<(int)TREE->lepton1_pt->size(); i++) { //note to self: check that lepton1 size will always = lepton 2 size = lepton 3 size = lepton 4 size, I think so but need to double check 
 
       TLorentzVector lepton1, lepton2, lepton3, lepton4;
       lepton1.SetPtEtaPhiM ( TREE->lepton1_pt->at(i), TREE->lepton1_eta->at(i), TREE->lepton1_phi->at(i), muon_mass);
@@ -72,6 +72,8 @@ void run(string file){//, string file2){
       // the lines below pick up the highest in pt candidate but makes
       // the assumption that lepton 1 2 are from Z and lepton 3 4 from
       // the Upsilon. Which can be wrong.
+       //QUESTION: how would you suggest we improve on this?
+      //QUESTION: unless I'm mistaken here, looks like we still haven't dealt with the matching ambiguous cases, I need to review the phase 1 code and remind myself of how it works though to be sure 
       if (temp_comparison_pt_upsilon < (lepton3+lepton4).Pt()) {
         mass1 = (lepton3+lepton4).M();
         temp_comparison_pt_upsilon = (lepton3+lepton4).Pt();
@@ -83,7 +85,7 @@ void run(string file){//, string file2){
 
     } // loop over the size of the leptons
 
-    if (mass1 > 0. && mass2 > 0.)
+    if (mass1 > 0. && mass2 > 0.) //assuming we have found good candidates for both mass1 (upsi) and mass2 (Z), book them. The "good" candidates are taken to be the highest pT ones 
       aux->Fill();
 
   } // loop over the entries
