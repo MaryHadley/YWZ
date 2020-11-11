@@ -22,7 +22,7 @@ if __name__ == '__main__':
     
     #Common configuration
     
-    config.General.workArea     = 'Zmuon_DataJobs_UL2018ABCD_DoubleMu_15October2020_bugInFilterOrderFixed'
+    config.General.workArea     = 'Zmuon_DataJobs_UL2018ABCD_DoubleMu_11Nov2020'
     config.General.transferLogs = False
 #    config.JobType.maxMemoryMB = 5000 #Let's try the default to start and see if it works 
 #    config.JobType.maxJobRuntimeMin = 2750 #Let's try the default to start and see if it works 
@@ -62,33 +62,33 @@ if __name__ == '__main__':
 #     p.join()
 
     # Run2018A DoubleMu
-    config.General.requestName = 'DoubleMuUL_Run2018A' 
+    config.General.requestName = 'DoubleMuUL_Run2018A_11Nov2020' 
     config.Data.inputDataset   = '/DoubleMuon/Run2018A-12Nov2019_UL2018-v2/MINIAOD' 
-    config.Data.outLFNDirBase  = '/store/user/mhadley/Zmuon_DataJobs_DiMu_UL2018A'
+    config.Data.outLFNDirBase  = '/store/user/mhadley/Zmuon_DataJobs_DiMu_UL2018A_11Nov2020'
     p = Process(target=submit, args=(config,))
     p.start()
     p.join()
     
   #   Run2018B DoubleMu
-    config.General.requestName = 'DoubleMuUL_Run2018B' 
+    config.General.requestName = 'DoubleMuUL_Run2018B_11Nov2020' 
     config.Data.inputDataset   = '/DoubleMuon/Run2018B-12Nov2019_UL2018-v2/MINIAOD'
-    config.Data.outLFNDirBase  =  '/store/user/mhadley/Zmuon_DataJobs_DiMu_UL2018B'
+    config.Data.outLFNDirBase  =  '/store/user/mhadley/Zmuon_DataJobs_DiMu_UL2018B_11Nov2020'
     p = Process(target=submit, args=(config,))
     p.start()
     p.join()
 # 
 #     Run2018C DoubleMu
-    config.General.requestName = 'DoubleMuUL_Run2018C' 
+    config.General.requestName = 'DoubleMuUL_Run2018C_11Nov2020' 
     config.Data.inputDataset   = '/DoubleMuon/Run2018C-12Nov2019_UL2018-v2/MINIAOD' 
-    config.Data.outLFNDirBase  = '/store/user/mhadley/Zmuon_DataJobs_UL2018_DiMu_UL2018C' 
+    config.Data.outLFNDirBase  = '/store/user/mhadley/Zmuon_DataJobs_UL2018_DiMu_UL2018C_11Nov2020' 
     p = Process(target=submit, args=(config,))
     p.start()
     p.join()
 #     
 #     Run2018D DoubleMu    
-    config.General.requestName = 'DoubleMuUL_Run2018D' 
+    config.General.requestName = 'DoubleMuUL_Run2018D_11Nov2020' 
     config.Data.inputDataset   = '/DoubleMuon/Run2018C-12Nov2019_UL2018-v2/MINIAOD'
-    config.Data.outLFNDirBase  =  '/store/user/mhadley/Zmuon_DataJobs_DiMu_UL2018D' 
+    config.Data.outLFNDirBase  =  '/store/user/mhadley/Zmuon_DataJobs_DiMu_UL2018D_11Nov2020' 
     p = Process(target=submit, args=(config,))
     p.start()
     p.join()

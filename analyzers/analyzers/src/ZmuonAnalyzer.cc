@@ -14,6 +14,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include <TTree.h>
 
+//test comment
+
 // for vertexing                                                                                                                                                                                        
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"  // edm::Handle
@@ -87,7 +89,7 @@ private:
    
    edm::EDGetTokenT<double> rhoToken_; //rho, median energy density, see: https://arxiv.org/pdf/0707.1378.pdf
    
-   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override; //If applyZmuonFilter=False, comment out!
    
    bool isMC;
    
@@ -230,6 +232,7 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    histContainer_["nEventsFilteredCounter"]  = fs->make<TH1F>("nEventsFilteredCounter", ";nEventsFilteredCounter; nEvents",2,0,2);
    histContainer_["PU"]                      =  fs->make<TH1F>("PU",      ";Pileup observed;Events",100,0,100);
    histContainer_["PU_True"]                 =  fs->make<TH1F>("PU_True",  ";Pileup true;Events",100,0,100);
+   histContainer_["CutFlow"]                 = fs->make<TH1F>("CutFlow",  ";CutFlow;Z+Upsi Candidate",15,0,15);
    for(std::unordered_map<std::string,TH1*>::iterator it=histContainer_.begin();   it!=histContainer_.end();   it++) it->second->Sumw2(); //call Sumw2 on all the hists in histContainer_   
    
    tree->Branch("event_number", &event_number);
@@ -552,29 +555,62 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 //        }
 //    }
 
-   bool event_fails_trigger = false; //defaults to false, which is what we want in the end (see line 539)
-   for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
-    if (triggerBits->accept(i)) {
-      triggerlist.push_back(names.triggerName(i));
-      std::string str (names.triggerName(i));
- //     std::cout << "str is :" << str << std::endl;
-      std::string str2 ("Ele");
-      std::string str3 ("Mu"); //confirmed that Mu is the right thing to search even for the DoubleMuon Dataset we will be using, see: https://twiki.cern.ch/twiki/bin/view/CMS/HLTPathsRunIIList
-      std::size_t foundEle = str.find(str2);
-      std::size_t foundMu  = str.find(str3);
-//      if (foundEle!=std::string::npos && foundMu==std::string::npos) /Confirmed with Greg that we want to not check the electron trigger here, only the muon. Original code is commented out but kept for posterity.
-      if (foundMu==std::string::npos) 
-        event_fails_trigger = true;
- //     if (foundEle!=std::string::npos && foundMu!=std::string::npos)//Confirmed with Greg that we want to not check the electron trigger here, only the muon. Original code is commented out but kept for posterity.
-      if (foundMu!=std::string::npos)  
-        event_fails_trigger = false; 
-    }
-   } //trigger requirements 
+   bool event_fails_trigger = true; //defaults to true 
+ //   for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
+//     if (triggerBits->accept(i)) {
+//       triggerlist.push_back(names.triggerName(i));
+//       std::string str (names.triggerName(i));
+//       std::cout << "str is :" << str << std::endl;
+//       std::string str2 ("Ele");
+//       std::string str3 ("Mu"); //confirmed that Mu is the right thing to search even for the DoubleMuon Dataset we will be using, see: https://twiki.cern.ch/twiki/bin/view/CMS/HLTPathsRunIIList
+//       std::size_t foundEle = str.find(str2);
+//       std::size_t foundMu  = str.find(str3);
+//       if (foundEle!=std::string::npos && foundMu==std::string::npos){ //Do this as Stefanos did, full
+//         event_fails_trigger = true;
+//         std::cout << "event_fails_trigger is True" << std::endl;
+//       }
+//       
+//       if (foundEle!=std::string::npos && foundMu!=std::string::npos){
+//      
+//         event_fails_trigger = false;
+//         std::cout << "event_fails_trigger is False" << std::endl; 
+//       }
+//     }
+// 
+// 
+//    } //trigger requirements 
 //   if (event_fails_trigger) {
 //      for (int itrig = 0; itrig < (int)triggerlist.size(); itrig++)
 //        std::cout << triggerlist.at(itrig) << std::endl;
 //      std::cout << "--------------\n";
 //   }
+
+
+//The above stuff is not the best way to deal with it, let's try this instead
+
+  for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
+     if (triggerBits->accept(i)) {
+       triggerlist.push_back(names.triggerName(i));
+      }
+   }
+   
+   for (unsigned int i= 0, n = triggerlist.size(); i < n; i++) {
+       std::cout << triggerlist.at(i) << std::endl;
+       std::string str (triggerlist.at(i));
+       std::cout << "str is:" << str << std::endl;
+       std::string str2 ("Ele");
+       std::string str3 ("Mu");
+       std::size_t foundEle = str.find(str2);
+       std::size_t foundMu  = str.find(str3);
+       if (foundEle==std::string::npos && foundMu!=std::string::npos){ //avoid mixed e/mu triggers
+          event_fails_trigger=false;
+          std::cout << "Event passed trigger!" << std::endl;
+          break; //as soon as we found that it passed, get out of the loop!
+       
+       } 
+   
+   }
+
 // ******
 // VERTEX
 // ******
@@ -665,46 +701,95 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // high pt muons - low pt muons
 //  if (!nontriggeredevent)
+    if ((int)muons->size()<3)
+       std::cout << "LESS THAN THREE"<< std::endl;
+    std::cout << ((int)muons->size());
+    if (event_fails_trigger == true)
+       std::cout << "FAILS TRIGGER" << std::endl;
    if ((int)muons->size()>3 && !event_fails_trigger && doit) { //Fixed bug, initially we accidentally were demanding 6 mu, now we have it right Shouldn't there be four muons in this final state, so anything with size over 3 should be ok? I think doit is not really doing anything here. And event_fails_trigger apparently should be false, so except for the six muon thing, I think this line is ok. Also note that changing this to 3 exposed a weakness/lack of protection in the code in the Lxy part. Sometimes dimuon1vtx_xpos is empty, so needed to add a statement right before the Lxy part that tells the code to continue if dimuon1vtx_xpos is empty to prevent things from blowing up
 //     bool save_event = false; //coment out for test
+     std::cout << "HERE" << std::endl;
      for (auto iM1 = muons->begin(); iM1 != muons->end(); ++iM1) {
       for (auto iM2 = iM1+1; iM2 != muons->end(); ++iM2) {
         for (auto iM3 = iM2+1; iM3 != muons->end(); ++iM3) {
           for (auto iM4 = iM3+1; iM4 != muons->end(); ++iM4) {
-
+                 
                 double pT_cut = 2.5; // we cut looser here and then harder (pT > 4) in phase 2 code
-
-//                std::cout << " <<<<<<<<<<<<< ------------------------- entered " << std::endl;
+                histContainer_["CutFlow"]->AddBinContent(1); //how many candidates we have 
+                std::cout << " <<<<<<<<<<<<< ------------------------- entered " << std::endl;
     
-                if (iM1->charge() + iM2->charge() + iM3->charge() + iM4->charge() !=0)
+                if (iM1->charge() + iM2->charge() + iM3->charge() + iM4->charge() !=0){
+                 
+                  std::cout << "FAILED AT CUT 1" << std::endl;
+                  histContainer_["CutFlow"]->AddBinContent(2);
+                 continue;
+                }
+                if (fabs(iM1->muonBestTrack()->dz(primary_vertex.position()))>20. || fabs(iM2->muonBestTrack()->dz(primary_vertex.position()))>20.){
+                 histContainer_["CutFlow"]->AddBinContent(3);
+                 std::cout << "FAILED AT CUT 2" << std::endl;
                   continue;
-                if (fabs(iM1->muonBestTrack()->dz(primary_vertex.position()))>20. || fabs(iM2->muonBestTrack()->dz(primary_vertex.position()))>20.)
+                }
+                if (fabs(iM1->muonBestTrack()->dxy(primary_vertex.position()))>1. || fabs(iM2->muonBestTrack()->dxy(primary_vertex.position()))>1.){
+                  histContainer_["CutFlow"]->AddBinContent(4);
+                  std::cout << "FAILED AT CUT 3" <<std::endl;
                   continue;
-                if (fabs(iM1->muonBestTrack()->dxy(primary_vertex.position()))>1. || fabs(iM2->muonBestTrack()->dxy(primary_vertex.position()))>1.)
+                }
+                if (fabs(iM1->eta())>2.5 || fabs(iM2->eta())>2.5){
+                  histContainer_["CutFlow"]->AddBinContent(5);
+                  std::cout << "FAILED AT CUT 4" << std::endl;
                   continue;
-                if (fabs(iM1->eta())>2.5 || fabs(iM2->eta())>2.5)
+                }
+                if (iM1->pt()<pT_cut || iM2->pt()<pT_cut){
+                  histContainer_["CutFlow"]->AddBinContent(6);
+                  std::cout << "FAILED AT CUT 5" << std::endl;
                   continue;
-                if (iM1->pt()<pT_cut || iM2->pt()<pT_cut)
+                }
+                if (iM1->isTrackerMuon()==false || iM2->isTrackerMuon()==false){
+                  histContainer_["CutFlow"]->AddBinContent(7);
+                  std::cout << "FAILED AT CUT 6" << std::endl;
                   continue;
-                if (iM1->isTrackerMuon()==false || iM2->isTrackerMuon()==false)
+                }
+                if (iM1->isSoftMuon(primary_vertex)==false || iM2->isSoftMuon(primary_vertex)==false){ //QUESTION!: I wouldn't have known isSoftMuon needed to (primary_vertex) argument, is this something you just knew? //Apparently you get compilation errors if you forget it
+                 histContainer_["CutFlow"]->AddBinContent(8);
+                 std::cout << "FAILED AT CUT 7"  << std::endl;
                   continue;
-                if (iM1->isSoftMuon(primary_vertex)==false || iM2->isSoftMuon(primary_vertex)==false) //QUESTION!: I wouldn't have known isSoftMuon needed to (primary_vertex) argument, is this something you just knew? //Apparently you get compilation errors if you forget it
-                  continue;
+                }
 //                 if (iM1->isGlobalMuon()==false || iM2->isGlobalMuon()==false)
 //                  continue;
     
-                if (fabs(iM3->muonBestTrack()->dz(primary_vertex.position()))>20. || fabs(iM4->muonBestTrack()->dz(primary_vertex.position()))>20.)
+                if (fabs(iM3->muonBestTrack()->dz(primary_vertex.position()))>20. || fabs(iM4->muonBestTrack()->dz(primary_vertex.position()))>20.){
+                  histContainer_["CutFlow"]->AddBinContent(9);
+                  std::cout << "FAILED AT CUT 8" << std::endl;
                   continue;
-                if (fabs(iM3->muonBestTrack()->dxy(primary_vertex.position()))>1. || fabs(iM4->muonBestTrack()->dxy(primary_vertex.position()))>1.)
+                }
+                if (fabs(iM3->muonBestTrack()->dxy(primary_vertex.position()))>1. || fabs(iM4->muonBestTrack()->dxy(primary_vertex.position()))>1.){
+                  histContainer_["CutFlow"]->AddBinContent(10);
+                  std::cout << "FAILED AT CUT 9" << std::endl;
                   continue;
-                if (fabs(iM3->eta())>2.5 || fabs(iM4->eta())>2.5)
+                }
+                  
+                if (fabs(iM3->eta())>2.5 || fabs(iM4->eta())>2.5){
+                  histContainer_["CutFlow"]->AddBinContent(11);
+                  std::cout << "FAILED AT CUT 10" << std::endl;
+                continue;
+                }
+                 
+                if (iM3->pt()<pT_cut || iM4->pt()<pT_cut){
+                  histContainer_["CutFlow"]->AddBinContent(12);
+                  std::cout << "FAILED AT CUT 11" << std::endl;
                   continue;
-                if (iM3->pt()<pT_cut || iM4->pt()<pT_cut)
+                }
+                if (iM3->isTrackerMuon()==false || iM4->isTrackerMuon()==false){
+                  histContainer_["CutFlow"]->AddBinContent(13);
+                  std::cout << "FAILED AT CUT 12" << std::endl; 
                   continue;
-                if (iM3->isTrackerMuon()==false || iM4->isTrackerMuon()==false)
-                  continue;
-                if (iM3->isSoftMuon(primary_vertex)==false || iM4->isSoftMuon(primary_vertex)==false)
-                  continue;
+                }
+                if (iM3->isSoftMuon(primary_vertex)==false || iM4->isSoftMuon(primary_vertex)==false){
+                   histContainer_["CutFlow"]->AddBinContent(14);
+                   std::cout << "FAILED AT CUT 13" << std::endl;
+                   continue;
+                }
+                 
 //                if (iM3->isGlobalMuon()==false || iM4->isGlobalMuon()==false)
 //                  continue;
                //These cuts (dz = 20, dxy =1 )  come from the definition of the soft muon. S.L. pretty sure that if WE remove this cut, it won't make a difference...Probably obsolete.
@@ -778,11 +863,14 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
                 if (!(match_12_34_56 || match_13_24_56 || 
-                      match_14_23_56)) 
+                      match_14_23_56)) {
+                   histContainer_["CutFlow"]->AddBinContent(15);  
+                   std::cout << "FAILED At CUT 14" 
                   continue;
+                }
                   //At this point, we might have more than 1 Y+Z candidate in each event (aka matching ambiguity). We will sort this out in the phase 2 code, not here.
                 save_event = true; //if we found a good set, turn save_event to true 
-
+                
                 if (match_12_34_56) {dimuon1mass.push_back(mass_1_2); dimuon2mass.push_back(mass_3_4);  dimuon1pt.push_back(pt_1_2); dimuon2pt.push_back(pt_3_4);  dimuon1eta.push_back(eta_1_2); dimuon2eta.push_back(eta_3_4);  dimuon1phi.push_back(phi_1_2); dimuon2phi.push_back(phi_3_4); }
                                                                                                                                                                                                                                                                                                                                                                                                                                                 
                 if (match_13_24_56) {dimuon1mass.push_back(mass_1_3); dimuon2mass.push_back(mass_2_4); dimuon1pt.push_back(pt_1_3); dimuon2pt.push_back(pt_2_4);dimuon1eta.push_back(eta_1_3); dimuon2eta.push_back(eta_2_4); dimuon1phi.push_back(phi_1_3); dimuon2phi.push_back(phi_2_4); }
@@ -950,6 +1038,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 //protection here in case dimuon1vtx_xpos does not exist. without this protection, code fails with an unhelpful complaint about vector sizes. S.L. taught me with these kinds of errors, check the vectors first and see what is unprotected (like this was)
                 //I also put in an analogous protection for diumuon2vtx_xpos
                 if (dimuon1vtx_xpos.size()==0 || dimuon2vtx_xpos.size()==0){
+                    std::cout << "diumuon1 or 2 vtx failure!" << std::endl;
                     continue;
                 }
 
@@ -1129,9 +1218,9 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 // **************
 // MC starts here
 // **************
-   if (isMC && save_event) { //change to (isMC && save_event) for testing 
-    std::cout << "Am here at check 2 " << std::endl; 
-
+   if (isMC){ // && save_event) { //change to (isMC && save_event) for testing 
+//    std::cout << "Am here at check 2 " << std::endl; 
+ 
 //*****
 //PILEUP, observed and true 
 //*****
@@ -1154,6 +1243,11 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     int UPSI = 553;
     int Z = 23;
     int MUON = 13;
+    
+    int UPSI_2S = 100553;
+    int UPSI_3S = 200553;
+    int Z_to_fill_count = 0;
+    int Upsi_to_fill_count =  0;
 
     std::vector<double> upsi_pt_found;
     upsi_pt_found.clear();
@@ -1171,7 +1265,15 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       const reco::GenParticle* gen_particle = &mc_particles->at(i);
 //      if (gen_particle->pdgId() != UPSI && gen_particle->pdgId() != MUON && gen_particle->pdgId() != Z)
   //       std::cout << "NOT AN UPSI, MU, or Z" << std::endl;
+         if (gen_particle->pdgId() == UPSI_2S ||gen_particle->pdgId() == UPSI_3S){
+            std::cout << "FOUND UPSI_2S or UPSI_3S" << std::endl;
+            std::cout << gen_particle->pdgId() << std::endl;
+            std::cout << gen_particle->daughter(0)->pdgId() << std::endl;
+            std::cout << gen_particle->daughter(1)->pdgId() << std::endl;
+          //  std::cout << gen_particle->daughter(2)->pdgId() << std::endl;
+        }
       registered_upsi = false;
+//      POODLE=false;
       if (gen_particle->pdgId() == UPSI) { 
         for (int iupsi = 0; iupsi < (int)upsi_pt_found.size(); iupsi++) {
           if (TMath::Abs( gen_particle->pt() - upsi_pt_found.at(iupsi) ) < 0.1)
@@ -1190,6 +1292,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
             truth_Upsi_phi .push_back(gen_particle->phi());
             truth_Upsi_mass.push_back(gen_particle->mass());
             truth_Upsi_pdgid.push_back(gen_particle->pdgId());
+            Upsi_to_fill_count+=1;
           }
         }
         upsi_pt_found  .push_back(gen_particle->pt());
@@ -1198,10 +1301,20 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
  //       std::cout<< "upsi_pt_found.at(i): " << upsi_pt_found.at(i) << std::endl; 
  //       }
       }
+      registered_Z = false;
       if (gen_particle->pdgId() == Z) {
+        std::cout << gen_particle->pt() << std::endl;
+        std::cout<< gen_particle->numberOfDaughters() << std::endl;
         for (int iZ = 0; iZ < (int)Z_pt_found.size(); iZ++) {
-          if (TMath::Abs( gen_particle->pt() - Z_pt_found.at(iZ) ) < 0.1)
+          if (TMath::Abs( gen_particle->pt() - Z_pt_found.at(iZ) ) < .05){
+  //          POODLE = true;
+            std::cout << "POODLE" << std::endl;
+          }
+          if (TMath::Abs( gen_particle->pt() - Z_pt_found.at(iZ) ) < 0.0000001) //tune this number! 0.000001 gives all events back
+            
             registered_Z = true;
+ //           registered_Z_count+=1;
+          
         //   if (!registered_Z){
 //             truth_Z_pt  .push_back(gen_particle->pt());
 //             truth_Z_eta .push_back(gen_particle->eta());
@@ -1227,6 +1340,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
             truth_Zmuon_pt .push_back(gen_particle->daughter(j)->pt());
             truth_Zmuon_eta.push_back(gen_particle->daughter(j)->eta());
             truth_Zmuon_phi.push_back(gen_particle->daughter(j)->phi());
+             Z_to_fill_count+=1;
             
             //WARNING THE Z'S ARE NOW BEING FILLED FOR EVERY MUON, NEED TO CLEAN THIS UP WITH A MUON COUNTER TO DO
             truth_Z_pt  .push_back(gen_particle->pt());
@@ -1234,6 +1348,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
            truth_Z_phi .push_back(gen_particle->phi());
            truth_Z_mass.push_back(gen_particle->mass());
            truth_Z_pdgid.push_back(gen_particle->pdgId());
+           
           }
         }
         Z_pt_found  .push_back(gen_particle->pt());
@@ -1242,31 +1357,35 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     }
     treemc->Fill();
+ //   std::cout << "Z_to_fill_count is:" << Z_to_fill_count << std::endl;
+    std::cout << "Upsi_to_fill_count is:" << Upsi_to_fill_count << std::endl;
    } // end of mc
 
 }
 
+
+//If applyZmuonFilter=False, comment out this whole block below from void to last bracket above the //define this as a plug-in comment 
 void
 ZmuonAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
 {
 //  events seen in each lumi section
-      edm::Handle<edm::MergeableCounter> nTotalHandle;
+     edm::Handle<edm::MergeableCounter> nTotalHandle;
       iLumi.getByToken(nTotalToken_, nTotalHandle);
-      int nTotInThisLS = nTotalHandle->value;
+     int nTotInThisLS = nTotalHandle->value;
       
       histContainer_["nEventsTotalCounter"]->Fill(0); //the number of entries at 0 give us the number of LS total that were looked at at the end of the day
       histContainer_["nEventsTotalCounter"]->Fill(1, nTotInThisLS); //the number of entries at 1 will give us the total number of events looked at (each lumi section is weighted by the number of events seen in that lumi section)
       
       //Events seen in each LS that passed the filter
       edm::Handle<edm::MergeableCounter> nFilteredHandle;
-      iLumi.getByToken(nFilteredToken_, nFilteredHandle);
+     iLumi.getByToken(nFilteredToken_, nFilteredHandle);
       int nFilteredInThisLS = nFilteredHandle->value;
       
       histContainer_["nEventsFilteredCounter"]->Fill(0); //the number of entries at 0 give us the number of LS in total that passed the filter
       histContainer_["nEventsFilteredCounter"]->Fill(1, nFilteredInThisLS); //the number of entries at 1 will give us the total number of events that passed the filter 
     
     // Total number of events is the sum of the events in each of these luminosity blocks 
-  //  edm::Handle nEventsTotalCounter;
+//    edm::Handle nEventsTotalCounter;
    // iLumi.getByLabel("nEventsTotal", nEventsTotalCounter); nEventsTotal +=nEventsTotalCounter->value;
 //
 //    edm::Handle nEventsFilteredCounter; iLumi.getByLabel("nEventsFiltered",
@@ -1275,7 +1394,7 @@ ZmuonAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::
 }
 
 
-//}
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(ZmuonAnalyzer);
 

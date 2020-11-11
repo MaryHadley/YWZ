@@ -180,7 +180,7 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
            
            if (foundMu != std::string::npos) {
                flagPassTrigger = true;
-//               std::cout << "flagPassTrigger is true!" << std::endl;
+ //              std::cout << "flagPassTrigger is true!" << std::endl;
                if (flagPassTrigger) { //could get rid of this if and just do a break after flagPassTrigger = true, can't decide right now which is more readable 
                    break;
                }
@@ -192,15 +192,16 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
  if (!flagPassTrigger) { //If, after going through all the trigger bits, we have not switched the flagPassTrigger to true and it is still false, reject the event 
+//       std::cout << "DID NOT PASS TRIGGER" << std::endl;
        return false;
   }
   
   
   
-  bool flagTotCharge_pT_Eta_InvMassOf4Mu = false; 
+  bool flagTotCharge_pT_Eta_InvMassOf4Mu = false; //set to false normally, set to true for debug  
 //  std::cout << "flagTotCharge_pT_Eta_InvMassOf4Mu is initialized to: " << flagTotCharge_pT_Eta_InvMassOf4Mu << std::endl; 
   
-  for (auto iM1 = muons->begin(); iM1 != muons->end(); ++iM1) {
+   for (auto iM1 = muons->begin(); iM1 != muons->end(); ++iM1) {
       if  (flagTotCharge_pT_Eta_InvMassOf4Mu) break;  
       for (auto iM2 = iM1+1; iM2 != muons->end(); ++iM2) {
           if (flagTotCharge_pT_Eta_InvMassOf4Mu) break; 
@@ -211,28 +212,54 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                   math::PtEtaPhiMLorentzVector lepton2(iM2->pt(), iM2->eta(), iM2->phi(), muon_mass);
                   math::PtEtaPhiMLorentzVector lepton3(iM3->pt(), iM3->eta(), iM3->phi(), muon_mass);
                   math::PtEtaPhiMLorentzVector lepton4(iM4->pt(), iM4->eta(), iM4->phi(), muon_mass);
+                  
                   if (iM1->charge() + iM2->charge() + iM3->charge() + iM4->charge() == 0
-                   && iM1->pt() >= pTCut && iM2->pt() >= pTCut && iM3->pt() >= pTCut && iM4->pt() >= pTCut
-                    && fabs(iM1->eta()) <= etaCut && fabs(iM2->eta()) <= etaCut && fabs(iM3->eta()) <= etaCut && fabs(iM4->eta()) <= etaCut
-                    && (lepton1 + lepton2 + lepton3 + lepton4).mass() >= invMass4MuCut_low
-                    &&  (lepton1 + lepton2 + lepton3 + lepton4).mass() <= invMass4MuCut_high){
- //                   std::cout << "invMass4Mu is  " <<(lepton1 + lepton2 + lepton3 + lepton4).mass() << std::endl;  //Recall that for events with more than one Y+Z candidate, the inv4MuMass might be over 120, but don't freak out, you are just guaranteeing there is at least 1 candidate in the event in the right range 
-                 //   if ((lepton1 + lepton2 + lepton3 + lepton4).mass() > 120) {
-                 //      std::cout << "BARK" << std::endl;
-                  //  }
-                    flagTotCharge_pT_Eta_InvMassOf4Mu = true;
-                    if (flagTotCharge_pT_Eta_InvMassOf4Mu) break;
+                    && iM1->pt() >= pTCut && iM2->pt() >= pTCut && iM3->pt() >= pTCut && iM4->pt() >= pTCut
+                     && fabs(iM1->eta()) <= etaCut && fabs(iM2->eta()) <= etaCut && fabs(iM3->eta()) <= etaCut && fabs(iM4->eta()) <= etaCut
+                     && (lepton1 + lepton2 + lepton3 + lepton4).mass() >= invMass4MuCut_low
+                     &&  (lepton1 + lepton2 + lepton3 + lepton4).mass() <= invMass4MuCut_high){
+//  //                   std::cout << "invMass4Mu is  " <<(lepton1 + lepton2 + lepton3 + lepton4).mass() << std::endl;  //Recall that for events with more than one Y+Z candidate, the inv4MuMass might be over 120, but don't freak out, you are just guaranteeing there is at least 1 candidate in the event in the right range 
+//                  //   if ((lepton1 + lepton2 + lepton3 + lepton4).mass() > 120) {
+//                  //      std::cout << "BARK" << std::endl;
+//                   //  }
+                     flagTotCharge_pT_Eta_InvMassOf4Mu = true;
+ //                    std::cout << "flagTotCharge_pT_Eta_InvMassOf4Mu is True" << std::endl;
+                     break;
+                    }
+//                     else {
+//                       std::cout << iM1->pt() << std::endl;
+//                       std::cout << iM2->pt() << std::endl;
+//                       std::cout << iM3->pt() << std::endl;
+//                       std::cout << iM4->pt() << std::endl;
+//                       std::cout << iM1->eta() << std::endl;
+//                       std::cout << iM2->eta() << std::endl;
+//                       std::cout << iM3->eta() << std::endl;
+//                       std::cout << iM4->eta() << std::endl;
+//                       std::cout << iM1->charge() << std::endl;
+//                       std::cout << iM2->charge() << std::endl;
+//                       std::cout << iM3->charge() << std::endl;
+//                       std::cout << iM4->charge() << std::endl;
+//                       
+//                       std::cout << (lepton1 + lepton2 + lepton3 + lepton4).mass() << std::endl;
+//                       
+//                       
+//                       //, iM2->pt(), iM3->pt(), iM4->pt(), iM1->eta(), iM2->eta(), iM3->eta(), iM4->eta() << std::endl;
+//                   
+//                   }
+//                   
+//                   
                   }
-                    
              }  
          }          
             
      }
- }
+ 
   
-  if (!flagTotCharge_pT_Eta_InvMassOf4Mu) { //If, after going through all the sets of 4 mu, we have not flipped our flagTotCharge_pT_Eta_InvMassOf4Mu to true, reject the event
-      return false;
-  }
+   if (!flagTotCharge_pT_Eta_InvMassOf4Mu) { //If, after going through all the sets of 4 mu, we have not flipped our flagTotCharge_pT_Eta_InvMassOf4Mu to true, reject the event
+//  //     std::cout << iM1->pt(), iM2->pt(), iM3->pt(), iM4->pt() << std::endl;
+ //       std::cout << "FAILED flagTotCharge_pT_Eta_InvMassOf4Mu" << std::endl; 
+       return false;
+   }
   
   if (flagAtLeast4Mu && flagPassTrigger && flagTotCharge_pT_Eta_InvMassOf4Mu) {
        return true; //If we have found at least four muons in the event, the event has passed our trigger of interest, and we can find at least one quartet of muons that satisfies our pT, eta, total charge, and total invariant mass of the four requirements, keep the event to pass to the analyzer!

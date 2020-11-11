@@ -12,7 +12,7 @@ options.register( "applyZmuonFilter",
     True,
     VarParsing.VarParsing.multiplicity.singleton,
     VarParsing.VarParsing.varType.bool,
-    "Shall we prefilter out some events and never bother giving them to the analyzer? Defaults to True."
+    "Shall we prefilter out some events and never bother giving them to the analyzer? Defaults to True. If you change to false, you will need to, for the moment, comment out the indicated lines in the ZmuonAnalyzer.cc. Will try to make a nice boolean to avoid this later. Will flag with a comment 'If applyZmuonFilter=False, comment out!'"
 )
 
 options.register("isMC",
@@ -50,8 +50,8 @@ if options.applyZmuonFilter:
 #     pfCands = cms.InputTag("packedPFCandidates")  #not needed here
      pTCut = cms.double(2.),
      etaCut = cms.double(3.),
-     invMass4MuCut_low = cms.double(60.),
-     invMass4MuCut_high = cms.double(120.),
+     invMass4MuCut_low = cms.double(50.),
+     invMass4MuCut_high = cms.double(500.), #this is essentially not doing anything
   )
    process.nEventsTotal = cms.EDProducer("EventCountProducer")
    process.nEventsFiltered = cms.EDProducer("EventCountProducer")
@@ -76,10 +76,16 @@ process.source = cms.Source("PoolSource",
 #                                          "file:../miniAOD_06.root"
 #                                          "file:../../../miniAOD_lowStats.root",
 #                                           "file:../SingleMu_Run2018A-17Sep2018-v2_F8CDAAA9-11C7-A34F-A059-409CF95EB82A.root",
-                                            "file:../SingleMu_2017B-31Mar2018-v1_FC2B7874-F538-E811-9C29-0025905A60A8.root",
+#                                           "file:../SingleMu_2017B-31Mar2018-v1_FC2B7874-F538-E811-9C29-0025905A60A8.root",
 #                                            "file:0079D4A1-71DE-AF4B-90E4-115037F02923.root", #DiMu Run18 A
  #                                             "file:FD881AE8-B6AC-8E4F-9453-2D5E6135D476.root" #DiMu Run18 A
- #                                            "file:E36DDD08-CC3D-6D49-8C71-C6E8C201A2E5.root" #this is DiMU 2018RunB data
+ #                                            "file:E36DDD08-CC3D-6D49-8C71-C6E8C201A2E5.root", #this is DiMU 2018RunB data
+ #                                            "file:../YZ_4MuFS_DPS_APV_MiniAOD_2016UL_Yfirst_Zsecond_03_10_2020.root",
+ #                                           "file:../YZ_4MuFS_DPS_APV_MiniAOD_2016UL_Zfirst_Ysecond_03_10_2020.root",
+#                                           "file:../YZ_4MuFS_DPS_MiniAOD_2016UL_Yfirst_Zsecond_03_10_2020.root",
+#                                          "file:../YZ_4MuFS_DPS_MiniAOD_2016UL_Zfirst_Ysecond_03_10_2020.root",
+#                                           "file:../YZ_4MuFS_DPS_MiniAOD_2016UL_Yfirst_Zsecond_06_11_2020.root",
+                                            "file:020353D5-EB7E-3A42-928B-64ABB6449999.root",
 
                                     ),
    duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
@@ -87,13 +93,14 @@ process.source = cms.Source("PoolSource",
 
 process.maxEvents = cms.untracked.PSet(
 #   input = cms.untracked.int32(40000)
-  input = cms.untracked.int32(-1)
-   # input = cms.untracked.int32(1000) #for crab test, just look at 1000 events
+#  input = cms.untracked.int32(5)
+ #  input=cms.untracked.int32(-1)
+    input = cms.untracked.int32(1000) #for crab test, just look at 1000 events
 
 )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string("data_ZUpsi.root")
+   fileName = cms.string("mc_ZUpsi_020353D5-EB7E-3A42-928B-64ABB6449999_11Nov2020_preCrabCheck.root")
 )
 
 #process.maxEvents.input = 1000
@@ -111,7 +118,7 @@ process.options = cms.untracked.PSet(
 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 10000
+process.MessageLogger.cerr.FwkReport.reportEvery = 1#10000
 
 #process.MessageLogger = cms.Service("MessageLogger",
 #                    destinations   = cms.untracked.vstring('messages.txt')
