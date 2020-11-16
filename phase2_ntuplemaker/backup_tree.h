@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Sun Nov 15 14:15:05 2020 by ROOT version 6.14/09
+// Wed Sep  2 07:09:09 2020 by ROOT version 5.34/11
 // from TTree tree/tree
-// found on file: totalRun2018A_DoubleMuUL_Run2018A_11Nov2020.root
+// found on file: mc_ZUpsi.root
 //////////////////////////////////////////////////////////
 
 #ifndef tree_h
@@ -13,25 +13,21 @@
 #include <TFile.h>
 
 // Header file for the classes stored in the TTree if any.
-#include "vector"
-#include "vector"
-#include "vector"
-#include "vector"
+#include <vector>
+#include <vector>
+#include <vector>
+#include <vector>
+
+// Fixed size dimensions of array or collections stored in the TTree if any.
 
 class tree {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
-// Fixed size dimensions of array or collections stored in the TTree if any.
-
    // Declaration of leaf types
    vector<unsigned int> *event_number;
    vector<unsigned int> *run_number;
-   vector<unsigned int> *lumi_section;
-   vector<unsigned int> *bunch_crossing;
-   vector<unsigned int> *orbit_number;
-   vector<double>  *rho;
    vector<double>  *lepton1_pt;
    vector<double>  *lepton1_eta;
    vector<double>  *lepton1_phi;
@@ -134,7 +130,6 @@ public :
    vector<double>  *dimuon2lxyctauPV;
    vector<double>  *sixmuonvtx;
    vector<string>  *triggerlist;
-   vector<unsigned int> *save_event_count;
    vector<double>  *numberOfVertices;
    vector<double>  *zOfVertices;
    vector<double>  *zOfVerticesError;
@@ -144,20 +139,10 @@ public :
    vector<double>  *PVx;
    vector<double>  *PVy;
    vector<double>  *PVz;
-   vector<double>  *inv4MuMass;
-   vector<double>  *big4MuVtx;
-   vector<double>  *lepton1_validHits;
-   vector<double>  *lepton2_validHits;
-   vector<double>  *lepton3_validHits;
-   vector<double>  *lepton4_validHits;
 
    // List of branches
    TBranch        *b_event_number;   //!
    TBranch        *b_run_number;   //!
-   TBranch        *b_lumi_section;   //!
-   TBranch        *b_bunch_crossing;   //!
-   TBranch        *b_orbit_number;   //!
-   TBranch        *b_rho;   //!
    TBranch        *b_lepton1_pt;   //!
    TBranch        *b_lepton1_eta;   //!
    TBranch        *b_lepton1_phi;   //!
@@ -260,7 +245,6 @@ public :
    TBranch        *b_dimuon2lxyctauPV;   //!
    TBranch        *b_sixmuonvtx;   //!
    TBranch        *b_triggerlist;   //!
-   TBranch        *b_save_event_count;   //!
    TBranch        *b_numberOfVertices;   //!
    TBranch        *b_zOfVertices;   //!
    TBranch        *b_zOfVerticesError;   //!
@@ -270,12 +254,6 @@ public :
    TBranch        *b_PVx;   //!
    TBranch        *b_PVy;   //!
    TBranch        *b_PVz;   //!
-   TBranch        *b_inv4MuMass;   //!
-   TBranch        *b_big4MuVtx;   //!
-   TBranch        *b_lepton1_validHits;   //!
-   TBranch        *b_lepton2_validHits;   //!
-   TBranch        *b_lepton3_validHits;   //!
-   TBranch        *b_lepton4_validHits;   //!
 
    tree(TTree *tree=0);
    virtual ~tree();
@@ -296,13 +274,12 @@ tree::tree(TTree *tree) : fChain(0)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("totalRun2018A_DoubleMuUL_Run2018A_11Nov2020.root");
+      TFile *f = root_file;
       if (!f || !f->IsOpen()) {
-         f = new TFile("totalRun2018A_DoubleMuUL_Run2018A_11Nov2020.root");
+         f = root_file;
       }
-      TDirectory * dir = (TDirectory*)f->Get("totalRun2018A_DoubleMuUL_Run2018A_11Nov2020.root:/ZmuonAnalyzer");
+      TDirectory * dir = (TDirectory*)f->Get("ZmuonAnalyzer");
       dir->GetObject("tree",tree);
-
    }
    Init(tree);
 }
@@ -345,10 +322,6 @@ void tree::Init(TTree *tree)
    // Set object pointer
    event_number = 0;
    run_number = 0;
-   lumi_section = 0;
-   bunch_crossing = 0;
-   orbit_number = 0;
-   rho = 0;
    lepton1_pt = 0;
    lepton1_eta = 0;
    lepton1_phi = 0;
@@ -451,7 +424,6 @@ void tree::Init(TTree *tree)
    dimuon2lxyctauPV = 0;
    sixmuonvtx = 0;
    triggerlist = 0;
-   save_event_count = 0;
    numberOfVertices = 0;
    zOfVertices = 0;
    zOfVerticesError = 0;
@@ -461,12 +433,6 @@ void tree::Init(TTree *tree)
    PVx = 0;
    PVy = 0;
    PVz = 0;
-   inv4MuMass = 0;
-   big4MuVtx = 0;
-   lepton1_validHits = 0;
-   lepton2_validHits = 0;
-   lepton3_validHits = 0;
-   lepton4_validHits = 0;
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
@@ -475,10 +441,6 @@ void tree::Init(TTree *tree)
 
    fChain->SetBranchAddress("event_number", &event_number, &b_event_number);
    fChain->SetBranchAddress("run_number", &run_number, &b_run_number);
-   fChain->SetBranchAddress("lumi_section", &lumi_section, &b_lumi_section);
-   fChain->SetBranchAddress("bunch_crossing", &bunch_crossing, &b_bunch_crossing);
-   fChain->SetBranchAddress("orbit_number", &orbit_number, &b_orbit_number);
-   fChain->SetBranchAddress("rho", &rho, &b_rho);
    fChain->SetBranchAddress("lepton1_pt", &lepton1_pt, &b_lepton1_pt);
    fChain->SetBranchAddress("lepton1_eta", &lepton1_eta, &b_lepton1_eta);
    fChain->SetBranchAddress("lepton1_phi", &lepton1_phi, &b_lepton1_phi);
@@ -581,7 +543,6 @@ void tree::Init(TTree *tree)
    fChain->SetBranchAddress("dimuon2lxyctauPV", &dimuon2lxyctauPV, &b_dimuon2lxyctauPV);
    fChain->SetBranchAddress("sixmuonvtx", &sixmuonvtx, &b_sixmuonvtx);
    fChain->SetBranchAddress("triggerlist", &triggerlist, &b_triggerlist);
-   fChain->SetBranchAddress("save_event_count", &save_event_count, &b_save_event_count);
    fChain->SetBranchAddress("numberOfVertices", &numberOfVertices, &b_numberOfVertices);
    fChain->SetBranchAddress("zOfVertices", &zOfVertices, &b_zOfVertices);
    fChain->SetBranchAddress("zOfVerticesError", &zOfVerticesError, &b_zOfVerticesError);
@@ -591,12 +552,6 @@ void tree::Init(TTree *tree)
    fChain->SetBranchAddress("PVx", &PVx, &b_PVx);
    fChain->SetBranchAddress("PVy", &PVy, &b_PVy);
    fChain->SetBranchAddress("PVz", &PVz, &b_PVz);
-   fChain->SetBranchAddress("inv4MuMass", &inv4MuMass, &b_inv4MuMass);
-   fChain->SetBranchAddress("big4MuVtx", &big4MuVtx, &b_big4MuVtx);
-   fChain->SetBranchAddress("lepton1_validHits", &lepton1_validHits, &b_lepton1_validHits);
-   fChain->SetBranchAddress("lepton2_validHits", &lepton2_validHits, &b_lepton2_validHits);
-   fChain->SetBranchAddress("lepton3_validHits", &lepton3_validHits, &b_lepton3_validHits);
-   fChain->SetBranchAddress("lepton4_validHits", &lepton4_validHits, &b_lepton4_validHits);
    Notify();
 }
 

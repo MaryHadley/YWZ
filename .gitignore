@@ -10,3 +10,9 @@ filters/ZmuonFilter/python/__init__.pyc
 *PSet.*
 *PSet*.*
 test/*
+*.d
+*.so
+*.pcm
+*/*.d
+*/*.so
+*/*.pcm

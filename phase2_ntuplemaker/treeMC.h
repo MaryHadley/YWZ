@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Wed Sep  2 07:09:37 2020 by ROOT version 5.34/11
+// Sun Nov 15 14:15:52 2020 by ROOT version 6.14/09
 // from TTree treemc/treemc
-// found on file: mc_ZUpsi.root
+// found on file: totalRun2018A_DoubleMuUL_Run2018A_11Nov2020.root
 //////////////////////////////////////////////////////////
 
 #ifndef treeMC_h
@@ -13,14 +13,14 @@
 #include <TFile.h>
 
 // Header file for the classes stored in the TTree if any.
-#include <vector>
-
-// Fixed size dimensions of array or collections stored in the TTree if any.
+#include "vector"
 
 class treeMC {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
+
+// Fixed size dimensions of array or collections stored in the TTree if any.
 
    // Declaration of leaf types
    vector<double>  *truth_Zmuon_pt;
@@ -31,14 +31,15 @@ public :
    vector<double>  *truth_Z_phi;
    vector<double>  *truth_Z_mass;
    vector<double>  *truth_Z_pdgid;
-   vector<double>  *truth_Jpsimuon_pt;
-   vector<double>  *truth_Jpsimuon_eta;
-   vector<double>  *truth_Jpsimuon_phi;
-   vector<double>  *truth_Jpsi_pt;
-   vector<double>  *truth_Jpsi_eta;
-   vector<double>  *truth_Jpsi_phi;
-   vector<double>  *truth_Jpsi_mass;
-   vector<double>  *truth_Jpsi_pdgid;
+   vector<double>  *truth_Upsimuon_pt;
+   vector<double>  *truth_Upsimuon_eta;
+   vector<double>  *truth_Upsimuon_phi;
+   vector<double>  *truth_Upsi_pt;
+   vector<double>  *truth_Upsi_eta;
+   vector<double>  *truth_Upsi_phi;
+   vector<double>  *truth_Upsi_mass;
+   vector<double>  *truth_Upsi_pdgid;
+   vector<double>  *loop_enter_check;
 
    // List of branches
    TBranch        *b_truth_Zmuon_pt;   //!
@@ -49,14 +50,15 @@ public :
    TBranch        *b_truth_Z_phi;   //!
    TBranch        *b_truth_Z_mass;   //!
    TBranch        *b_truth_Z_pdgid;   //!
-   TBranch        *b_truth_Jpsimuon_pt;   //!
-   TBranch        *b_truth_Jpsimuon_eta;   //!
-   TBranch        *b_truth_Jpsimuon_phi;   //!
-   TBranch        *b_truth_Jpsi_pt;   //!
-   TBranch        *b_truth_Jpsi_eta;   //!
-   TBranch        *b_truth_Jpsi_phi;   //!
-   TBranch        *b_truth_Jpsi_mass;   //!
-   TBranch        *b_truth_Jpsi_pdgid;   //!
+   TBranch        *b_truth_Upsimuon_pt;   //!
+   TBranch        *b_truth_Upsimuon_eta;   //!
+   TBranch        *b_truth_Upsimuon_phi;   //!
+   TBranch        *b_truth_Upsi_pt;   //!
+   TBranch        *b_truth_Upsi_eta;   //!
+   TBranch        *b_truth_Upsi_phi;   //!
+   TBranch        *b_truth_Upsi_mass;   //!
+   TBranch        *b_truth_Upsi_pdgid;   //!
+   TBranch        *b_loop_enter_check;   //!
 
    treeMC(TTree *tree=0);
    virtual ~treeMC();
@@ -74,13 +76,16 @@ public :
 #ifdef treeMC_cxx
 treeMC::treeMC(TTree *tree) : fChain(0) 
 {
+// if parameter tree is not specified (or zero), connect the file
+// used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = root_file;
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("totalRun2018A_DoubleMuUL_Run2018A_11Nov2020.root");
       if (!f || !f->IsOpen()) {
-         f = root_file;
+         f = new TFile("totalRun2018A_DoubleMuUL_Run2018A_11Nov2020.root");
       }
-      TDirectory * dir = (TDirectory*)f->Get("ZmuonAnalyzer");
+      TDirectory * dir = (TDirectory*)f->Get("totalRun2018A_DoubleMuUL_Run2018A_11Nov2020.root:/ZmuonAnalyzer");
       dir->GetObject("treemc",tree);
+
    }
    Init(tree);
 }
@@ -129,14 +134,15 @@ void treeMC::Init(TTree *tree)
    truth_Z_phi = 0;
    truth_Z_mass = 0;
    truth_Z_pdgid = 0;
-   truth_Jpsimuon_pt = 0;
-   truth_Jpsimuon_eta = 0;
-   truth_Jpsimuon_phi = 0;
-   truth_Jpsi_pt = 0;
-   truth_Jpsi_eta = 0;
-   truth_Jpsi_phi = 0;
-   truth_Jpsi_mass = 0;
-   truth_Jpsi_pdgid = 0;
+   truth_Upsimuon_pt = 0;
+   truth_Upsimuon_eta = 0;
+   truth_Upsimuon_phi = 0;
+   truth_Upsi_pt = 0;
+   truth_Upsi_eta = 0;
+   truth_Upsi_phi = 0;
+   truth_Upsi_mass = 0;
+   truth_Upsi_pdgid = 0;
+   loop_enter_check = 0;
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
@@ -151,14 +157,15 @@ void treeMC::Init(TTree *tree)
    fChain->SetBranchAddress("truth_Z_phi", &truth_Z_phi, &b_truth_Z_phi);
    fChain->SetBranchAddress("truth_Z_mass", &truth_Z_mass, &b_truth_Z_mass);
    fChain->SetBranchAddress("truth_Z_pdgid", &truth_Z_pdgid, &b_truth_Z_pdgid);
-   fChain->SetBranchAddress("truth_Jpsimuon_pt", &truth_Jpsimuon_pt, &b_truth_Jpsimuon_pt);
-   fChain->SetBranchAddress("truth_Jpsimuon_eta", &truth_Jpsimuon_eta, &b_truth_Jpsimuon_eta);
-   fChain->SetBranchAddress("truth_Jpsimuon_phi", &truth_Jpsimuon_phi, &b_truth_Jpsimuon_phi);
-   fChain->SetBranchAddress("truth_Jpsi_pt", &truth_Jpsi_pt, &b_truth_Jpsi_pt);
-   fChain->SetBranchAddress("truth_Jpsi_eta", &truth_Jpsi_eta, &b_truth_Jpsi_eta);
-   fChain->SetBranchAddress("truth_Jpsi_phi", &truth_Jpsi_phi, &b_truth_Jpsi_phi);
-   fChain->SetBranchAddress("truth_Jpsi_mass", &truth_Jpsi_mass, &b_truth_Jpsi_mass);
-   fChain->SetBranchAddress("truth_Jpsi_pdgid", &truth_Jpsi_pdgid, &b_truth_Jpsi_pdgid);
+   fChain->SetBranchAddress("truth_Upsimuon_pt", &truth_Upsimuon_pt, &b_truth_Upsimuon_pt);
+   fChain->SetBranchAddress("truth_Upsimuon_eta", &truth_Upsimuon_eta, &b_truth_Upsimuon_eta);
+   fChain->SetBranchAddress("truth_Upsimuon_phi", &truth_Upsimuon_phi, &b_truth_Upsimuon_phi);
+   fChain->SetBranchAddress("truth_Upsi_pt", &truth_Upsi_pt, &b_truth_Upsi_pt);
+   fChain->SetBranchAddress("truth_Upsi_eta", &truth_Upsi_eta, &b_truth_Upsi_eta);
+   fChain->SetBranchAddress("truth_Upsi_phi", &truth_Upsi_phi, &b_truth_Upsi_phi);
+   fChain->SetBranchAddress("truth_Upsi_mass", &truth_Upsi_mass, &b_truth_Upsi_mass);
+   fChain->SetBranchAddress("truth_Upsi_pdgid", &truth_Upsi_pdgid, &b_truth_Upsi_pdgid);
+   fChain->SetBranchAddress("loop_enter_check", &loop_enter_check, &b_loop_enter_check);
    Notify();
 }
 
