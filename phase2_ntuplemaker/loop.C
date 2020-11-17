@@ -31,6 +31,7 @@ void run(string file){//, string file2){
   TH1F *h_reco_Z_mass_noNewCuts    = new TH1F("h_reco_Z_mass_noNewCuts",    "h_reco_Z_mass_noNewCuts", 20, 66., 116.);  h_reco_Z_mass_noNewCuts   ->SetXTitle("m_{#mu#mu} [GeV]"); //might want to change the binning, this is currently 20 bins to cover a range of 5
   TH1F *h_reco_Upsi_mass_noNewCuts = new TH1F("h_reco_Upsi_mass_noNewCuts", "h_reco_Upsi_mass_noNewCuts", 20, 8., 12.); h_reco_Upsi_mass_noNewCuts->SetXTitle("m_{#mu#mu} [GeV]"); //20 bins here to cover a range of 4 
   
+  TH1F *h_big4MuVtxProb_before_big4MuVtx_Prob_Cut = new TH1F("h_big4MuVtxProb_before_big4MuVtx_Prob_Cut", "h_big4MuVtxProb_before_big4MuVtx_Prob_Cut",200, 0, 1); h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->SetXTitle("big4MuVtxProb_before_big4MuVtx_Prob_Cut");
   
   //Ignoring MC for the moment 
   TH1F *h_truth_Z_mass    = new TH1F("h_truth_Z_mass",    "h_truth_Z_mass", 20, 66., 116.);  h_truth_Z_mass->SetMarkerSize(0); //If I change the binning above, would also want to change it here so the truth and recovered plots have same scale 
@@ -41,6 +42,9 @@ void run(string file){//, string file2){
   double muon_mass = 105.6583 / 1000.; //get mass in GeV
   int pair_12_34_56_count = 0;
   int pair_AMBIGOUS_muQuad_count = 0;
+  double big4MuVtx_Prob_Cut = 0.01; 
+  int big4MuVtx_Prob_Cut_fail_count = 0;
+  
 //  double 
   // n e w  s k i m m e d   r o o t   f i l e
   double mass1_quickAndDirty, mass2_quickAndDirty;
@@ -73,17 +77,27 @@ void run(string file){//, string file2){
       h_reco_Upsi_mass_noNewCuts->Fill( (lepton3+lepton4).M() );
       h_reco_Z_mass_noNewCuts->Fill( (lepton1+lepton2).M() );
       
-      if ( (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_13_24_56->at(i) == 1) || (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1)
+      //Cuts involving the overall quad
+      
+      //deal with pairing ambiguous muon quads, eliminate those quads from our consideration 
+      if ((TREE->pair_12_34_56->at(i) == 1 && TREE->pair_13_24_56->at(i) == 1) || (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1)
            || (TREE->pair_13_24_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1) 
-           || (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_13_24_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1)
-         ) {
+           || (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_13_24_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1)) {
              std::cout << "FOUND PAIRING AMBIGUOUS QUAD OF MUONS, WILL THROW IT AWAY" << std::endl;
              pair_AMBIGOUS_muQuad_count += 1;
              continue;
-         
-       }
+        }
+      
+      h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Fill(TREE->big4MuVtx->at(i)); //fill it  before we cut on it
+        
+      if (TREE->big4MuVtx->at(i) < big4MuVtx_Prob_Cut){
+         std::cout << "FAILED big4MuVtx_Prob_Cut! Throwing away this quad!" << std::endl; 
+         std::cout << TREE->big4MuVtx->at(i) << std::endl; 
+         big4MuVtx_Prob_Cut_fail_count +=1;
+         continue;
+         }  
   
-  //Save this for later     
+  //Save this for later , start here after lunch     
 //      if (TREE->pair_12_34_56->at(i) ==1){
         // std::cout << "TREE->pair_12_34_56->at(i) ==1" << std::endl;
   //       pair_12_34_56_count += 1;
@@ -123,6 +137,7 @@ void run(string file){//, string file2){
 
 std::cout << "pair_12_34_56_count: " << pair_12_34_56_count << std::endl; 
 std::cout << "pair_AMBIGOUS_muQuad_count: " << pair_AMBIGOUS_muQuad_count << std::endl;
+std::cout << "big4MuVtx_Prob_Cut_fail_count: " << big4MuVtx_Prob_Cut_fail_count << std::endl; 
 ///////////////////////
 //////    M C    //////
 ///////////////////////
@@ -155,6 +170,15 @@ std::cout << "pair_AMBIGOUS_muQuad_count: " << pair_AMBIGOUS_muQuad_count << std
   TCanvas *c_masses = new TCanvas("c_masses", "c_masses", 1000, 500); c_masses->Divide(2,1);
   c_masses->cd(1); h_reco_Upsi_mass_noNewCuts->Draw("e1"); //h_truth_Upsi_mass->Draw("hesame"); //ignoring MC for the moment
   c_masses->cd(2); h_reco_Z_mass_noNewCuts->Draw("e1"); //h_truth_Z_mass->Draw("hesame"); //ignoring MC for the moment 
+  h_reco_Upsi_mass_noNewCuts->Write();
+  h_reco_Z_mass_noNewCuts->Write();
+  c_masses->SaveAs("c_masses.pdf"); //want to save the canvas here because we split it and made it look nice 
+  
+  
+  TCanvas *c_big4MuVtxProb_before_big4MuVtx_Prob_Cut = new TCanvas("c_big4MuVtxProb_before_big4MuVtx_Prob_Cut","c_big4MuVtxProb_before_big4MuVtx_Prob_Cut"); //last 2 are width and height
+  c_big4MuVtxProb_before_big4MuVtx_Prob_Cut->cd(); h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Draw();
+  h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Write();
+  h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->SaveAs("h_big4MuVtxProb_before_big4MuVtx_Prob_Cut.pdf");
 
   ntuple->Write();
   ntuple->Close();

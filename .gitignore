@@ -16,3 +16,9 @@ test/*
 */*.d
 */*.so
 */*.pcm
+*.pdf
+*.png
+*.eps
+*/*.pdf
+*/*.png
+*/*.eps
