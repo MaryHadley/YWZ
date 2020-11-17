@@ -85,8 +85,8 @@ process.source = cms.Source("PoolSource",
 #                                           "file:../YZ_4MuFS_DPS_MiniAOD_2016UL_Yfirst_Zsecond_03_10_2020.root",
 #                                          "file:../YZ_4MuFS_DPS_MiniAOD_2016UL_Zfirst_Ysecond_03_10_2020.root",
 #                                           "file:../YZ_4MuFS_DPS_MiniAOD_2016UL_Yfirst_Zsecond_06_11_2020.root",
-                                            "file:020353D5-EB7E-3A42-928B-64ABB6449999.root",
-
+#                                            "file:020353D5-EB7E-3A42-928B-64ABB6449999.root",
+                                            "file:../miniAOD_Marys_LHE.root",
                                     ),
    duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
@@ -100,7 +100,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string("mc_ZUpsi_020353D5-EB7E-3A42-928B-64ABB6449999_11Nov2020_preCrabCheck.root")
+   fileName = cms.string("mc_ZUpsi_miniAOD_Marys_LHE.root")
 )
 
 #process.maxEvents.input = 1000
