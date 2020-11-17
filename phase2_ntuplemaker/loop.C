@@ -40,12 +40,54 @@ void run(string file){//, string file2){
 
   // v a r i a b l e s
   double muon_mass = 105.6583 / 1000.; //get mass in GeV
+  
+  //counters
   int pair_12_34_56_count = 0;
+  
+  int pair_13_24_56_count = 0;
+  
+  int pair_14_23_56_count = 0; 
+  
   int pair_AMBIGOUS_muQuad_count = 0;
-  double big4MuVtx_Prob_Cut = 0.01; 
+  
   int big4MuVtx_Prob_Cut_fail_count = 0;
   
-//  double 
+  //Cuts 
+  double big4MuVtx_Prob_Cut = 0.01; 
+  
+  double Z_mass_low  = 66.;
+  
+  double Z_mass_high = 116.;
+  
+  double upsi_mass_low_phase1 = 8;
+  
+  double upsi_mass_high_phase1 = 12;
+  
+  double upsi_mass_low_phase2 = 8.5;
+  
+  double upsi_mass_high_phase2 = 11; 
+  
+  double lead_mu_from_Z_pT_Cut = 30;
+  
+  double sublead_mu_from_Z_pT_Cut = 15;
+  
+  double mu_from_upsi_pT_Cut = 4; 
+  
+  double mu_from_Z_eta_Cut = 2.4;
+  
+  double mu_from_upsi_eta_Cut = 2.4;
+  
+  double mu_from_Z_3DIPSig_Cut = 4;
+  
+  double mu_from_upsi_RAPIDITY_Cut = 2.4;
+  
+  //TO DO vertex prob cut for the Z-> mu mu vertex
+  
+  //To DO vertex prob cut for upsi -> mu mu vertex 
+  
+  
+  
+ 
   // n e w  s k i m m e d   r o o t   f i l e
   double mass1_quickAndDirty, mass2_quickAndDirty;
   TFile *ntuple = new TFile("ntuple_skimmed_maryTest_17Nov2020.root", "RECREATE");
@@ -77,13 +119,14 @@ void run(string file){//, string file2){
       h_reco_Upsi_mass_noNewCuts->Fill( (lepton3+lepton4).M() );
       h_reco_Z_mass_noNewCuts->Fill( (lepton1+lepton2).M() );
       
-      //Cuts involving the overall quad
+      //Cuts involving the overall quad //
+      /////////////////////////////////////
       
       //deal with pairing ambiguous muon quads, eliminate those quads from our consideration 
       if ((TREE->pair_12_34_56->at(i) == 1 && TREE->pair_13_24_56->at(i) == 1) || (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1)
            || (TREE->pair_13_24_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1) 
            || (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_13_24_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1)) {
-             std::cout << "FOUND PAIRING AMBIGUOUS QUAD OF MUONS, WILL THROW IT AWAY" << std::endl;
+ //            std::cout << "FOUND PAIRING AMBIGUOUS QUAD OF MUONS, WILL THROW IT AWAY" << std::endl;
              pair_AMBIGOUS_muQuad_count += 1;
              continue;
         }
@@ -91,17 +134,46 @@ void run(string file){//, string file2){
       h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Fill(TREE->big4MuVtx->at(i)); //fill it  before we cut on it
         
       if (TREE->big4MuVtx->at(i) < big4MuVtx_Prob_Cut){
-         std::cout << "FAILED big4MuVtx_Prob_Cut! Throwing away this quad!" << std::endl; 
-         std::cout << TREE->big4MuVtx->at(i) << std::endl; 
+//         std::cout << "FAILED big4MuVtx_Prob_Cut! Throwing away this quad!" << std::endl; 
+//         std::cout << TREE->big4MuVtx->at(i) << std::endl; 
          big4MuVtx_Prob_Cut_fail_count +=1;
          continue;
          }  
+      
+      //Put in iso003 cuts here, that's the last cut involving the quad TO DO
+    
+      //end cuts involving overall quad /////////////
+      //////////////////////////////////////////////
+    
   
-  //Save this for later , start here after lunch     
-//      if (TREE->pair_12_34_56->at(i) ==1){
+     //start pair specific cuts ////
+     ///////////////////////////// 
+     
+     //Note to self: see here: http://www.hep.shef.ac.uk/edaw/PHY206/Site/2012_course_files/phy206rlec7.pdf, equation 6, for rapidity definition (on page 5)
+
+      if (TREE->pair_12_34_56->at(i) ==1){
+    
         // std::cout << "TREE->pair_12_34_56->at(i) ==1" << std::endl;
-  //       pair_12_34_56_count += 1;
-    //  }
+         pair_12_34_56_count += 1;
+         
+         std::cout << (lepton1 + lepton2).M()<< std::endl; 
+    
+    
+      }
+      
+      if (TREE->pair_13_24_56->at(i) == 1){
+         std::cout << "TREE->pair_13_24_56->at(i) == 1" << std::endl; 
+         pair_13_24_56_count += 1;
+         
+      
+      }
+      
+      if (TREE->pair_14_23_56->at(i) == 1){
+         std::cout << "TREE->pair_14_23_56->at(i) == 1" << std::endl; 
+         pair_14_23_56_count += 1; 
+         
+      
+      }
     
     
  // Checking that we have the right syntax here      
@@ -136,6 +208,8 @@ void run(string file){//, string file2){
 
 
 std::cout << "pair_12_34_56_count: " << pair_12_34_56_count << std::endl; 
+std::cout << "pair_13_24_56_count: " << pair_13_24_56_count << std::endl;
+std::cout << "pair_14_23_56_count: " << pair_14_23_56_count << std::endl; 
 std::cout << "pair_AMBIGOUS_muQuad_count: " << pair_AMBIGOUS_muQuad_count << std::endl;
 std::cout << "big4MuVtx_Prob_Cut_fail_count: " << big4MuVtx_Prob_Cut_fail_count << std::endl; 
 ///////////////////////
