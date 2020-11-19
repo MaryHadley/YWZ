@@ -148,7 +148,7 @@ void run(string file){//, string file2){
       
       h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Fill(TREE->big4MuVtx->at(i)); //fill it  before we cut on it
         
-      if (TREE->big4MuVtx->at(i) < big4MuVtx_Prob_Cut){
+      if (TREE->big4MuVtx->at(i) > big4MuVtx_Prob_Cut){ //I think the greater than, which is currently here, is correct. Before I had less than, but I think that was wrong. //Earlier comments hereWARNING I THINK THIS CUT WAS INVERTED!!!! WARNING WARNING WARNING CHECK ME!!!!! I think this is essentially returning a p value, and we want low p values, so should be less than the cut 
 //         std::cout << "FAILED big4MuVtx_Prob_Cut! Throwing away this quad!" << std::endl; 
 //         std::cout << TREE->big4MuVtx->at(i) << std::endl; 
          big4MuVtx_Prob_Cut_fail_count +=1;
@@ -191,8 +191,63 @@ void run(string file){//, string file2){
               std::cout << "upsi_phase1_first_Z_second_pair_12_34_56 is true!" << std::endl; 
             }
          }
+ 
+ ///Mary note to self 19 Nov. 2020: start here when you return!!
            
-    
+         if (Z_first_upsi_phase1_second_pair_12_34_56) {
+            
+            //Start Z cuts 
+            if (lepton1.Pt() < lead_mu_from_Z_pT_Cut  || lepton2.Pt() < sublead_mu_from_Z_pT_Cut){
+                std::cout << "FAILED Z mu Pt Cuts" << std::endl;
+                continue;
+             }
+            
+            if (fabs(lepton1.Eta()) > mu_from_Z_eta_Cut || fabs(lepton2.Eta()) > mu_from_Z_eta_Cut){
+                std::cout << "FAILED Z mu eta Cuts!" << std::endl; 
+                continue;
+            }
+            
+            //std::cout << "TREE->lepton1_isTightMuon->at(i): " << TREE->lepton1_isTightMuon->at(i) << std::endl;
+         
+           if (TREE->lepton1_isTightMuon->at(i) + TREE->lepton2_isTightMuon->at(i) != 2){  //both of them need to be tight, which has a value of 1, 1 +1 =2 
+               std::cout << "AT LEAST ONE OF THE MUS FROM A Z WAS NOT TIGHT, FAILED THE Z->MU MU BOTH MU MOST BE TIGHT CUT" << std::endl;
+               continue;
+           
+           } 
+           
+           //vertex probabilit cut that I don't want to deal with me now, FIX ME 
+           
+           //End Z cuts
+           
+           //Start upsi cuts
+           
+         }
+         
+         
+         if  (upsi_phase1_first_Z_second_pair_12_34_56) { 
+             
+            //start Z cuts  
+            if (lepton3.Pt() < lead_mu_from_Z_pT_Cut || lepton4.Pt() <sublead_mu_from_Z_pT_Cut){
+                std::cout << "FAILED Z mu Pt Cuts!" << std::endl;
+                continue; 
+            }
+            
+            if (fabs(lepton3.Eta()) > mu_from_Z_eta_Cut || fabs(lepton4.Eta()) > mu_from_Z_eta_Cut){
+                std::cout << "FAILED Z mu eta Cuts!" << std::endl; 
+                continue;
+            }
+            
+            if (TREE->lepton3_isTightMuon->at(i) + TREE->lepton4_isTightMuon->at(i) != 2){  //both of them need to be tight, which has a value of 1, 1 +1 =2 
+               std::cout << "AT LEAST ONE OF THE MUS FROM A Z WAS NOT TIGHT, FAILED THE Z->MU MU BOTH MU MOST BE TIGHT CUT" << std::endl;
+               continue;
+           
+           } 
+            
+            //vertex prob cut that I don't want to deal with now, FIX ME 
+            
+            //End Z cuts
+            
+         }
     
       }
       
@@ -221,6 +276,53 @@ void run(string file){//, string file2){
             }
       
          }
+    
+        
+         if (Z_first_upsi_phase1_second_pair_13_24_56){
+            //std::cout << "PLACEHOLDER!" << std::endl;      
+            if (lepton1.Pt() < lead_mu_from_Z_pT_Cut  || lepton3.Pt() < sublead_mu_from_Z_pT_Cut){
+                std::cout << "FAILED Z mu Pt Cuts" << std::endl;
+                continue;
+             }    
+            
+            if (fabs(lepton1.Eta()) > mu_from_Z_eta_Cut || fabs(lepton3.Eta()) > mu_from_Z_eta_Cut){
+                std::cout << "FAILED Z mu eta Cuts!" << std::endl; 
+                continue;
+            }
+            
+            if (TREE->lepton1_isTightMuon->at(i) + TREE->lepton3_isTightMuon->at(i) != 2){  //both of them need to be tight, tight has a value of 1, 1 +1 =2 
+               std::cout << "AT LEAST ONE OF THE MUS FROM A Z WAS NOT TIGHT, FAILED THE Z->MU MU BOTH MU MOST BE TIGHT CUT" << std::endl;
+               continue;
+           
+           } 
+            
+            //vertex prob cuts that I don't want to deal with right now, FIX ME
+         
+         }
+    
+         if (upsi_phase1_first_Z_second_pair_13_24_56) {
+           // std::cout << "PLACEHOLDER!" << std::endl; 
+           
+            if (lepton2.Pt() < lead_mu_from_Z_pT_Cut  || lepton4.Pt() < sublead_mu_from_Z_pT_Cut){
+                std::cout << "FAILED Z mu Pt Cuts" << std::endl;
+                continue;
+             }  
+            
+            if (fabs(lepton2.Eta()) > mu_from_Z_eta_Cut || fabs(lepton4.Eta()) > mu_from_Z_eta_Cut){
+                std::cout << "FAILED Z mu eta Cuts!" << std::endl; 
+                continue;
+            }
+            
+            if (TREE->lepton2_isTightMuon->at(i) + TREE->lepton4_isTightMuon->at(i) != 2){  //both of them need to be tight, tight has a value of 1, 1 +1 =2 
+               std::cout << "AT LEAST ONE OF THE MUS FROM A Z WAS NOT TIGHT, FAILED THE Z->MU MU BOTH MU MOST BE TIGHT CUT" << std::endl;
+               continue;
+           
+           } 
+            
+            //vertex prob cuts I don't want to deal with right now, FIX ME 
+         
+         }
+    
     }
       
       if (TREE->pair_14_23_56->at(i) == 1){
@@ -245,7 +347,51 @@ void run(string file){//, string file2){
               std::cout << "upsi_phase1_first_Z_second_pair_14_23_56 is true!" << std::endl; 
             }
          }
-      
+         
+         if (Z_first_upsi_phase1_second_pair_14_23_56){
+          //  std::cout << "PLACEHOLDER!" << std::endl; 
+            
+            if (lepton1.Pt() < lead_mu_from_Z_pT_Cut  || lepton4.Pt() < sublead_mu_from_Z_pT_Cut){
+                std::cout << "FAILED Z mu Pt Cuts" << std::endl;
+                continue;
+             }  
+            
+            if (fabs(lepton1.Eta()) > mu_from_Z_eta_Cut || fabs(lepton4.Eta()) > mu_from_Z_eta_Cut){
+                std::cout << "FAILED Z mu eta Cuts!" << std::endl; 
+                continue;
+            }
+            
+            if (TREE->lepton1_isTightMuon->at(i) + TREE->lepton4_isTightMuon->at(i) != 2){  //both of them need to be tight, tight has a value of 1, 1 +1 =2 
+               std::cout << "AT LEAST ONE OF THE MUS FROM A Z WAS NOT TIGHT, FAILED THE Z->MU MU BOTH MU MOST BE TIGHT CUT" << std::endl;
+               continue;
+           
+           } 
+         
+            // vertex prob cuts I don't want to deal with right now FIX ME
+         }
+         
+         if (upsi_phase1_first_Z_second_pair_14_23_56) {
+           // std::cout << "PLACEHOLDER" << std::endl; 
+             if (lepton2.Pt() < lead_mu_from_Z_pT_Cut  || lepton3.Pt() < sublead_mu_from_Z_pT_Cut){
+                std::cout << "FAILED Z mu Pt Cuts" << std::endl;
+                continue;
+             }  
+             
+             if (fabs(lepton2.Eta()) > mu_from_Z_eta_Cut || fabs(lepton3.Eta()) > mu_from_Z_eta_Cut){
+                std::cout << "FAILED Z mu eta Cuts!" << std::endl; 
+                continue;
+            }
+             
+             if (TREE->lepton2_isTightMuon->at(i) + TREE->lepton3_isTightMuon->at(i) != 2){  //both of them need to be tight, tight has a value of 1, 1 +1 =2 
+               std::cout << "AT LEAST ONE OF THE MUS FROM A Z WAS NOT TIGHT, FAILED THE Z->MU MU BOTH MU MOST BE TIGHT CUT" << std::endl;
+               continue;
+           
+           } 
+             
+             //vertex prob I don't want to deal with now FIX ME 
+             
+         
+         }
       }
     
     
