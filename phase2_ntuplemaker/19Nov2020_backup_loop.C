@@ -52,19 +52,6 @@ void run(string file){//, string file2){
   
   int big4MuVtx_Prob_Cut_fail_count = 0;
   
-  int Z_first_upsi_phase1_second_pair_12_34_56_count = 0;
-  
-  int upsi_phase1_first_Z_second_pair_12_34_56_count = 0;
-  
-  int Z_first_upsi_phase1_second_pair_13_24_56_count = 0;
-  
-  int upsi_phase1_first_Z_second_pair_13_24_56_count = 0;
-  
-  int Z_first_upsi_phase1_second_pair_14_23_56_count = 0;
-  
-  int upsi_phase1_first_Z_second_pair_14_23_56_count = 0;
-  
-  
   //Cuts 
   double big4MuVtx_Prob_Cut = 0.01; 
   
@@ -103,7 +90,7 @@ void run(string file){//, string file2){
  
   // n e w  s k i m m e d   r o o t   f i l e
   double mass1_quickAndDirty, mass2_quickAndDirty;
-  TFile *ntuple = new TFile("ntuple_skimmed_maryTest_19Nov2020.root", "RECREATE");
+  TFile *ntuple = new TFile("ntuple_skimmed_maryTest_17Nov2020.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   aux->Branch("mass1_quickAndDirty", &mass1_quickAndDirty);
@@ -136,12 +123,10 @@ void run(string file){//, string file2){
       /////////////////////////////////////
       
       //deal with pairing ambiguous muon quads, eliminate those quads from our consideration 
-   //    if ( (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_13_24_56->at(i) == 1) || (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1)
-//            || (TREE->pair_13_24_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1)
-//            || (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_13_24_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1) )
-
-              if ( TREE->pair_12_34_56->at(i) + TREE->pair_13_24_56->at(i) + TREE->pair_14_23_56->at(i) > 1) { //cleaner way suggested by S.L., equivalent to what I tried above but shorter!
-             std::cout << "FOUND PAIRING AMBIGUOUS QUAD OF MUONS, WILL THROW IT AWAY" << std::endl;
+      if ((TREE->pair_12_34_56->at(i) == 1 && TREE->pair_13_24_56->at(i) == 1) || (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1)
+           || (TREE->pair_13_24_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1) 
+           || (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_13_24_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1)) {
+ //            std::cout << "FOUND PAIRING AMBIGUOUS QUAD OF MUONS, WILL THROW IT AWAY" << std::endl;
              pair_AMBIGOUS_muQuad_count += 1;
              continue;
         }
@@ -167,84 +152,26 @@ void run(string file){//, string file2){
      //Note to self: see here: http://www.hep.shef.ac.uk/edaw/PHY206/Site/2012_course_files/phy206rlec7.pdf, equation 6, for rapidity definition (on page 5)
 
       if (TREE->pair_12_34_56->at(i) ==1){
-         
-         bool Z_first_upsi_phase1_second_pair_12_34_56 = false;
-         bool upsi_phase1_first_Z_second_pair_12_34_56 = false; 
+    
         // std::cout << "TREE->pair_12_34_56->at(i) ==1" << std::endl;
          pair_12_34_56_count += 1;
          
-//         std::cout << (lepton1 + lepton2).M()<< std::endl; 
-         
-         if ( (lepton1 + lepton2).M() > Z_mass_low && (lepton1 + lepton2).M() < Z_mass_high && (lepton3+lepton4).M()  > upsi_mass_low_phase1 && (lepton3+lepton4).M() < upsi_mass_high_phase1){
-            if ( (TREE->lepton1_charge->at(i) + TREE->lepton2_charge->at(i) == 0) && (TREE->lepton3_charge->at(i) + TREE->lepton4_charge->at(i) == 0) ) {
-              Z_first_upsi_phase1_second_pair_12_34_56 = true;
-              Z_first_upsi_phase1_second_pair_12_34_56_count +=1;
-              std::cout << "Z_first_upsi_phase1_second_pair_12_34_56 = true!" <<std::endl; 
-           }
-        }
-         
-         
-         if ( (lepton1 + lepton2).M() > upsi_mass_low_phase1 && (lepton1 + lepton2).M() < upsi_mass_high_phase1 && (lepton3+lepton4).M()  > Z_mass_low && (lepton3+lepton4).M() < Z_mass_high ){
-            if ( (TREE->lepton1_charge->at(i) + TREE->lepton2_charge->at(i) == 0) && (TREE->lepton3_charge->at(i) + TREE->lepton4_charge->at(i) == 0) ) {
-              upsi_phase1_first_Z_second_pair_12_34_56 = true;
-              upsi_phase1_first_Z_second_pair_12_34_56_count +=1;
-              std::cout << "upsi_phase1_first_Z_second_pair_12_34_56 is true!" << std::endl; 
-            }
-         }
-           
+         std::cout << (lepton1 + lepton2).M()<< std::endl; 
     
     
       }
       
       if (TREE->pair_13_24_56->at(i) == 1){
-         
-         bool Z_first_upsi_phase1_second_pair_13_24_56 = false;
-         bool upsi_phase1_first_Z_second_pair_13_24_56 = false; 
-         //std::cout << "TREE->pair_13_24_56->at(i) == 1" << std::endl; 
+         std::cout << "TREE->pair_13_24_56->at(i) == 1" << std::endl; 
          pair_13_24_56_count += 1;
          
-         if ( (lepton1 + lepton3).M() > Z_mass_low && (lepton1 + lepton3).M() < Z_mass_high && (lepton2+lepton4).M()  > upsi_mass_low_phase1 && (lepton2+lepton4).M() < upsi_mass_high_phase1){
-           if  ( (TREE->lepton1_charge->at(i) + TREE->lepton3_charge->at(i) == 0) && (TREE->lepton2_charge->at(i) + TREE->lepton4_charge->at(i) == 0) ) {
-           
-            Z_first_upsi_phase1_second_pair_13_24_56 = true;
-           Z_first_upsi_phase1_second_pair_13_24_56_count +=1;
-           std::cout << "Z_first_upsi_phase1_second_pair_13_24_56 = true!" <<std::endl; 
-           
-           }
-        }
-         
-         if ( (lepton1 + lepton3).M() > upsi_mass_low_phase1 && (lepton1 + lepton3).M() < upsi_mass_high_phase1 && (lepton2+lepton4).M()  > Z_mass_low && (lepton2+lepton4).M() < Z_mass_high ){
-            if  ( (TREE->lepton1_charge->at(i) + TREE->lepton3_charge->at(i) == 0) && (TREE->lepton2_charge->at(i) + TREE->lepton4_charge->at(i) == 0) ) {
-              upsi_phase1_first_Z_second_pair_13_24_56 = true;
-              upsi_phase1_first_Z_second_pair_13_24_56_count +=1;
-              std::cout << "upsi_phase1_first_Z_second_pair_13_24_56 is true!" << std::endl; 
-            }
       
-         }
-    }
+      }
       
       if (TREE->pair_14_23_56->at(i) == 1){
-       //  std::cout << "TREE->pair_14_23_56->at(i) == 1" << std::endl; 
-        
-         bool Z_first_upsi_phase1_second_pair_14_23_56 = false;
-         bool upsi_phase1_first_Z_second_pair_14_23_56 = false; 
+         std::cout << "TREE->pair_14_23_56->at(i) == 1" << std::endl; 
          pair_14_23_56_count += 1; 
          
-         if ( (lepton1 + lepton4).M() > Z_mass_low && (lepton1 + lepton4).M() < Z_mass_high && (lepton2+lepton3).M()  > upsi_mass_low_phase1 && (lepton2+lepton3).M() < upsi_mass_high_phase1){
-            if ( (TREE->lepton1_charge->at(i) + TREE->lepton4_charge->at(i) == 0) && (TREE->lepton2_charge->at(i) + TREE->lepton3_charge->at(i) == 0) ) {
-              Z_first_upsi_phase1_second_pair_14_23_56 = true;
-              Z_first_upsi_phase1_second_pair_14_23_56_count +=1;
-              std::cout << "Z_first_upsi_phase1_second_pair_14_23_56 = true!" <<std::endl; 
-             }
-          }
-         
-         if ( (lepton1 + lepton4).M() > upsi_mass_low_phase1 && (lepton1 + lepton4).M() < upsi_mass_high_phase1 && (lepton2+lepton3).M()  > Z_mass_low && (lepton2+lepton3).M() < Z_mass_high ){
-            if ( (TREE->lepton1_charge->at(i) + TREE->lepton4_charge->at(i) == 0) && (TREE->lepton2_charge->at(i) + TREE->lepton3_charge->at(i) == 0) ) {
-              upsi_phase1_first_Z_second_pair_14_23_56 = true;
-              upsi_phase1_first_Z_second_pair_14_23_56_count +=1;
-              std::cout << "upsi_phase1_first_Z_second_pair_14_23_56 is true!" << std::endl; 
-            }
-         }
       
       }
     
@@ -285,16 +212,6 @@ std::cout << "pair_13_24_56_count: " << pair_13_24_56_count << std::endl;
 std::cout << "pair_14_23_56_count: " << pair_14_23_56_count << std::endl; 
 std::cout << "pair_AMBIGOUS_muQuad_count: " << pair_AMBIGOUS_muQuad_count << std::endl;
 std::cout << "big4MuVtx_Prob_Cut_fail_count: " << big4MuVtx_Prob_Cut_fail_count << std::endl; 
-std::cout << "Z_first_upsi_phase1_second_pair_12_34_56_count: " << Z_first_upsi_phase1_second_pair_12_34_56_count << std::endl;
-std::cout << "upsi_phase1_first_Z_second_pair_12_34_56_count: " << upsi_phase1_first_Z_second_pair_12_34_56_count << std::endl; 
-std::cout << "Z_first_upsi_phase1_second_pair_13_24_56_count: " << Z_first_upsi_phase1_second_pair_13_24_56_count << std::endl;
-std::cout << "upsi_phase1_first_Z_second_pair_13_24_56_count: " << upsi_phase1_first_Z_second_pair_13_24_56_count << std::endl; 
-std::cout << "Z_first_upsi_phase1_second_pair_14_23_56_count: " << Z_first_upsi_phase1_second_pair_14_23_56_count << std::endl;
-std::cout << "upsi_phase1_first_Z_second_pair_14_23_56_count: " << upsi_phase1_first_Z_second_pair_14_23_56_count << std::endl; 
-
-
-
-
 ///////////////////////
 //////    M C    //////
 ///////////////////////
