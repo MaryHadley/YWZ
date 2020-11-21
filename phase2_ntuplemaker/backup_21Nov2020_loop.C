@@ -12,9 +12,6 @@ using namespace std;
 #include "TFile.h"
 #include "TLorentzVector.h"
 
-#include <math.h>
-#include <TMath.h>
-
 TFile *root_file;
 #include "tree.C"
 #include "treeMC.C"
@@ -106,49 +103,11 @@ void run(string file){//, string file2){
  
   // n e w  s k i m m e d   r o o t   f i l e
   double mass1_quickAndDirty, mass2_quickAndDirty;
-  double Z_mass, upsi_mass;
-  double Z_pT, Z_eta, Z_RAPIDITY;
-  double upsi_pT, upsi_eta, upsi_RAPIDITY; 
-  double lead_pT_mu_from_Z_pT, lead_pT_mu_from_Z_eta, lead_pT_mu_from_Z_RAPIDITY, sublead_pT_mu_from_Z_pT, sublead_pT_mu_from_Z_eta, sublead_pT_mu_from_Z_RAPIDITY;
-  double lead_pT_mu_from_upsi_pT, lead_pT_mu_from_upsi_eta, lead_pT_mu_from_upsi_RAPIDITY, sublead_pT_mu_from_upsi_pT, sublead_pT_mu_from_upsi_eta, sublead_pT_mu_from_upsi_RAPIDITY; 
-  
-  
-  TFile *ntuple = new TFile("ntuple_skimmed_maryTest_21Nov2020.root", "RECREATE");
+  TFile *ntuple = new TFile("ntuple_skimmed_maryTest_20Nov2020.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   aux->Branch("mass1_quickAndDirty", &mass1_quickAndDirty);
   aux->Branch("mass2_quickAndDirty", &mass2_quickAndDirty);
-  
-  //NOTE: variables are recovered aka what we get from applying all cuts and looking at the data (as opposed to MC truth) unless otherwise noted 
-  
-  //Z and upsi masses
-  aux->Branch("Z_mass", &Z_mass);
-  aux->Branch("upsi_mass", &upsi_mass);
-  
-  //Z and upsi pT, eta, RAPIDITY
-  aux->Branch("Z_pT", &Z_pT);
-  aux->Branch("Z_eta", &Z_eta);
-  aux->Branch("Z_RAPIDITY", &Z_RAPIDITY);
-  aux->Branch("upsi_pT", &upsi_pT);
-  aux->Branch("upsi_eta", &upsi_eta);
-  aux->Branch("upsi_RAPIDITY", &upsi_RAPIDITY);
-  
-  //muons from Z branches
-  aux->Branch("lead_pT_mu_from_Z_pT", &lead_pT_mu_from_Z_pT);
-  aux->Branch("lead_pT_mu_from_Z_eta", &lead_pT_mu_from_Z_eta);
-  aux->Branch("lead_pT_mu_from_Z_RAPIDITY", &lead_pT_mu_from_Z_RAPIDITY);
-  aux->Branch("sublead_pT_mu_from_Z_pT", &sublead_pT_mu_from_Z_pT);
-  aux->Branch("sublead_pT_mu_from_Z_eta", &sublead_pT_mu_from_Z_eta);
-  aux->Branch("sublead_pT_mu_from_Z_RAPIDITY", &sublead_pT_mu_from_Z_RAPIDITY);
-  
-  //muons from upsi branches
-  aux->Branch("lead_pT_mu_from_upsi_pT", &lead_pT_mu_from_upsi_pT);
-  aux->Branch("lead_pT_mu_from_upsi_eta", &lead_pT_mu_from_upsi_eta);
-  aux->Branch("lead_pT_mu_from_upsi_RAPIDITY", &lead_pT_mu_from_upsi_RAPIDITY);
-  aux->Branch("sublead_pT_mu_from_upsi_pT", &sublead_pT_mu_from_upsi_pT);
-  aux->Branch("sublead_pT_mu_from_upsi_eta", &sublead_pT_mu_from_upsi_eta);
-  aux->Branch("sublead_pT_mu_from_upsi_RAPIDITY", &sublead_pT_mu_from_upsi_RAPIDITY); 
-  
 
 ///////////////////////////
 //////    D A T A    //////
@@ -160,8 +119,6 @@ void run(string file){//, string file2){
 
     double temp_comparison_pt_upsilon = 0;
     double temp_comparison_pt_z = 0;
-    
-    //I think this is where I want in my temp_<someVar> vectors!! CHECK ME
     mass1_quickAndDirty = 0.; mass2_quickAndDirty = 0.;
 
     for (int i=0; i<(int)TREE->lepton1_pt->size(); i++) { //note to self: check that lepton1 size will always = lepton 2 size = lepton 3 size = lepton 4 size, I think so but need to double check  //this should be true by definition 
@@ -258,11 +215,6 @@ void run(string file){//, string file2){
            
            } 
            
-           if (fabs(TREE->lepton1_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut || fabs(TREE->lepton2_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut){
-               std::cout << "FAILED mu froom Z IP sig cut!" << std::endl;
-               continue; 
-            }
-           
            //vertex probabilit cut that I don't want to deal with me now, FIX ME 
            
            //End Z cuts
@@ -279,15 +231,8 @@ void run(string file){//, string file2){
                continue; 
            }
            
-           if (  (lepton3 + lepton4).M()    < upsi_mass_low_phase2 || (lepton3 + lepton4).M() > upsi_mass_high_phase2 ){
-               std::cout << "FAILED the tighter phase2 upsi mass cuts!" << std::endl;
-               continue;  
-           }
            
-           if (TREE->lepton3_isSoftMuon->at(i) + TREE->lepton4_isSoftMuon->at(i) !=2){
-               std::cout << "FAILED mu from upsi must be soft cut" << std::endl;
-               continue; 
-           }
+           
            
          }
          
@@ -310,11 +255,6 @@ void run(string file){//, string file2){
                continue;
            
            } 
-           
-            if (fabs(TREE->lepton3_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut || fabs(TREE->lepton4_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut){
-               std::cout << "FAILED mu froom Z IP sig cut!" << std::endl;
-               continue; 
-            }
             
             //vertex prob cut that I don't want to deal with now, FIX ME 
             
@@ -330,15 +270,6 @@ void run(string file){//, string file2){
                 std::cout << "FAILED upsi mu eta cuts!" << std::endl; 
             }
             
-            if ( (lepton1 + lepton2).M() < upsi_mass_low_phase2 || (lepton1 + lepton2).M() > upsi_mass_high_phase2 ){
-                std::cout << "FAILED the tighter phase2 upsi mass cuts!" << std::endl;
-                continue; 
-            }
-            
-            if (TREE->lepton1_isSoftMuon->at(i) + TREE->lepton2_isSoftMuon->at(i) !=2){
-               std::cout << "FAILED mu from upsi must be soft cut" << std::endl;
-               continue; 
-           }
          }
     
       }
@@ -387,15 +318,9 @@ void run(string file){//, string file2){
                continue;
            
            } 
-           
-            if (fabs(TREE->lepton1_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut || fabs(TREE->lepton3_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut){
-               std::cout << "FAILED mu froom Z IP sig cut!" << std::endl;
-               continue; 
-            }
             
             //vertex prob cuts that I don't want to deal with right now, FIX ME
             
-            //start upsi cuts 
             if (lepton2.Pt() < mu_from_upsi_pT_Cut || lepton4.Pt() < mu_from_upsi_pT_Cut){
               std::cout << "FAILED upsi mu pT cuts!" << std::endl; 
               continue;  
@@ -406,16 +331,6 @@ void run(string file){//, string file2){
               continue; 
             }
             
-            if ( (lepton2 + lepton4).M() < upsi_mass_low_phase2 || (lepton2 + lepton4).M() > upsi_mass_high_phase2){
-              std::cout << "FAILED the tighter phase2 upsi mass cuts!" << std::endl;
-              continue;  
-            }
-            
-            if (TREE->lepton2_isSoftMuon->at(i) + TREE->lepton4_isSoftMuon->at(i) !=2){
-                std::cout << "FAILED mu from upsi must be soft cut!" << std::endl;
-                continue; 
-             
-            }
          }
     
          if (upsi_phase1_first_Z_second_pair_13_24_56) {
@@ -436,11 +351,6 @@ void run(string file){//, string file2){
                continue;
            
            } 
-           
-            if (fabs(TREE->lepton2_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut || fabs(TREE->lepton4_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut){
-               std::cout << "FAILED mu froom Z IP sig cut!" << std::endl;
-               continue; 
-            }
             
             //vertex prob cuts I don't want to deal with right now, FIX ME 
             
@@ -451,16 +361,6 @@ void run(string file){//, string file2){
             
             if (fabs(lepton1.Eta()) > mu_from_upsi_eta_Cut || fabs(lepton3.Eta()) > mu_from_upsi_eta_Cut){
                std::cout << "FAILED upsi mu eta cuts!" << std::endl;
-               continue; 
-            }
-            
-            if ( (lepton1 + lepton3).M() < upsi_mass_low_phase2 || (lepton1 + lepton3).M() > upsi_mass_high_phase2){
-               std::cout << "FAILED the tighter phase2 upsi mass cuts!" << std::endl;
-               continue; 
-            }
-            
-            if (TREE->lepton1_isSoftMuon->at(i) + TREE->lepton3_isSoftMuon->at(i) != 2){
-               std::cout << "FAILED mu from upsi must be soft cut" << std::endl;
                continue; 
             }
          }
@@ -508,11 +408,6 @@ void run(string file){//, string file2){
                continue;
            
            } 
-           
-           if (fabs(TREE->lepton1_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut || fabs(TREE->lepton4_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut){
-               std::cout << "FAILED mu froom Z IP sig cut!" << std::endl;
-               continue; 
-            }
          
             // vertex prob cuts I don't want to deal with right now FIX ME
             
@@ -527,15 +422,6 @@ void run(string file){//, string file2){
                continue;  
             }
             
-            if ( (lepton2 + lepton3).M() < upsi_mass_low_phase2 || (lepton2 + lepton3).M() > upsi_mass_high_phase2 ){
-               std::cout << "FAILED the tighter phase2 upsi mass cuts!" << std::endl;
-               continue; 
-            }
-            
-            if (TREE->lepton2_isSoftMuon->at(i) + TREE->lepton3_isSoftMuon->at(i) != 2){
-               std::cout << "FAILED mu from upsi must be soft cut!" << std::endl;
-               continue; 
-            }
          }
          
          if (upsi_phase1_first_Z_second_pair_14_23_56) {
@@ -556,10 +442,6 @@ void run(string file){//, string file2){
            
            } 
              
-             if (fabs(TREE->lepton2_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut || fabs(TREE->lepton3_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut){
-               std::cout << "FAILED mu froom Z IP sig cut!" << std::endl;
-               continue; 
-            }
              //vertex prob I don't want to deal with now FIX ME 
              
              //start upsi cuts 
@@ -574,16 +456,6 @@ void run(string file){//, string file2){
                  continue; 
              }
              
-             if ( (lepton1 + lepton4).M() < upsi_mass_low_phase2 || (lepton1+lepton4).M() > upsi_mass_high_phase2 ){
-                 std::cout << "FAILED the tighter phase2 upsi mass cuts!" << std::endl; 
-                 continue; 
-                
-             }
-             
-             if (TREE->lepton1_isSoftMuon->at(i) + TREE->lepton4_isSoftMuon->at(i) != 2){
-                std::cout << "FAILED mu from upsi must be soft cut!" << std::endl; 
-                continue ; 
-             }
          
          }
       }
