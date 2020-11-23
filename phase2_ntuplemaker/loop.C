@@ -67,6 +67,10 @@ void run(string file){//, string file2){
   
   int upsi_phase1_first_Z_second_pair_14_23_56_count = 0;
   
+  int GotHereCount_Z_first_upsi_phase1_second_pair_12_34_56 = 0;
+  
+  int FailureCount = 0;
+  
   
   //Cuts 
   double big4MuVtx_Prob_Cut = 0.01; 
@@ -105,15 +109,31 @@ void run(string file){//, string file2){
   
  
   // n e w  s k i m m e d   r o o t   f i l e
-  double mass1_quickAndDirty, mass2_quickAndDirty;
-  double Z_mass, upsi_mass;
-  double Z_pT, Z_eta, Z_RAPIDITY;
-  double upsi_pT, upsi_eta, upsi_RAPIDITY; 
-  double lead_pT_mu_from_Z_pT, lead_pT_mu_from_Z_eta, lead_pT_mu_from_Z_RAPIDITY, sublead_pT_mu_from_Z_pT, sublead_pT_mu_from_Z_eta, sublead_pT_mu_from_Z_RAPIDITY;
-  double lead_pT_mu_from_upsi_pT, lead_pT_mu_from_upsi_eta, lead_pT_mu_from_upsi_RAPIDITY, sublead_pT_mu_from_upsi_pT, sublead_pT_mu_from_upsi_eta, sublead_pT_mu_from_upsi_RAPIDITY; 
+  double mass1_quickAndDirty = -99;
+  double mass2_quickAndDirty  = -99;
+  double Z_mass = -99;
+  double upsi_mass = -99;
+  double Z_pT = -99;
+  double Z_eta = -99;
+  double  Z_RAPIDITY = -99;
+  double upsi_pT = -99;
+  double upsi_eta = -99;
+  double upsi_RAPIDITY = -99; 
+  double lead_pT_mu_from_Z_pT = -99;
+  double lead_pT_mu_from_Z_eta = -99;
+  double lead_pT_mu_from_Z_RAPIDITY = -99;
+  double sublead_pT_mu_from_Z_pT = -99;
+  double sublead_pT_mu_from_Z_eta = -99;
+  double sublead_pT_mu_from_Z_RAPIDITY = -99;
+  double lead_pT_mu_from_upsi_pT = -99;
+  double lead_pT_mu_from_upsi_eta = -99;
+  double lead_pT_mu_from_upsi_RAPIDITY = -99;
+  double sublead_pT_mu_from_upsi_pT = -99;
+  double sublead_pT_mu_from_upsi_eta = -99;
+  double sublead_pT_mu_from_upsi_RAPIDITY = -99; 
   
   
-  TFile *ntuple = new TFile("ntuple_skimmed_maryTest_21Nov2020.root", "RECREATE");
+  TFile *ntuple = new TFile("ntuple_skimmed_maryTest_23Nov2020.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   aux->Branch("mass1_quickAndDirty", &mass1_quickAndDirty);
@@ -162,6 +182,9 @@ void run(string file){//, string file2){
     double temp_comparison_pt_z = 0;
     
     //I think this is where I want in my temp_<someVar> vectors!! CHECK ME
+    std::vector<double> temp_Z_mass;
+      std::vector<double> temp_upsi_mass;
+    temp_Z_mass.clear();
     mass1_quickAndDirty = 0.; mass2_quickAndDirty = 0.;
 
     for (int i=0; i<(int)TREE->lepton1_pt->size(); i++) { //note to self: check that lepton1 size will always = lepton 2 size = lepton 3 size = lepton 4 size, I think so but need to double check  //this should be true by definition 
@@ -191,13 +214,17 @@ void run(string file){//, string file2){
       
       h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Fill(TREE->big4MuVtx->at(i)); //fill it  before we cut on it
         
-      if (TREE->big4MuVtx->at(i) > big4MuVtx_Prob_Cut){ //I think the greater than, which is currently here, is correct. Before I had less than, but I think that was wrong. //Earlier comments hereWARNING I THINK THIS CUT WAS INVERTED!!!! WARNING WARNING WARNING CHECK ME!!!!! I think this is essentially returning a p value, and we want low p values, so should be less than the cut 
+      if (TREE->big4MuVtx->at(i) > big4MuVtx_Prob_Cut){ //CONFIRMED that TMath::Prob returns a p value, so low indicates stat significance. The name Prob is just incredibly misleading...//I think the greater than, which is currently here, is correct. Before I had less than, but I think that was wrong. //Earlier comments hereWARNING I THINK THIS CUT WAS INVERTED!!!! WARNING WARNING WARNING CHECK ME!!!!! I think this is essentially returning a p value, and we want low p values, so should be less than the cut 
 //         std::cout << "FAILED big4MuVtx_Prob_Cut! Throwing away this quad!" << std::endl; 
 //         std::cout << TREE->big4MuVtx->at(i) << std::endl; 
          big4MuVtx_Prob_Cut_fail_count +=1;
          continue;
          }  
       
+      
+      
+      std:: cout << "Checking what TMath::Prob gives, let's try TMath::Prob(3.84, 1)   " << TMath::Prob(3.84, 1) << std::endl; //https://en.wikipedia.org/wiki/Chi-square_distribution //confirmed that this gives out what we think it should, aka this returns .05
+       std:: cout << "Checking what TMath::Prob gives, let's try TMath::Prob(3.32, 9)   " << TMath::Prob(3.32, 9) << std::endl;
       //Put in iso003 cuts here, that's the last cut involving the quad TO DO
     
       //end cuts involving overall quad /////////////
@@ -242,11 +269,13 @@ void run(string file){//, string file2){
             //Start Z cuts 
             if (lepton1.Pt() < lead_mu_from_Z_pT_Cut  || lepton2.Pt() < sublead_mu_from_Z_pT_Cut){
                 std::cout << "FAILED Z mu Pt Cuts" << std::endl;
+                FailureCount += 1;
                 continue;
              }
             
             if (fabs(lepton1.Eta()) > mu_from_Z_eta_Cut || fabs(lepton2.Eta()) > mu_from_Z_eta_Cut){
                 std::cout << "FAILED Z mu eta Cuts!" << std::endl; 
+                FailureCount += 1;
                 continue;
             }
             
@@ -254,12 +283,14 @@ void run(string file){//, string file2){
          
            if (TREE->lepton1_isTightMuon->at(i) + TREE->lepton2_isTightMuon->at(i) != 2){  //both of them need to be tight, which has a value of 1, 1 +1 =2 
                std::cout << "AT LEAST ONE OF THE MUS FROM A Z WAS NOT TIGHT, FAILED THE Z->MU MU BOTH MU MOST BE TIGHT CUT" << std::endl;
+               FailureCount += 1; 
                continue;
            
            } 
            
            if (fabs(TREE->lepton1_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut || fabs(TREE->lepton2_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut){
                std::cout << "FAILED mu froom Z IP sig cut!" << std::endl;
+               FailureCount += 1; 
                continue; 
             }
            
@@ -271,26 +302,58 @@ void run(string file){//, string file2){
            
            if (lepton3.Pt() < mu_from_upsi_pT_Cut || lepton4.Pt() < mu_from_upsi_pT_Cut){
                std::cout << "FAILED  upsi mu Pt Cuts" << std::endl;
+               FailureCount += 1; 
                continue; 
            }
            
            if (fabs(lepton3.Eta()) > mu_from_upsi_eta_Cut || fabs(lepton4.Eta()) > mu_from_upsi_eta_Cut){
                std::cout << "FAILED upsi  mu eta cuts!" << std::endl; 
+               FailureCount +=1;
                continue; 
            }
            
            if (  (lepton3 + lepton4).M()    < upsi_mass_low_phase2 || (lepton3 + lepton4).M() > upsi_mass_high_phase2 ){
                std::cout << "FAILED the tighter phase2 upsi mass cuts!" << std::endl;
+               FailureCount +=1; 
                continue;  
            }
            
            if (TREE->lepton3_isSoftMuon->at(i) + TREE->lepton4_isSoftMuon->at(i) !=2){
                std::cout << "FAILED mu from upsi must be soft cut" << std::endl;
+               FailureCount += 1; 
                continue; 
            }
            
+           if ( fabs(lepton3.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton4.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
+               std::cout << "FAILED mu from upsi RAPIDITY cut!" << std::endl; 
+               FailureCount +=1;
+               continue; 
+           }
+           
+           //this is where I will do temp vec push back 
+           // just check something for the moment, this is dirty FIX ME
+           Z_mass = (lepton1 + lepton2).M();
+           upsi_mass = (lepton3 + lepton4).M();
+           temp_Z_mass.push_back(Z_mass);
+           temp_upsi_mass.push_back(upsi_mass);
+           
+           //this is dirty and not quite right, right now you are keeping the higher pT option, need to put in another bool!! FIX ME 
+           //throw away events with more than 1 Z + upsi candidate, these probably occur because of using the same leptons in multiple quads. Can write more detailed explanation later!!
+           if (temp_Z_mass.size() > 1) {
+              std::cout << "POODLE" << std::endl; 
+//              std::cout << (lepton3 + lepton4).M() << std::endl; 
+              FailureCount += 1; 
+            //  continue;
+           }
+           GotHereCount_Z_first_upsi_phase1_second_pair_12_34_56 += 1;
+           std::cout  << "Recovered Z_mass:  " << Z_mass << std::endl; 
+           std::cout << "Recovered upsi_mass: " << upsi_mass << std::endl; 
+           aux->Fill();
+           
+         
          }
          
+         // put survivor Z_first_upsi_phase1_second_pair_12_34_56 bool here!!
          
          if  (upsi_phase1_first_Z_second_pair_12_34_56) { 
              
@@ -328,6 +391,7 @@ void run(string file){//, string file2){
             
             if (fabs(lepton1.Eta()) > mu_from_upsi_eta_Cut || fabs(lepton2.Eta()) > mu_from_upsi_eta_Cut){
                 std::cout << "FAILED upsi mu eta cuts!" << std::endl; 
+                continue;
             }
             
             if ( (lepton1 + lepton2).M() < upsi_mass_low_phase2 || (lepton1 + lepton2).M() > upsi_mass_high_phase2 ){
@@ -339,6 +403,13 @@ void run(string file){//, string file2){
                std::cout << "FAILED mu from upsi must be soft cut" << std::endl;
                continue; 
            }
+            
+            if ( fabs(lepton1.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton2.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
+                std::cout << "FAILED mu from upsi RAPIDITY cut!" << std::endl;
+                continue;           
+            }
+        
+        
          }
     
       }
@@ -416,6 +487,12 @@ void run(string file){//, string file2){
                 continue; 
              
             }
+            
+            if ( fabs(lepton2.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton4.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
+                std::cout << "FAILED mu from upsi RAPIDITY cut!" << std::endl;
+                continue; 
+            
+            }
          }
     
          if (upsi_phase1_first_Z_second_pair_13_24_56) {
@@ -461,6 +538,11 @@ void run(string file){//, string file2){
             
             if (TREE->lepton1_isSoftMuon->at(i) + TREE->lepton3_isSoftMuon->at(i) != 2){
                std::cout << "FAILED mu from upsi must be soft cut" << std::endl;
+               continue; 
+            }
+            
+            if ( fabs(lepton1.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton3.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
+               std::cout << "FAILED mu from upsi RAPIDITY cut" << std::endl;
                continue; 
             }
          }
@@ -536,6 +618,11 @@ void run(string file){//, string file2){
                std::cout << "FAILED mu from upsi must be soft cut!" << std::endl;
                continue; 
             }
+            
+            if ( fabs(lepton2.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton3.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
+               std::cout << "FAILED mu from upsi RAPIDITY cut" << std::endl;
+               continue; 
+            }
          }
          
          if (upsi_phase1_first_Z_second_pair_14_23_56) {
@@ -584,6 +671,11 @@ void run(string file){//, string file2){
                 std::cout << "FAILED mu from upsi must be soft cut!" << std::endl; 
                 continue ; 
              }
+             
+             if ( fabs(lepton1.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton4.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
+                std::cout << "FAILED mu from upsi RAPIDITY cut" << std::endl;
+                continue; 
+             }
          
          }
       }
@@ -612,8 +704,10 @@ void run(string file){//, string file2){
 
     } // loop over the size of the leptons
 
-    if (mass1_quickAndDirty > 0. && mass2_quickAndDirty > 0.) //assuming we have found good candidates for both mass1 (upsi) and mass2 (Z), book them. The "good" candidates are taken to be the highest pT ones 
-      aux->Fill();
+
+//This is dirty FIX ME 
+//    if (mass1_quickAndDirty > 0. && mass2_quickAndDirty > 0.) //assuming we have found good candidates for both mass1 (upsi) and mass2 (Z), book them. The "good" candidates are taken to be the highest pT ones 
+//      aux->Fill();
     
     
     
@@ -631,6 +725,9 @@ std::cout << "Z_first_upsi_phase1_second_pair_13_24_56_count: " << Z_first_upsi_
 std::cout << "upsi_phase1_first_Z_second_pair_13_24_56_count: " << upsi_phase1_first_Z_second_pair_13_24_56_count << std::endl; 
 std::cout << "Z_first_upsi_phase1_second_pair_14_23_56_count: " << Z_first_upsi_phase1_second_pair_14_23_56_count << std::endl;
 std::cout << "upsi_phase1_first_Z_second_pair_14_23_56_count: " << upsi_phase1_first_Z_second_pair_14_23_56_count << std::endl; 
+
+std::cout << "GotHereCount_Z_first_upsi_phase1_second_pair_12_34_56_Z_first_upsi_phase1_second_pair_12_34_56:  " << GotHereCount_Z_first_upsi_phase1_second_pair_12_34_56 << std::endl; 
+std::cout << "FailureCount:  " << FailureCount << std::endl;
 
 
 
