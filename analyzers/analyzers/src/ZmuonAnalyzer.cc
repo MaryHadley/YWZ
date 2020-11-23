@@ -104,6 +104,7 @@ private:
    std::vector<double> lepton1_charge;
    std::vector<double> lepton1_d0, lepton1_dz, lepton1_dxy; //recall d0 is the 3D IP
    std::vector<double> lepton1_iso03particle, lepton1_iso03hadron, lepton1_iso04hadron, lepton1_iso04particle; //these are the R = 0.4 or 0.3 isolation variables 
+   std::vector<double> lepton1_iso03nuetralHadron, lepton1_iso03photon, lepton1_iso03PU; 
    std::vector<double> lepton1_impactParameterSignificance;
    std::vector<bool> lepton1_isLooseMuon, lepton1_isSoftMuon, lepton1_isTightMuon;
    std::vector<bool> lepton1_isPFMuon, lepton1_isGlobalMuon, lepton1_isTrackerMuon;
@@ -115,6 +116,7 @@ private:
    std::vector<double> lepton2_charge;
    std::vector<double> lepton2_d0, lepton2_dz, lepton2_dxy;
    std::vector<double> lepton2_iso03particle, lepton2_iso03hadron, lepton2_iso04hadron, lepton2_iso04particle;
+   std::vector<double> lepton2_iso03nuetralHadron, lepton2_iso03photon, lepton2_iso03PU;
    std::vector<double> lepton2_impactParameterSignificance;
    std::vector<bool> lepton2_isLooseMuon, lepton2_isSoftMuon, lepton2_isTightMuon;
    std::vector<bool> lepton2_isPFMuon, lepton2_isGlobalMuon, lepton2_isTrackerMuon;
@@ -126,6 +128,7 @@ private:
    std::vector<double> lepton3_charge;
    std::vector<double> lepton3_d0, lepton3_dz, lepton3_dxy;
    std::vector<double> lepton3_iso03particle, lepton3_iso03hadron, lepton3_iso04hadron, lepton3_iso04particle;
+   std::vector<double> lepton3_iso03nuetralHadron, lepton3_iso03photon, lepton3_iso03PU;
    std::vector<double> lepton3_impactParameterSignificance;
    std::vector<bool> lepton3_isLooseMuon, lepton3_isSoftMuon, lepton3_isTightMuon;
    std::vector<bool> lepton3_isPFMuon, lepton3_isGlobalMuon, lepton3_isTrackerMuon;
@@ -137,6 +140,7 @@ private:
    std::vector<double> lepton4_charge;
    std::vector<double> lepton4_d0, lepton4_dz, lepton4_dxy;
    std::vector<double> lepton4_iso03particle, lepton4_iso03hadron, lepton4_iso04hadron, lepton4_iso04particle;
+   std::vector<double> lepton4_iso03nuetralHadron, lepton4_iso03photon, lepton4_iso03PU;
    std::vector<double> lepton4_impactParameterSignificance;
    std::vector<bool> lepton4_isLooseMuon, lepton4_isSoftMuon, lepton4_isTightMuon;
    std::vector<bool> lepton4_isPFMuon, lepton4_isGlobalMuon, lepton4_isTrackerMuon;
@@ -255,6 +259,9 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("lepton1_iso04particle", &lepton1_iso04particle);
    tree->Branch("lepton1_iso03hadron", &lepton1_iso03hadron);
    tree->Branch("lepton1_iso04hadron", &lepton1_iso04hadron);
+   tree->Branch("lepton1_iso03neutralHadron", &lepton1_iso03nuetralHadron);
+   tree->Branch("lepton1_iso03photon", &lepton1_iso03photon);
+   tree->Branch("lepton1_iso03PU", &lepton1_iso03PU);
    tree->Branch("lepton1_impactParameterSignificance", &lepton1_impactParameterSignificance);
    tree->Branch("lepton1_isLooseMuon", &lepton1_isLooseMuon);    // these are only for muons 
    tree->Branch("lepton1_isSoftMuon",  &lepton1_isSoftMuon);     // these are only for muons  
@@ -274,6 +281,9 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("lepton2_iso04particle", &lepton2_iso04particle);
    tree->Branch("lepton2_iso03hadron",   &lepton2_iso03hadron);
    tree->Branch("lepton2_iso04hadron",   &lepton2_iso04hadron);
+   tree->Branch("lepton2_iso03neutralHadron", &lepton1_iso03nuetralHadron);
+   tree->Branch("lepton2_iso03photon", &lepton1_iso03photon);
+   tree->Branch("lepton2_iso03PU", &lepton1_iso03PU);
    tree->Branch("lepton2_impactParameterSignificance", &lepton2_impactParameterSignificance);
    tree->Branch("lepton2_isLooseMuon", &lepton2_isLooseMuon);    // these are only for muons 
    tree->Branch("lepton2_isSoftMuon",  &lepton2_isSoftMuon);     // these are only for muons  
@@ -293,6 +303,9 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("lepton3_iso04particle", &lepton3_iso04particle);
    tree->Branch("lepton3_iso03hadron", &lepton3_iso03hadron);
    tree->Branch("lepton3_iso04hadron", &lepton3_iso04hadron);
+   tree->Branch("lepton3_iso03neutralHadron", &lepton1_iso03nuetralHadron);
+   tree->Branch("lepton3_iso03photon", &lepton1_iso03photon);
+   tree->Branch("lepton3_iso03PU", &lepton1_iso03PU);
    tree->Branch("lepton3_impactParameterSignificance", &lepton3_impactParameterSignificance);
    tree->Branch("lepton3_isLooseMuon", &lepton3_isLooseMuon);    // these are only for muons 
    tree->Branch("lepton3_isSoftMuon",  &lepton3_isSoftMuon);     // these are only for muons  
@@ -312,6 +325,9 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("lepton4_iso04particle", &lepton4_iso04particle);
    tree->Branch("lepton4_iso03hadron",   &lepton4_iso03hadron);
    tree->Branch("lepton4_iso04hadron",   &lepton4_iso04hadron);
+   tree->Branch("lepton4_iso03neutralHadron", &lepton1_iso03nuetralHadron);
+   tree->Branch("lepton4_iso03photon", &lepton1_iso03photon);
+   tree->Branch("lepton4_iso03PU", &lepton1_iso03PU);
    tree->Branch("lepton4_impactParameterSignificance", &lepton4_impactParameterSignificance);
    tree->Branch("lepton4_isLooseMuon", &lepton4_isLooseMuon);    // these are only for muons 
    tree->Branch("lepton4_isSoftMuon",  &lepton4_isSoftMuon);     // these are only for muons  
@@ -752,10 +768,10 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 if (iM1->isSoftMuon(primary_vertex)==false || iM2->isSoftMuon(primary_vertex)==false){ //QUESTION!: I wouldn't have known isSoftMuon needed to (primary_vertex) argument, is this something you just knew? //Apparently you get compilation errors if you forget it
                  histContainer_["CutFlow"]->AddBinContent(8);
                  std::cout << "FAILED AT CUT 7"  << std::endl;
-                  continue;
+                 continue;
                 }
-//                 if (iM1->isGlobalMuon()==false || iM2->isGlobalMuon()==false)
-//                  continue;
+                if (iM1->isGlobalMuon()==false || iM2->isGlobalMuon()==false)
+                  continue;
     
                 if (fabs(iM3->muonBestTrack()->dz(primary_vertex.position()))>20. || fabs(iM4->muonBestTrack()->dz(primary_vertex.position()))>20.){
                   histContainer_["CutFlow"]->AddBinContent(9);
@@ -865,7 +881,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 if (!(match_12_34_56 || match_13_24_56 || 
                       match_14_23_56)) {
                    histContainer_["CutFlow"]->AddBinContent(15);  
-                   std::cout << "FAILED At CUT 14" 
+                   std::cout << "FAILED At CUT 14" <<std::endl;
                   continue;
                 }
                   //At this point, we might have more than 1 Y+Z candidate in each event (aka matching ambiguity). We will sort this out in the phase 2 code, not here.
