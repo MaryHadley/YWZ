@@ -71,6 +71,15 @@ void run(string file){//, string file2){
   
   int FailureCount = 0;
   
+  int QuickCheckCount = 0;
+  
+  int fillCount =0; 
+  
+  int gotToEndCount = 0;
+  
+  //int poodleCount2
+  int poodleCount = 0; 
+  
   
   //Cuts 
   double big4MuVtx_Prob_Cut = 0.01; 
@@ -183,9 +192,13 @@ void run(string file){//, string file2){
     
     //I think this is where I want in my temp_<someVar> vectors!! CHECK ME
     std::vector<double> temp_Z_mass;
-      std::vector<double> temp_upsi_mass;
+    std::vector<double> temp_upsi_mass;
     temp_Z_mass.clear();
+    std::cout <<"temp_Z_mass.size()" <<  temp_Z_mass.size() << std::endl; 
+    temp_upsi_mass.clear();
     mass1_quickAndDirty = 0.; mass2_quickAndDirty = 0.;
+    
+ //   survivor_Z_first_upsi_phase1_second_pair_12_34_56 = false; //I think I don't need this 
 
     for (int i=0; i<(int)TREE->lepton1_pt->size(); i++) { //note to self: check that lepton1 size will always = lepton 2 size = lepton 3 size = lepton 4 size, I think so but need to double check  //this should be true by definition 
       // lepton1_pt > lepton2_pt > lepton3_pt > lepton4_pt, this is an artifact of how things were done in phase 1 code 
@@ -206,7 +219,7 @@ void run(string file){//, string file2){
 //            || (TREE->pair_13_24_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1)
 //            || (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_13_24_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1) )
 
-              if ( TREE->pair_12_34_56->at(i) + TREE->pair_13_24_56->at(i) + TREE->pair_14_23_56->at(i) > 1) { //cleaner way suggested by S.L., equivalent to what I tried above but shorter!
+     if ( TREE->pair_12_34_56->at(i) + TREE->pair_13_24_56->at(i) + TREE->pair_14_23_56->at(i) > 1) { //cleaner way suggested by S.L., equivalent to what I tried above but shorter!
              std::cout << "FOUND PAIRING AMBIGUOUS QUAD OF MUONS, WILL THROW IT AWAY" << std::endl;
              pair_AMBIGOUS_muQuad_count += 1;
              continue;
@@ -235,7 +248,8 @@ void run(string file){//, string file2){
      ///////////////////////////// 
      
      //Note to self: see here: http://www.hep.shef.ac.uk/edaw/PHY206/Site/2012_course_files/phy206rlec7.pdf, equation 6, for rapidity definition (on page 5)
-
+      
+      //these are mutually exclusive, one quad can only be one of these 3 things 
       if (TREE->pair_12_34_56->at(i) ==1){
          
          bool Z_first_upsi_phase1_second_pair_12_34_56 = false;
@@ -330,30 +344,43 @@ void run(string file){//, string file2){
                continue; 
            }
            
-           //this is where I will do temp vec push back 
-           // just check something for the moment, this is dirty FIX ME
+           //If we get here, we have a survivor 
+           
+ //          survivor_Z_first_upsi_phase1_second_pair_12_34_56 = true;
+          
            Z_mass = (lepton1 + lepton2).M();
            upsi_mass = (lepton3 + lepton4).M();
            temp_Z_mass.push_back(Z_mass);
            temp_upsi_mass.push_back(upsi_mass);
            
-           //this is dirty and not quite right, right now you are keeping the higher pT option, need to put in another bool!! FIX ME 
-           //throw away events with more than 1 Z + upsi candidate, these probably occur because of using the same leptons in multiple quads. Can write more detailed explanation later!!
            if (temp_Z_mass.size() > 1) {
-              std::cout << "POODLE" << std::endl; 
-//              std::cout << (lepton3 + lepton4).M() << std::endl; 
-              FailureCount += 1; 
-            //  continue;
-           }
-           GotHereCount_Z_first_upsi_phase1_second_pair_12_34_56 += 1;
-           std::cout  << "Recovered Z_mass:  " << Z_mass << std::endl; 
-           std::cout << "Recovered upsi_mass: " << upsi_mass << std::endl; 
-           aux->Fill();
+               std::cout << "POODLE" << std::endl;
+               poodleCount += 1;
+
+            }
+            
+//            //this is dirty and not quite right, right now you are keeping the higher pT option, need to put in another bool!! FIX ME 
+//            //throw away events with more than 1 Z + upsi candidate, these probably occur because of using the same leptons in multiple quads. Can write more detailed explanation later!!
+//            if (temp_Z_mass.size() > 1) {
+//               std::cout << "POODLE" << std::endl; 
+// //              std::cout << (lepton3 + lepton4).M() << std::endl; 
+//               FailureCount += 1; 
+//             //  continue;
+//            }
+            GotHereCount_Z_first_upsi_phase1_second_pair_12_34_56 += 1;
+      //       if (temp_Z_mass.size() == 2) {
+//                poodleCount2 += 1;
+//             }
+//            std::cout  << "Recovered Z_mass:  " << Z_mass << std::endl; 
+//            std::cout << "Recovered upsi_mass: " << upsi_mass << std::endl; 
+//            aux->Fill();
+// END dirty block
            
          
          }
          
-         // put survivor Z_first_upsi_phase1_second_pair_12_34_56 bool here!!
+        
+      
          
          if  (upsi_phase1_first_Z_second_pair_12_34_56) { 
              
@@ -414,6 +441,7 @@ void run(string file){//, string file2){
     
       }
       
+      //I think I don't need this 
       if (TREE->pair_13_24_56->at(i) == 1){
          
          bool Z_first_upsi_phase1_second_pair_13_24_56 = false;
@@ -708,7 +736,24 @@ void run(string file){//, string file2){
 //This is dirty FIX ME 
 //    if (mass1_quickAndDirty > 0. && mass2_quickAndDirty > 0.) //assuming we have found good candidates for both mass1 (upsi) and mass2 (Z), book them. The "good" candidates are taken to be the highest pT ones 
 //      aux->Fill();
-    
+  
+   gotToEndCount += 1; 
+   if (temp_Z_mass.size() > 1) {
+      std::cout << "FOUND AN EVENT WITH MORE THAN ONE CANDIDATE, THROW IT AWAY! FAILED" << std::endl; 
+      QuickCheckCount += 1;
+      FailureCount += 1; 
+//      continue;
+  
+   }  
+ 
+  //the final survivor, one per event at most 
+   if (temp_Z_mass.size() == 1){
+     fillCount += 1; 
+     Z_mass =  temp_Z_mass.at(0);
+     aux->Fill();
+    }
+  //    fillCount += 1;
+  //    aux->Fill();
     
     
   } // loop over the entries
@@ -728,7 +773,10 @@ std::cout << "upsi_phase1_first_Z_second_pair_14_23_56_count: " << upsi_phase1_f
 
 std::cout << "GotHereCount_Z_first_upsi_phase1_second_pair_12_34_56_Z_first_upsi_phase1_second_pair_12_34_56:  " << GotHereCount_Z_first_upsi_phase1_second_pair_12_34_56 << std::endl; 
 std::cout << "FailureCount:  " << FailureCount << std::endl;
-
+std::cout << "QuickCheckCount:  " << QuickCheckCount << std::endl;
+std::cout << "fillCount:  " << fillCount << std::endl; 
+std::cout << "gotToEndCount:  " << gotToEndCount << std::endl; 
+std::cout << "poodleCount:  " << poodleCount << std::endl; 
 
 
 
