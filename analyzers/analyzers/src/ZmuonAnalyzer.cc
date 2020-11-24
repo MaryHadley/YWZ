@@ -104,6 +104,7 @@ private:
    std::vector<double> lepton1_charge;
    std::vector<double> lepton1_d0, lepton1_dz, lepton1_dxy; //recall d0 is the 3D IP
    std::vector<double> lepton1_iso03particle, lepton1_iso03hadron, lepton1_iso04hadron, lepton1_iso04particle; //these are the R = 0.4 or 0.3 isolation variables 
+   std::vector<double> lepton1_iso03nuetralHadron, lepton1_iso03photon, lepton1_iso03PU; 
    std::vector<double> lepton1_impactParameterSignificance;
    std::vector<bool> lepton1_isLooseMuon, lepton1_isSoftMuon, lepton1_isTightMuon;
    std::vector<bool> lepton1_isPFMuon, lepton1_isGlobalMuon, lepton1_isTrackerMuon;
@@ -115,6 +116,7 @@ private:
    std::vector<double> lepton2_charge;
    std::vector<double> lepton2_d0, lepton2_dz, lepton2_dxy;
    std::vector<double> lepton2_iso03particle, lepton2_iso03hadron, lepton2_iso04hadron, lepton2_iso04particle;
+   std::vector<double> lepton2_iso03nuetralHadron, lepton2_iso03photon, lepton2_iso03PU;
    std::vector<double> lepton2_impactParameterSignificance;
    std::vector<bool> lepton2_isLooseMuon, lepton2_isSoftMuon, lepton2_isTightMuon;
    std::vector<bool> lepton2_isPFMuon, lepton2_isGlobalMuon, lepton2_isTrackerMuon;
@@ -126,6 +128,7 @@ private:
    std::vector<double> lepton3_charge;
    std::vector<double> lepton3_d0, lepton3_dz, lepton3_dxy;
    std::vector<double> lepton3_iso03particle, lepton3_iso03hadron, lepton3_iso04hadron, lepton3_iso04particle;
+   std::vector<double> lepton3_iso03nuetralHadron, lepton3_iso03photon, lepton3_iso03PU;
    std::vector<double> lepton3_impactParameterSignificance;
    std::vector<bool> lepton3_isLooseMuon, lepton3_isSoftMuon, lepton3_isTightMuon;
    std::vector<bool> lepton3_isPFMuon, lepton3_isGlobalMuon, lepton3_isTrackerMuon;
@@ -137,6 +140,7 @@ private:
    std::vector<double> lepton4_charge;
    std::vector<double> lepton4_d0, lepton4_dz, lepton4_dxy;
    std::vector<double> lepton4_iso03particle, lepton4_iso03hadron, lepton4_iso04hadron, lepton4_iso04particle;
+   std::vector<double> lepton4_iso03nuetralHadron, lepton4_iso03photon, lepton4_iso03PU;
    std::vector<double> lepton4_impactParameterSignificance;
    std::vector<bool> lepton4_isLooseMuon, lepton4_isSoftMuon, lepton4_isTightMuon;
    std::vector<bool> lepton4_isPFMuon, lepton4_isGlobalMuon, lepton4_isTrackerMuon;
@@ -232,6 +236,7 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    histContainer_["nEventsFilteredCounter"]  = fs->make<TH1F>("nEventsFilteredCounter", ";nEventsFilteredCounter; nEvents",2,0,2);
    histContainer_["PU"]                      =  fs->make<TH1F>("PU",      ";Pileup observed;Events",100,0,100);
    histContainer_["PU_True"]                 =  fs->make<TH1F>("PU_True",  ";Pileup true;Events",100,0,100);
+   histContainer_["CutFlow"]                 = fs->make<TH1F>("CutFlow",  ";CutFlow;Z+Upsi Candidate",15,0,15);
    for(std::unordered_map<std::string,TH1*>::iterator it=histContainer_.begin();   it!=histContainer_.end();   it++) it->second->Sumw2(); //call Sumw2 on all the hists in histContainer_   
    
    tree->Branch("event_number", &event_number);
@@ -254,6 +259,9 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("lepton1_iso04particle", &lepton1_iso04particle);
    tree->Branch("lepton1_iso03hadron", &lepton1_iso03hadron);
    tree->Branch("lepton1_iso04hadron", &lepton1_iso04hadron);
+   tree->Branch("lepton1_iso03neutralHadron", &lepton1_iso03nuetralHadron);
+   tree->Branch("lepton1_iso03photon", &lepton1_iso03photon);
+   tree->Branch("lepton1_iso03PU", &lepton1_iso03PU);
    tree->Branch("lepton1_impactParameterSignificance", &lepton1_impactParameterSignificance);
    tree->Branch("lepton1_isLooseMuon", &lepton1_isLooseMuon);    // these are only for muons 
    tree->Branch("lepton1_isSoftMuon",  &lepton1_isSoftMuon);     // these are only for muons  
@@ -273,6 +281,9 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("lepton2_iso04particle", &lepton2_iso04particle);
    tree->Branch("lepton2_iso03hadron",   &lepton2_iso03hadron);
    tree->Branch("lepton2_iso04hadron",   &lepton2_iso04hadron);
+   tree->Branch("lepton2_iso03neutralHadron", &lepton1_iso03nuetralHadron);
+   tree->Branch("lepton2_iso03photon", &lepton1_iso03photon);
+   tree->Branch("lepton2_iso03PU", &lepton1_iso03PU);
    tree->Branch("lepton2_impactParameterSignificance", &lepton2_impactParameterSignificance);
    tree->Branch("lepton2_isLooseMuon", &lepton2_isLooseMuon);    // these are only for muons 
    tree->Branch("lepton2_isSoftMuon",  &lepton2_isSoftMuon);     // these are only for muons  
@@ -292,6 +303,9 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("lepton3_iso04particle", &lepton3_iso04particle);
    tree->Branch("lepton3_iso03hadron", &lepton3_iso03hadron);
    tree->Branch("lepton3_iso04hadron", &lepton3_iso04hadron);
+   tree->Branch("lepton3_iso03neutralHadron", &lepton1_iso03nuetralHadron);
+   tree->Branch("lepton3_iso03photon", &lepton1_iso03photon);
+   tree->Branch("lepton3_iso03PU", &lepton1_iso03PU);
    tree->Branch("lepton3_impactParameterSignificance", &lepton3_impactParameterSignificance);
    tree->Branch("lepton3_isLooseMuon", &lepton3_isLooseMuon);    // these are only for muons 
    tree->Branch("lepton3_isSoftMuon",  &lepton3_isSoftMuon);     // these are only for muons  
@@ -311,6 +325,9 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("lepton4_iso04particle", &lepton4_iso04particle);
    tree->Branch("lepton4_iso03hadron",   &lepton4_iso03hadron);
    tree->Branch("lepton4_iso04hadron",   &lepton4_iso04hadron);
+   tree->Branch("lepton4_iso03neutralHadron", &lepton1_iso03nuetralHadron);
+   tree->Branch("lepton4_iso03photon", &lepton1_iso03photon);
+   tree->Branch("lepton4_iso03PU", &lepton1_iso03PU);
    tree->Branch("lepton4_impactParameterSignificance", &lepton4_impactParameterSignificance);
    tree->Branch("lepton4_isLooseMuon", &lepton4_isLooseMuon);    // these are only for muons 
    tree->Branch("lepton4_isSoftMuon",  &lepton4_isSoftMuon);     // these are only for muons  
@@ -714,52 +731,81 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           for (auto iM4 = iM3+1; iM4 != muons->end(); ++iM4) {
                  
                 double pT_cut = 2.5; // we cut looser here and then harder (pT > 4) in phase 2 code
-
-//                std::cout << " <<<<<<<<<<<<< ------------------------- entered " << std::endl;
+                histContainer_["CutFlow"]->AddBinContent(1); //how many candidates we have 
+                std::cout << " <<<<<<<<<<<<< ------------------------- entered " << std::endl;
     
                 if (iM1->charge() + iM2->charge() + iM3->charge() + iM4->charge() !=0){
-         //         std::cout << "FAILED" << std::endl; 
+                 
+                  std::cout << "FAILED AT CUT 1" << std::endl;
+                  histContainer_["CutFlow"]->AddBinContent(2);
                  continue;
                 }
                 if (fabs(iM1->muonBestTrack()->dz(primary_vertex.position()))>20. || fabs(iM2->muonBestTrack()->dz(primary_vertex.position()))>20.){
-        //          std::cout << "FAILED" << std::endl;
+                 histContainer_["CutFlow"]->AddBinContent(3);
+                 std::cout << "FAILED AT CUT 2" << std::endl;
                   continue;
                 }
                 if (fabs(iM1->muonBestTrack()->dxy(primary_vertex.position()))>1. || fabs(iM2->muonBestTrack()->dxy(primary_vertex.position()))>1.){
-       //           std::cout << "FAILED" <<std::endl;
+                  histContainer_["CutFlow"]->AddBinContent(4);
+                  std::cout << "FAILED AT CUT 3" <<std::endl;
                   continue;
                 }
                 if (fabs(iM1->eta())>2.5 || fabs(iM2->eta())>2.5){
-         //         std::cout << "FAILED" << std::endl;
+                  histContainer_["CutFlow"]->AddBinContent(5);
+                  std::cout << "FAILED AT CUT 4" << std::endl;
                   continue;
                 }
                 if (iM1->pt()<pT_cut || iM2->pt()<pT_cut){
-    //              std::cout << "FAILED" << std::endl;
+                  histContainer_["CutFlow"]->AddBinContent(6);
+                  std::cout << "FAILED AT CUT 5" << std::endl;
                   continue;
                 }
                 if (iM1->isTrackerMuon()==false || iM2->isTrackerMuon()==false){
-  //                std::cout << "FAILED" << std::endl;
+                  histContainer_["CutFlow"]->AddBinContent(7);
+                  std::cout << "FAILED AT CUT 6" << std::endl;
                   continue;
                 }
                 if (iM1->isSoftMuon(primary_vertex)==false || iM2->isSoftMuon(primary_vertex)==false){ //QUESTION!: I wouldn't have known isSoftMuon needed to (primary_vertex) argument, is this something you just knew? //Apparently you get compilation errors if you forget it
-  //                std::cout << "FAILED"  << std::endl;
+                 histContainer_["CutFlow"]->AddBinContent(8);
+                 std::cout << "FAILED AT CUT 7"  << std::endl;
+                 continue;
+                }
+           //     if (iM1->isGlobalMuon()==false || iM2->isGlobalMuon()==false)
+             //     continue;
+    
+                if (fabs(iM3->muonBestTrack()->dz(primary_vertex.position()))>20. || fabs(iM4->muonBestTrack()->dz(primary_vertex.position()))>20.){
+                  histContainer_["CutFlow"]->AddBinContent(9);
+                  std::cout << "FAILED AT CUT 8" << std::endl;
                   continue;
                 }
-//                 if (iM1->isGlobalMuon()==false || iM2->isGlobalMuon()==false)
-//                  continue;
-    
-                if (fabs(iM3->muonBestTrack()->dz(primary_vertex.position()))>20. || fabs(iM4->muonBestTrack()->dz(primary_vertex.position()))>20.)
+                if (fabs(iM3->muonBestTrack()->dxy(primary_vertex.position()))>1. || fabs(iM4->muonBestTrack()->dxy(primary_vertex.position()))>1.){
+                  histContainer_["CutFlow"]->AddBinContent(10);
+                  std::cout << "FAILED AT CUT 9" << std::endl;
                   continue;
-                if (fabs(iM3->muonBestTrack()->dxy(primary_vertex.position()))>1. || fabs(iM4->muonBestTrack()->dxy(primary_vertex.position()))>1.)
+                }
+                  
+                if (fabs(iM3->eta())>2.5 || fabs(iM4->eta())>2.5){
+                  histContainer_["CutFlow"]->AddBinContent(11);
+                  std::cout << "FAILED AT CUT 10" << std::endl;
+                continue;
+                }
+                 
+                if (iM3->pt()<pT_cut || iM4->pt()<pT_cut){
+                  histContainer_["CutFlow"]->AddBinContent(12);
+                  std::cout << "FAILED AT CUT 11" << std::endl;
                   continue;
-                if (fabs(iM3->eta())>2.5 || fabs(iM4->eta())>2.5)
+                }
+                if (iM3->isTrackerMuon()==false || iM4->isTrackerMuon()==false){
+                  histContainer_["CutFlow"]->AddBinContent(13);
+                  std::cout << "FAILED AT CUT 12" << std::endl; 
                   continue;
-                if (iM3->pt()<pT_cut || iM4->pt()<pT_cut)
-                  continue;
-                if (iM3->isTrackerMuon()==false || iM4->isTrackerMuon()==false)
-                  continue;
-                if (iM3->isSoftMuon(primary_vertex)==false || iM4->isSoftMuon(primary_vertex)==false)
-                  continue;
+                }
+                if (iM3->isSoftMuon(primary_vertex)==false || iM4->isSoftMuon(primary_vertex)==false){
+                   histContainer_["CutFlow"]->AddBinContent(14);
+                   std::cout << "FAILED AT CUT 13" << std::endl;
+                   continue;
+                }
+                 
 //                if (iM3->isGlobalMuon()==false || iM4->isGlobalMuon()==false)
 //                  continue;
                //These cuts (dz = 20, dxy =1 )  come from the definition of the soft muon. S.L. pretty sure that if WE remove this cut, it won't make a difference...Probably obsolete.
@@ -833,11 +879,14 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
                 if (!(match_12_34_56 || match_13_24_56 || 
-                      match_14_23_56)) 
+                      match_14_23_56)) {
+                   histContainer_["CutFlow"]->AddBinContent(15);  
+                   std::cout << "FAILED At CUT 14" <<std::endl;
                   continue;
+                }
                   //At this point, we might have more than 1 Y+Z candidate in each event (aka matching ambiguity). We will sort this out in the phase 2 code, not here.
                 save_event = true; //if we found a good set, turn save_event to true 
-
+                
                 if (match_12_34_56) {dimuon1mass.push_back(mass_1_2); dimuon2mass.push_back(mass_3_4);  dimuon1pt.push_back(pt_1_2); dimuon2pt.push_back(pt_3_4);  dimuon1eta.push_back(eta_1_2); dimuon2eta.push_back(eta_3_4);  dimuon1phi.push_back(phi_1_2); dimuon2phi.push_back(phi_3_4); }
                                                                                                                                                                                                                                                                                                                                                                                                                                                 
                 if (match_13_24_56) {dimuon1mass.push_back(mass_1_3); dimuon2mass.push_back(mass_2_4); dimuon1pt.push_back(pt_1_3); dimuon2pt.push_back(pt_2_4);dimuon1eta.push_back(eta_1_3); dimuon2eta.push_back(eta_2_4); dimuon1phi.push_back(phi_1_3); dimuon2phi.push_back(phi_2_4); }
@@ -1005,6 +1054,7 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 //protection here in case dimuon1vtx_xpos does not exist. without this protection, code fails with an unhelpful complaint about vector sizes. S.L. taught me with these kinds of errors, check the vectors first and see what is unprotected (like this was)
                 //I also put in an analogous protection for diumuon2vtx_xpos
                 if (dimuon1vtx_xpos.size()==0 || dimuon2vtx_xpos.size()==0){
+                    std::cout << "diumuon1 or 2 vtx failure!" << std::endl;
                     continue;
                 }
 
@@ -1335,23 +1385,23 @@ void
 ZmuonAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
 {
 //  events seen in each lumi section
-      edm::Handle<edm::MergeableCounter> nTotalHandle;
+     edm::Handle<edm::MergeableCounter> nTotalHandle;
       iLumi.getByToken(nTotalToken_, nTotalHandle);
-      int nTotInThisLS = nTotalHandle->value;
+     int nTotInThisLS = nTotalHandle->value;
       
       histContainer_["nEventsTotalCounter"]->Fill(0); //the number of entries at 0 give us the number of LS total that were looked at at the end of the day
       histContainer_["nEventsTotalCounter"]->Fill(1, nTotInThisLS); //the number of entries at 1 will give us the total number of events looked at (each lumi section is weighted by the number of events seen in that lumi section)
       
       //Events seen in each LS that passed the filter
       edm::Handle<edm::MergeableCounter> nFilteredHandle;
-      iLumi.getByToken(nFilteredToken_, nFilteredHandle);
+     iLumi.getByToken(nFilteredToken_, nFilteredHandle);
       int nFilteredInThisLS = nFilteredHandle->value;
       
       histContainer_["nEventsFilteredCounter"]->Fill(0); //the number of entries at 0 give us the number of LS in total that passed the filter
       histContainer_["nEventsFilteredCounter"]->Fill(1, nFilteredInThisLS); //the number of entries at 1 will give us the total number of events that passed the filter 
     
     // Total number of events is the sum of the events in each of these luminosity blocks 
-  //  edm::Handle nEventsTotalCounter;
+//    edm::Handle nEventsTotalCounter;
    // iLumi.getByLabel("nEventsTotal", nEventsTotalCounter); nEventsTotal +=nEventsTotalCounter->value;
 //
 //    edm::Handle nEventsFilteredCounter; iLumi.getByLabel("nEventsFiltered",
