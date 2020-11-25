@@ -238,7 +238,6 @@ void run(string file){//, string file2){
       
       std:: cout << "Checking what TMath::Prob gives, let's try TMath::Prob(3.84, 1)   " << TMath::Prob(3.84, 1) << std::endl; //https://en.wikipedia.org/wiki/Chi-square_distribution //confirmed that this gives out what we think it should, aka this returns .05
        std:: cout << "Checking what TMath::Prob gives, let's try TMath::Prob(3.32, 9)   " << TMath::Prob(3.32, 9) << std::endl;
-      
       //Put in iso003 cuts here, that's the last cut involving the quad TO DO
     
       //end cuts involving overall quad /////////////

@@ -104,7 +104,7 @@ private:
    std::vector<double> lepton1_charge;
    std::vector<double> lepton1_d0, lepton1_dz, lepton1_dxy; //recall d0 is the 3D IP
    std::vector<double> lepton1_iso03particle, lepton1_iso03hadron, lepton1_iso04hadron, lepton1_iso04particle; //these are the R = 0.4 or 0.3 isolation variables 
-   std::vector<double> lepton1_iso03nuetralHadron, lepton1_iso03photon, lepton1_iso03PU; 
+   std::vector<double> lepton1_iso03neutralHadron, lepton1_iso03photon, lepton1_iso03PU; 
    std::vector<double> lepton1_impactParameterSignificance;
    std::vector<bool> lepton1_isLooseMuon, lepton1_isSoftMuon, lepton1_isTightMuon;
    std::vector<bool> lepton1_isPFMuon, lepton1_isGlobalMuon, lepton1_isTrackerMuon;
@@ -116,7 +116,7 @@ private:
    std::vector<double> lepton2_charge;
    std::vector<double> lepton2_d0, lepton2_dz, lepton2_dxy;
    std::vector<double> lepton2_iso03particle, lepton2_iso03hadron, lepton2_iso04hadron, lepton2_iso04particle;
-   std::vector<double> lepton2_iso03nuetralHadron, lepton2_iso03photon, lepton2_iso03PU;
+   std::vector<double> lepton2_iso03neutralHadron, lepton2_iso03photon, lepton2_iso03PU;
    std::vector<double> lepton2_impactParameterSignificance;
    std::vector<bool> lepton2_isLooseMuon, lepton2_isSoftMuon, lepton2_isTightMuon;
    std::vector<bool> lepton2_isPFMuon, lepton2_isGlobalMuon, lepton2_isTrackerMuon;
@@ -128,7 +128,7 @@ private:
    std::vector<double> lepton3_charge;
    std::vector<double> lepton3_d0, lepton3_dz, lepton3_dxy;
    std::vector<double> lepton3_iso03particle, lepton3_iso03hadron, lepton3_iso04hadron, lepton3_iso04particle;
-   std::vector<double> lepton3_iso03nuetralHadron, lepton3_iso03photon, lepton3_iso03PU;
+   std::vector<double> lepton3_iso03neutralHadron, lepton3_iso03photon, lepton3_iso03PU;
    std::vector<double> lepton3_impactParameterSignificance;
    std::vector<bool> lepton3_isLooseMuon, lepton3_isSoftMuon, lepton3_isTightMuon;
    std::vector<bool> lepton3_isPFMuon, lepton3_isGlobalMuon, lepton3_isTrackerMuon;
@@ -140,7 +140,7 @@ private:
    std::vector<double> lepton4_charge;
    std::vector<double> lepton4_d0, lepton4_dz, lepton4_dxy;
    std::vector<double> lepton4_iso03particle, lepton4_iso03hadron, lepton4_iso04hadron, lepton4_iso04particle;
-   std::vector<double> lepton4_iso03nuetralHadron, lepton4_iso03photon, lepton4_iso03PU;
+   std::vector<double> lepton4_iso03neutralHadron, lepton4_iso03photon, lepton4_iso03PU;
    std::vector<double> lepton4_impactParameterSignificance;
    std::vector<bool> lepton4_isLooseMuon, lepton4_isSoftMuon, lepton4_isTightMuon;
    std::vector<bool> lepton4_isPFMuon, lepton4_isGlobalMuon, lepton4_isTrackerMuon;
@@ -257,11 +257,11 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("lepton1_dz",  &lepton1_dz);
    tree->Branch("lepton1_iso03particle", &lepton1_iso03particle);
    tree->Branch("lepton1_iso04particle", &lepton1_iso04particle);
-   tree->Branch("lepton1_iso03hadron", &lepton1_iso03hadron);
+   tree->Branch("lepton1_iso03hadron", &lepton1_iso03hadron); //charged hadron iso
    tree->Branch("lepton1_iso04hadron", &lepton1_iso04hadron);
-   tree->Branch("lepton1_iso03neutralHadron", &lepton1_iso03nuetralHadron);
-   tree->Branch("lepton1_iso03photon", &lepton1_iso03photon);
-   tree->Branch("lepton1_iso03PU", &lepton1_iso03PU);
+   tree->Branch("lepton1_iso03neutralHadron", &lepton1_iso03neutralHadron); //neutral hadron iso
+   tree->Branch("lepton1_iso03photon", &lepton1_iso03photon); //photon iso 
+   tree->Branch("lepton1_iso03PU", &lepton1_iso03PU);//PU iso 
    tree->Branch("lepton1_impactParameterSignificance", &lepton1_impactParameterSignificance);
    tree->Branch("lepton1_isLooseMuon", &lepton1_isLooseMuon);    // these are only for muons 
    tree->Branch("lepton1_isSoftMuon",  &lepton1_isSoftMuon);     // these are only for muons  
@@ -279,11 +279,11 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("lepton2_dz",  &lepton2_dz);
    tree->Branch("lepton2_iso03particle", &lepton2_iso03particle); 
    tree->Branch("lepton2_iso04particle", &lepton2_iso04particle);
-   tree->Branch("lepton2_iso03hadron",   &lepton2_iso03hadron);
+   tree->Branch("lepton2_iso03hadron",   &lepton2_iso03hadron); //charged hadron iso 
    tree->Branch("lepton2_iso04hadron",   &lepton2_iso04hadron);
-   tree->Branch("lepton2_iso03neutralHadron", &lepton1_iso03nuetralHadron);
-   tree->Branch("lepton2_iso03photon", &lepton1_iso03photon);
-   tree->Branch("lepton2_iso03PU", &lepton1_iso03PU);
+   tree->Branch("lepton2_iso03neutralHadron", &lepton2_iso03neutralHadron); //neutral hadron iso 
+   tree->Branch("lepton2_iso03photon", &lepton2_iso03photon); //photon iso 
+   tree->Branch("lepton2_iso03PU", &lepton2_iso03PU); //PU iso 
    tree->Branch("lepton2_impactParameterSignificance", &lepton2_impactParameterSignificance);
    tree->Branch("lepton2_isLooseMuon", &lepton2_isLooseMuon);    // these are only for muons 
    tree->Branch("lepton2_isSoftMuon",  &lepton2_isSoftMuon);     // these are only for muons  
@@ -301,11 +301,11 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("lepton3_dz",  &lepton3_dz);
    tree->Branch("lepton3_iso03particle", &lepton3_iso03particle);
    tree->Branch("lepton3_iso04particle", &lepton3_iso04particle);
-   tree->Branch("lepton3_iso03hadron", &lepton3_iso03hadron);
+   tree->Branch("lepton3_iso03hadron", &lepton3_iso03hadron); //charged hadron iso 
    tree->Branch("lepton3_iso04hadron", &lepton3_iso04hadron);
-   tree->Branch("lepton3_iso03neutralHadron", &lepton1_iso03nuetralHadron);
-   tree->Branch("lepton3_iso03photon", &lepton1_iso03photon);
-   tree->Branch("lepton3_iso03PU", &lepton1_iso03PU);
+   tree->Branch("lepton3_iso03neutralHadron", &lepton3_iso03neutralHadron); //neutral hadron iso 
+   tree->Branch("lepton3_iso03photon", &lepton3_iso03photon); //photon iso 
+   tree->Branch("lepton3_iso03PU", &lepton3_iso03PU); //PU iso 
    tree->Branch("lepton3_impactParameterSignificance", &lepton3_impactParameterSignificance);
    tree->Branch("lepton3_isLooseMuon", &lepton3_isLooseMuon);    // these are only for muons 
    tree->Branch("lepton3_isSoftMuon",  &lepton3_isSoftMuon);     // these are only for muons  
@@ -323,11 +323,11 @@ ZmuonAnalyzer::ZmuonAnalyzer(const edm::ParameterSet& iConfig)
    tree->Branch("lepton4_dz",  &lepton4_dz);
    tree->Branch("lepton4_iso03particle", &lepton4_iso03particle); 
    tree->Branch("lepton4_iso04particle", &lepton4_iso04particle);
-   tree->Branch("lepton4_iso03hadron",   &lepton4_iso03hadron);
+   tree->Branch("lepton4_iso03hadron",   &lepton4_iso03hadron); //charged hadron iso 
    tree->Branch("lepton4_iso04hadron",   &lepton4_iso04hadron);
-   tree->Branch("lepton4_iso03neutralHadron", &lepton1_iso03nuetralHadron);
-   tree->Branch("lepton4_iso03photon", &lepton1_iso03photon);
-   tree->Branch("lepton4_iso03PU", &lepton1_iso03PU);
+   tree->Branch("lepton4_iso03neutralHadron", &lepton4_iso03neutralHadron); //neutral hadron iso 
+   tree->Branch("lepton4_iso03photon", &lepton4_iso03photon); //photon iso 
+   tree->Branch("lepton4_iso03PU", &lepton4_iso03PU); //PU iso 
    tree->Branch("lepton4_impactParameterSignificance", &lepton4_impactParameterSignificance);
    tree->Branch("lepton4_isLooseMuon", &lepton4_isLooseMuon);    // these are only for muons 
    tree->Branch("lepton4_isSoftMuon",  &lepton4_isSoftMuon);     // these are only for muons  
@@ -494,6 +494,9 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    lepton1_d0                         .clear();  lepton2_d0                         .clear();
    lepton1_iso03particle              .clear();  lepton2_iso03particle              .clear();
    lepton1_iso03hadron                .clear();  lepton2_iso03hadron                .clear();
+   lepton1_iso03neutralHadron         .clear();  lepton2_iso03neutralHadron         .clear();
+   lepton1_iso03photon                .clear();  lepton2_iso03photon                .clear();
+   lepton1_iso03PU                    .clear();  lepton2_iso03PU                    .clear();
    lepton1_iso04hadron                .clear();  lepton2_iso04hadron                .clear();
    lepton1_iso04particle              .clear();  lepton2_iso04particle              .clear();
    lepton1_impactParameterSignificance.clear();  lepton2_impactParameterSignificance.clear();
@@ -519,6 +522,9 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    lepton3_d0                         .clear();  lepton4_d0                         .clear();
    lepton3_iso03particle              .clear();  lepton4_iso03particle              .clear();
    lepton3_iso03hadron                .clear();  lepton4_iso03hadron                .clear();
+   lepton3_iso03neutralHadron         .clear();  lepton4_iso03neutralHadron         .clear();
+   lepton3_iso03photon                .clear();  lepton4_iso03photon                .clear();
+   lepton3_iso03PU                    .clear();  lepton4_iso03PU                    .clear();
    lepton3_iso04hadron                .clear();  lepton4_iso04hadron                .clear();
    lepton3_iso04particle              .clear();  lepton4_iso04particle              .clear();
    lepton3_impactParameterSignificance.clear();  lepton4_impactParameterSignificance.clear();
@@ -556,6 +562,8 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    truth_Upsi_pdgid.clear();  
    loop_enter_check.clear();
    rho.clear();
+   
+   
  //  TrkWeightsRecoVtxTrks.clear();
    
  //  std::cout << "Am here at check 0" << std::endl;
@@ -1137,8 +1145,12 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 lepton1_d0                         .push_back(iM1->muonBestTrack()->d0());
                 lepton1_iso03particle              .push_back(iM1->pfIsolationR03().sumChargedParticlePt);
                 lepton1_iso03hadron                .push_back(iM1->pfIsolationR03().sumChargedHadronPt);
+                lepton1_iso03neutralHadron         .push_back(iM1->pfIsolationR03().sumNeutralHadronEt);
+                lepton1_iso03photon                .push_back(iM1->pfIsolationR03().sumPhotonEt);
+                lepton1_iso03PU                    .push_back(iM1->pfIsolationR03().sumPUPt);
                 lepton1_iso04hadron                .push_back(iM1->pfIsolationR04().sumChargedHadronPt);
                 lepton1_iso04particle              .push_back(iM1->pfIsolationR04().sumChargedParticlePt);
+                
                 lepton1_impactParameterSignificance.push_back(fabs(iM1->dB(pat::Muon::PV3D)/iM1->edB(pat::Muon::PV3D)));
                 lepton1_isLooseMuon                .push_back(iM1->isLooseMuon());
                 lepton1_isSoftMuon                 .push_back(iM1->isSoftMuon(primary_vertex));
@@ -1156,6 +1168,9 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 lepton2_d0                         .push_back(iM2->muonBestTrack()->d0());
                 lepton2_iso03particle              .push_back(iM2->pfIsolationR03().sumChargedParticlePt);
                 lepton2_iso03hadron                .push_back(iM2->pfIsolationR03().sumChargedHadronPt);
+                lepton2_iso03neutralHadron         .push_back(iM2->pfIsolationR03().sumNeutralHadronEt);
+                lepton2_iso03photon                .push_back(iM2->pfIsolationR03().sumPhotonEt);
+                lepton2_iso03PU                    .push_back(iM2->pfIsolationR03().sumPUPt);
                 lepton2_iso04hadron                .push_back(iM2->pfIsolationR04().sumChargedHadronPt);
                 lepton2_iso04particle              .push_back(iM2->pfIsolationR04().sumChargedParticlePt);
                 lepton2_impactParameterSignificance.push_back(fabs(iM2->dB(pat::Muon::PV3D)/iM2->edB(pat::Muon::PV3D)));
@@ -1175,6 +1190,9 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 lepton3_d0                         .push_back(iM3->muonBestTrack()->d0());
                 lepton3_iso03particle              .push_back(iM3->pfIsolationR03().sumChargedParticlePt);
                 lepton3_iso03hadron                .push_back(iM3->pfIsolationR03().sumChargedHadronPt);
+                lepton3_iso03neutralHadron         .push_back(iM3->pfIsolationR03().sumNeutralHadronEt);
+                lepton3_iso03photon                .push_back(iM3->pfIsolationR03().sumPhotonEt);
+                lepton3_iso03PU                    .push_back(iM3->pfIsolationR03().sumPUPt);
                 lepton3_iso04hadron                .push_back(iM3->pfIsolationR04().sumChargedHadronPt);
                 lepton3_iso04particle              .push_back(iM3->pfIsolationR04().sumChargedParticlePt);
                 lepton3_impactParameterSignificance.push_back(fabs(iM3->dB(pat::Muon::PV3D)/iM3->edB(pat::Muon::PV3D)));
@@ -1194,6 +1212,9 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                 lepton4_d0                         .push_back(iM4->muonBestTrack()->d0());
                 lepton4_iso03particle              .push_back(iM4->pfIsolationR03().sumChargedParticlePt);
                 lepton4_iso03hadron                .push_back(iM4->pfIsolationR03().sumChargedHadronPt);
+                lepton4_iso03neutralHadron         .push_back(iM4->pfIsolationR03().sumNeutralHadronEt);
+                lepton4_iso03photon                .push_back(iM4->pfIsolationR03().sumPhotonEt);
+                lepton4_iso03PU                    .push_back(iM4->pfIsolationR03().sumPUPt);
                 lepton4_iso04hadron                .push_back(iM4->pfIsolationR04().sumChargedHadronPt);
                 lepton4_iso04particle              .push_back(iM4->pfIsolationR04().sumChargedParticlePt);
                 lepton4_impactParameterSignificance.push_back(fabs(iM4->dB(pat::Muon::PV3D)/iM4->edB(pat::Muon::PV3D)));
