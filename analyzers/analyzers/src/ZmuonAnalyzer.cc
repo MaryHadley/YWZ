@@ -773,11 +773,11 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                   std::cout << "FAILED AT CUT 6" << std::endl;
                   continue;
                 }
-                if (iM1->isSoftMuon(primary_vertex)==false || iM2->isSoftMuon(primary_vertex)==false){ //QUESTION!: I wouldn't have known isSoftMuon needed to (primary_vertex) argument, is this something you just knew? //Apparently you get compilation errors if you forget it
-                 histContainer_["CutFlow"]->AddBinContent(8);
-                 std::cout << "FAILED AT CUT 7"  << std::endl;
-                 continue;
-                }
+  //              if (iM1->isSoftMuon(primary_vertex)==false || iM2->isSoftMuon(primary_vertex)==false){ //QUESTION!: I wouldn't have known isSoftMuon needed to (primary_vertex) argument, is this something you just knew? //Apparently you get compilation errors if you forget it
+  //               histContainer_["CutFlow"]->AddBinContent(8);
+  //               std::cout << "FAILED AT CUT 7"  << std::endl;
+   //              continue;
+    //            }
            //     if (iM1->isGlobalMuon()==false || iM2->isGlobalMuon()==false)
              //     continue;
     
@@ -808,11 +808,11 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                   std::cout << "FAILED AT CUT 12" << std::endl; 
                   continue;
                 }
-                if (iM3->isSoftMuon(primary_vertex)==false || iM4->isSoftMuon(primary_vertex)==false){
-                   histContainer_["CutFlow"]->AddBinContent(14);
-                   std::cout << "FAILED AT CUT 13" << std::endl;
-                   continue;
-                }
+   //             if (iM3->isSoftMuon(primary_vertex)==false || iM4->isSoftMuon(primary_vertex)==false){
+   //                histContainer_["CutFlow"]->AddBinContent(14);
+    //               std::cout << "FAILED AT CUT 13" << std::endl;
+    //               continue;
+     //           }
                  
 //                if (iM3->isGlobalMuon()==false || iM4->isGlobalMuon()==false)
 //                  continue;
