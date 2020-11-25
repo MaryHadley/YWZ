@@ -36,8 +36,13 @@ void run(string file){//, string file2){
   
   TH1F *h_big4MuVtxProb_before_big4MuVtx_Prob_Cut = new TH1F("h_big4MuVtxProb_before_big4MuVtx_Prob_Cut", "h_big4MuVtxProb_before_big4MuVtx_Prob_Cut",200, 0, 1); h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->SetXTitle("big4MuVtxProb_before_big4MuVtx_Prob_Cut");
   
+  TH1F *h_dimuon_from_Z_Prob_before_Cut = new TH1F("h_dimuon_from_Z_Prob_before_Cut", "h_dimuon_from_Z_Prob_before_Cut", 200, 0, 1); h_dimuon_from_Z_Prob_before_Cut->SetXTitle("h_dimuon_from_Z_Prob_before_Cut");
+  
+  TH1F *h_dimuon_from_upsi_before_Cut  = new TH1F("h_dimuon_from_upsi_before_Cut ",  "h_dimuon_from_upsi_before_Cut ", 200, 0, 1);  h_dimuon_from_upsi_before_Cut ->SetXTitle("h_dimuon_from_upsi_before_Cut ");
+  
   //Ignoring MC for the moment 
   TH1F *h_truth_Z_mass    = new TH1F("h_truth_Z_mass",    "h_truth_Z_mass", 20, 66., 116.);  h_truth_Z_mass->SetMarkerSize(0); //If I change the binning above, would also want to change it here so the truth and recovered plots have same scale 
+  
   TH1F *h_truth_Upsi_mass = new TH1F("h_truth_Upsi_mass", "h_truth_Upsi_mass", 20, 8., 12.); h_truth_Upsi_mass->SetMarkerSize(0); //same comment as above for the upsi truth and recovered mass plots 
 
 
@@ -110,9 +115,12 @@ void run(string file){//, string file2){
   
   double mu_from_upsi_RAPIDITY_Cut = 2.4;
   
-  //TO DO vertex prob cut for the Z-> mu mu vertex
   
-  //To DO vertex prob cut for upsi -> mu mu vertex 
+  
+  double mu_mu_from_Z_Prob_Cut = 0.05; //Fiddle with this number!! //these "probs"
+  
+  double mu_mu_from_upsi_Prob_Cut = 0.05; //check this number
+  
   
   
   
@@ -239,7 +247,7 @@ void run(string file){//, string file2){
       std:: cout << "Checking what TMath::Prob gives, let's try TMath::Prob(3.84, 1)   " << TMath::Prob(3.84, 1) << std::endl; //https://en.wikipedia.org/wiki/Chi-square_distribution //confirmed that this gives out what we think it should, aka this returns .05
        std:: cout << "Checking what TMath::Prob gives, let's try TMath::Prob(3.32, 9)   " << TMath::Prob(3.32, 9) << std::endl;
       
-      //Put in iso003 cuts here, that's the last cut involving the quad TO DO
+      //Put in iso003 cuts here, that's the last cut involving the quad TO DO //Crab running to be able to do this!!
     
       //end cuts involving overall quad /////////////
       //////////////////////////////////////////////
@@ -309,7 +317,26 @@ void run(string file){//, string file2){
                continue; 
             }
            
-           //vertex probabilit cut that I don't want to deal with me now, FIX ME 
+           //vertex probability cut, fill it before we cut on it
+           
+           h_dimuon_from_upsi_before_Cut ->Fill(TREE->dimuon1vtx->at(i));
+           
+           if (TREE->dimuon1vtx->at(i) > mu_mu_from_Z_Prob_Cut){
+              std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
+              continue; 
+           }
+           
+           //end z cuts 
+  
+ //          if (TREE->diumon1vtx->at(i))
+     
+     //Some testing stuff       
+   //        std::cout << "TREE->dimuon1vtx->at(i)  " << TREE->dimuon1vtx->at(i) << std::endl; 
+           
+  //         if (TREE->dimuon1vtx->size() > 1){
+   //          std::cout << "GARGOYLE" << std::endl; 
+   //        }
+   //        std::cout << "TREE->dimuon1vtx->size() " << TREE->dimuon1vtx->size() << std::endl; 
            
            //End Z cuts
            
@@ -345,6 +372,10 @@ void run(string file){//, string file2){
                continue; 
            }
            
+           if (TREE->dimuon2vtx->at(i) > mu_mu_from_upsi_Prob_Cut){
+               std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
+               continue; 
+           }
            //If we get here, we have a survivor 
            
  //          survivor_Z_first_upsi_phase1_second_pair_12_34_56 = true;
@@ -407,7 +438,10 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            //vertex prob cut that I don't want to deal with now, FIX ME 
+            if (TREE->dimuon2vtx->at(i) > mu_mu_from_Z_Prob_Cut){
+               std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
+               continue; 
+            }
             
             //End Z cuts
             
@@ -435,6 +469,11 @@ void run(string file){//, string file2){
             if ( fabs(lepton1.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton2.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
                 std::cout << "FAILED mu from upsi RAPIDITY cut!" << std::endl;
                 continue;           
+            }
+            
+            if (TREE->dimuon1vtx->at(i) > mu_mu_from_upsi_Prob_Cut){
+                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
+                continue; 
             }
         
         
@@ -493,7 +532,12 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            //vertex prob cuts that I don't want to deal with right now, FIX ME
+            if (TREE->dimuon1vtx->at(i) > mu_mu_from_Z_Prob_Cut){
+               std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
+               continue; 
+            }
+            
+            //end Z cuts
             
             //start upsi cuts 
             if (lepton2.Pt() < mu_from_upsi_pT_Cut || lepton4.Pt() < mu_from_upsi_pT_Cut){
@@ -522,6 +566,11 @@ void run(string file){//, string file2){
                 continue; 
             
             }
+            
+            if (TREE->dimuon2vtx->at(i) > mu_mu_from_upsi_Prob_Cut){
+                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
+                continue; 
+            }
          }
     
          if (upsi_phase1_first_Z_second_pair_13_24_56) {
@@ -548,7 +597,10 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            //vertex prob cuts I don't want to deal with right now, FIX ME 
+           if (TREE->dimuon2vtx->at(i) > mu_mu_from_Z_Prob_Cut){
+               std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
+               continue; 
+           }
             
             if (lepton1.Pt() < mu_from_upsi_pT_Cut || lepton3.Pt() < mu_from_upsi_pT_Cut){
                std::cout << "FAILED upsi mu pT cuts!" << std::endl; 
@@ -572,6 +624,11 @@ void run(string file){//, string file2){
             
             if ( fabs(lepton1.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton3.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
                std::cout << "FAILED mu from upsi RAPIDITY cut" << std::endl;
+               continue; 
+            }
+            
+            if (TREE->dimuon1vtx->at(i) > mu_mu_from_upsi_Prob_Cut){
+               std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
                continue; 
             }
          }
@@ -625,7 +682,12 @@ void run(string file){//, string file2){
                continue; 
             }
          
-            // vertex prob cuts I don't want to deal with right now FIX ME
+           if (TREE->dimuon1vtx->at(i) > mu_mu_from_Z_Prob_Cut) {
+              std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
+              continue; 
+            }
+            
+            //end Z cuts 
             
             //start upsi cuts 
             if (lepton2.Pt() < mu_from_upsi_pT_Cut || lepton3.Pt() < mu_from_upsi_pT_Cut){
@@ -652,6 +714,11 @@ void run(string file){//, string file2){
                std::cout << "FAILED mu from upsi RAPIDITY cut" << std::endl;
                continue; 
             }
+            
+            if (TREE->dimuon2vtx->at(i) > mu_mu_from_upsi_Prob_Cut){
+               std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
+               continue; 
+            }
          }
          
          if (upsi_phase1_first_Z_second_pair_14_23_56) {
@@ -676,7 +743,13 @@ void run(string file){//, string file2){
                std::cout << "FAILED mu froom Z IP sig cut!" << std::endl;
                continue; 
             }
-             //vertex prob I don't want to deal with now FIX ME 
+             
+             if (TREE->dimuon2vtx->at(i) > mu_mu_from_Z_Prob_Cut){
+               std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
+               continue; 
+             }
+             
+             //end Z cuts
              
              //start upsi cuts 
              
@@ -703,6 +776,11 @@ void run(string file){//, string file2){
              
              if ( fabs(lepton1.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton4.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
                 std::cout << "FAILED mu from upsi RAPIDITY cut" << std::endl;
+                continue; 
+             }
+             
+             if (TREE->dimuon2vtx->at(i) > mu_mu_from_upsi_Prob_Cut){
+                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
                 continue; 
              }
          
@@ -822,6 +900,11 @@ std::cout << "poodleCount:  " << poodleCount << std::endl;
   c_big4MuVtxProb_before_big4MuVtx_Prob_Cut->cd(); h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Draw();
   h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Write();
   h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->SaveAs("h_big4MuVtxProb_before_big4MuVtx_Prob_Cut.pdf");
+  
+  TCanvas *c_dimuon_vtx = new TCanvas("c_dimuon_vtx", "c_dimuon_vtx", 1000, 500); c_dimuon_vtx->Divide(2,1); //the numbers in the canvas declaration are width then height 
+  c_dimuon_vtx->cd(1); h_dimuon_from_Z_Prob_before_Cut->Draw("e1");
+  h_dimuon_from_Z_Prob_before_Cut->Write();
+  c_dimuon_vtx->SaveAs("c_dimuon_vtx.pdf");
 
   ntuple->Write();
   ntuple->Close();

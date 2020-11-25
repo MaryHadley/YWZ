@@ -41,7 +41,7 @@ for varName in varNames:
  #       myChain.Draw("Z_mass>>Z_mass")
 
 print 'hists:', hists  
-
+pprint.pprint(hists)
 
 myCanvas = ROOT.TCanvas()
 hists[0].Draw()
