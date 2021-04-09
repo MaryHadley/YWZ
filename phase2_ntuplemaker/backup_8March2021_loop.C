@@ -113,8 +113,7 @@ void run(string file){//, string file2){
   
   double mu_from_Z_3DIPSig_Cut = 4;
   
-  double mu_from_upsi_RAPIDITY_Cut = 2.4; // keep commented in for the moment so things compile
-  double upsi_RAPIDITY_Cut = 2.4; //we are cutting on the rapidity of the upsi, not on the rapidity of its daughter muons
+  double mu_from_upsi_RAPIDITY_Cut = 2.4;
   
   
   
@@ -367,8 +366,7 @@ void run(string file){//, string file2){
                continue; 
            }
            
-          // if ( fabs(lepton3.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton4.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
-               if (   fabs((lepton3 + lepton4).Rapidity()) > upsi_RAPIDITY_Cut ){
+           if ( fabs(lepton3.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton4.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
                std::cout << "FAILED mu from upsi RAPIDITY cut!" << std::endl; 
                FailureCount +=1;
                continue; 
@@ -468,10 +466,7 @@ void run(string file){//, string file2){
                continue; 
            }
             
-            if //( fabs(lepton1.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton2.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
-                
-               ( fabs(  (lepton1 + lepton2).Rapidity() ) > upsi_RAPIDITY_Cut ) {
-                
+            if ( fabs(lepton1.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton2.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
                 std::cout << "FAILED mu from upsi RAPIDITY cut!" << std::endl;
                 continue;           
             }
@@ -566,8 +561,7 @@ void run(string file){//, string file2){
              
             }
             
-            //if //( fabs(lepton2.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton4.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
-            if  ( fabs((lepton2 + lepton4).Rapidity()) > upsi_RAPIDITY_Cut){
+            if ( fabs(lepton2.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton4.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
                 std::cout << "FAILED mu from upsi RAPIDITY cut!" << std::endl;
                 continue; 
             
