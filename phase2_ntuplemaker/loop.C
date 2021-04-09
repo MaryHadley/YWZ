@@ -369,7 +369,7 @@ void run(string file){//, string file2){
            
           // if ( fabs(lepton3.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton4.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
                if (   fabs((lepton3 + lepton4).Rapidity()) > upsi_RAPIDITY_Cut ){
-               std::cout << "FAILED mu from upsi RAPIDITY cut!" << std::endl; 
+               std::cout << "FAILED upsi RAPIDITY cut!" << std::endl; 
                FailureCount +=1;
                continue; 
            }
@@ -472,7 +472,7 @@ void run(string file){//, string file2){
                 
                ( fabs(  (lepton1 + lepton2).Rapidity() ) > upsi_RAPIDITY_Cut ) {
                 
-                std::cout << "FAILED mu from upsi RAPIDITY cut!" << std::endl;
+                std::cout << "FAILED  upsi RAPIDITY cut!" << std::endl;
                 continue;           
             }
             
@@ -568,7 +568,7 @@ void run(string file){//, string file2){
             
             //if //( fabs(lepton2.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton4.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
             if  ( fabs((lepton2 + lepton4).Rapidity()) > upsi_RAPIDITY_Cut){
-                std::cout << "FAILED mu from upsi RAPIDITY cut!" << std::endl;
+                std::cout << "FAILED upsi RAPIDITY cut!" << std::endl;
                 continue; 
             
             }
@@ -628,8 +628,10 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            if ( fabs(lepton1.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton3.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
-               std::cout << "FAILED mu from upsi RAPIDITY cut" << std::endl;
+            if //( fabs(lepton1.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton3.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
+               
+               (fabs ((lepton1+lepton3).Rapidity()) > upsi_RAPIDITY_Cut ){
+               std::cout << "FAILED upsi RAPIDITY cut" << std::endl;
                continue; 
             }
             
@@ -716,8 +718,9 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            if ( fabs(lepton2.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton3.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
-               std::cout << "FAILED mu from upsi RAPIDITY cut" << std::endl;
+            if //( fabs(lepton2.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton3.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
+               ( fabs ((lepton2 + lepton3).Rapidity()) > upsi_RAPIDITY_Cut){
+               std::cout << "FAILED  upsi RAPIDITY cut" << std::endl;
                continue; 
             }
             
@@ -780,8 +783,9 @@ void run(string file){//, string file2){
                 continue ; 
              }
              
-             if ( fabs(lepton1.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton4.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
-                std::cout << "FAILED mu from upsi RAPIDITY cut" << std::endl;
+             if //( fabs(lepton1.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton4.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
+                ( fabs ((lepton1 + lepton4).Rapidity()) > upsi_RAPIDITY_Cut) {
+                std::cout << "FAILED upsi RAPIDITY cut" << std::endl;
                 continue; 
              }
              
