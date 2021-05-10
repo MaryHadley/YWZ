@@ -1,22 +1,25 @@
 #!/usr/bin/env python
 
-
-#Credit to Hua-Sheng Shao
-#huasheng.shao@lpthe.jussieu.fr 
-
-#Use chmod 744 lhe_combine.py to make script executable 
-
+#Credit to Hua-Sheng Shao, with a few tweaks by Mary Hadley 
 import sys
 import os
 
-files=[arg for arg in sys.argv[1:] if arg.startswith('--files=')]
+
+files=[arg for arg in sys.argv[1:] if arg.startswith('--files=' or  ' ')]
 if not files:
-    raise Exception, "The usage of it should be e.g., ./lhe_combine --files='/PATH/TO/file1.lhe /PATH/TO/file2.lhe /PATH/TO/file3.lhe' --out='combine.lhe' "
+    raise Exception, "The usage of the script should be e.g., ./lhe_combine --files='/PATH/TO/file1.lhe, /PATH/TO/file2.lhe, /PATH/TO/file3.lhe' --out='combine.lhe' "
+print "files", files
 files=files[0]
+print "files:", files
 files=files.replace('--files=','')
-files=[file.lower() for file in files.split(' ')]
+print files
+#files=[file.lower() for file in files.split(',')]
+files=[file for file in files.split(',')]
 
 outfile=[arg for arg in sys.argv[1:] if arg.startswith('--out=')]
+if outfile:
+    outfile=outfile[0]
+    outfile=outfile.replace('--out=', '')
 if not outfile:
     outfile=['combine.lhe']
 
