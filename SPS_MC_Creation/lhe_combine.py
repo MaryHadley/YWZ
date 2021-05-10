@@ -7,7 +7,7 @@ import os
 
 files=[arg for arg in sys.argv[1:] if arg.startswith('--files=' or  ' ')]
 if not files:
-    raise Exception, "The usage of the script should be e.g., ./lhe_combine --files='/PATH/TO/file1.lhe,/PATH/TO/file2.lhe,/PATH/TO/file3.lhe' --out='combine.lhe' NOTE: the input file list is a comma separate value list, do NOT put spaces between the entries, just the comma "
+    raise Exception, "The usage of the script should be e.g., ./lhe_combine --files='/PATH/TO/file1.lhe, /PATH/TO/file2.lhe, /PATH/TO/file3.lhe' --out='combine.lhe' "
 print "files", files
 files=files[0]
 print "files:", files
@@ -17,13 +17,16 @@ print files
 files=[file for file in files.split(',')]
 
 outfile=[arg for arg in sys.argv[1:] if arg.startswith('--out=')]
+print outfile
 if outfile:
     outfile=outfile[0]
+    print outfile
     outfile=outfile.replace('--out=', '')
+    print outfile
 if not outfile:
     outfile=['combine.lhe']
 
-outfile=outfile[0]
+#outfile=outfile[0]
 
 currentdir=os.getcwd()
 
