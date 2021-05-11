@@ -7,7 +7,7 @@ import os
 
 files=[arg for arg in sys.argv[1:] if arg.startswith('--files=' or  ' ')]
 if not files:
-    raise Exception, "The usage of the script should be e.g., ./lhe_combine --files='/PATH/TO/file1.lhe, /PATH/TO/file2.lhe, /PATH/TO/file3.lhe' --out='combine.lhe' "
+    raise Exception, "The usage of the script should be e.g., ./lhe_combine --files=</PATH/TO/file1.lhe>,</PATH/TO/file2.lhe>,</PATH/TO/file3.lhe> --out=combine.lhe Do NOT put spaces between the inputs to --files, separate them with commas only as in the example. combine.lhe will be the default output name of the --out file if the --out argument is omitted"
 print "files", files
 files=files[0]
 print "files:", files
