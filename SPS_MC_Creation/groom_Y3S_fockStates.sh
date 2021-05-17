@@ -1,3 +1,6 @@
+#!/bin/bash 
+
+
 #Run me from ho_dir, the main Helac-Onia directory 
 ho_dir = /afs/cern.ch/work/m/mhadley/public/GOOD_HELAC-Onia_MinimalSetup/HELAC-Onia-2.5.5
 runDir =FIXME
