@@ -1,12 +1,12 @@
 #!/bin/bash 
 
 #Run me from ho_dir, the main Helac-Onia directory 
-ho_dir = /afs/cern.ch/work/m/mhadley/public/GOOD_HELAC-Onia_MinimalSetup/HELAC-Onia-2.5.5
-runDir =FIXME
+ho_dir=/afs/cern.ch/work/m/mhadley/public/GOOD_HELAC-Onia_MinimalSetup/HELAC-Onia-2.5.5
+runDir=FIXME
 
 echo HAVE YOU MADE THE APPROPRIATE CHANGE TO THE FIRST ONIA PDGID LINE IN input/py8_onia_user.inp? 
 echo REMEMBER YOU ARE RUNNING Y 2S SAMPLES NOW! 
-echo CONFIRM YOU HAVE MADE THE CHANGE BY ENTERING YES OR yes or Yes or Y or y
+echo CONFIRM YOU HAVE MADE THE CHANGE BY ENTERING YES OR yes OR Yes OR Y OR y
 
 read yesorno
 
