@@ -23,7 +23,7 @@ then
        cp input/py8_onia_user.inp $runDir/PROC_HO_0/P0_calc_$i/output
        cd $runDir/PROC_HO_0/P0_calc_$i/output
        $ho_dir/bin/lhe_pythia6_pythia8
-       cd ho_dir
+       cd $ho_dir
     done
     
         
