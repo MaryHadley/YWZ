@@ -2,7 +2,8 @@
 
 #Run me from ho_dir, the main Helac-Onia directory 
 ho_dir=/afs/cern.ch/work/m/mhadley/public/GOOD_HELAC-Onia_MinimalSetup/HELAC-Onia-2.5.5
-runDir=FIXME
+#runDir=FIXME
+runDir=Y2S3S11
 
 echo HAVE YOU MADE THE APPROPRIATE CHANGE TO THE FIRST ONIA PDGID LINE IN input/py8_onia_user.inp? 
 echo REMEMBER YOU ARE RUNNING Y 2S SAMPLES NOW! 
