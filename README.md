@@ -1,5 +1,5 @@
 # **YWZ**
-
+**Currently, despite the repo name, code only considers Y(nS) + Z production. We consider the 4 muon final state, so the case where Z->mu mu and Y(nS) -> mu mu.**
 
 **Set up instructions on lxplus (sl7)**    
 
