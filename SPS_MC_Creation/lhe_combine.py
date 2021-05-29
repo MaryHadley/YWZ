@@ -25,6 +25,7 @@ if outfile:
     print outfile
 if not outfile:
     outfile=['combine.lhe']
+    outfile=outfile[0]
 
 #outfile=outfile[0]
 
