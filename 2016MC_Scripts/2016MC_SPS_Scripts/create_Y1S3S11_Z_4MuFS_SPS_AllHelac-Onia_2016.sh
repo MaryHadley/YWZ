@@ -89,7 +89,8 @@ EVENTS=44
 
 #echo FINISHED DIGIPremix Step
 
-
+#export SCRAM_ARCH=slc7_amd64_gcc530 #note new SCRAM_ARCH for HLT step!!
+#source /cvmfs/cms.cern.ch/cmsset_default.sh
 # if [ -r CMSSW_8_0_33_UL/src ] ; then
 #   echo release CMSSW_8_0_33_UL already exists
 # else
