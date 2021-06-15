@@ -48,6 +48,8 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h" //to make histos
+#include "CommonTools/UtilAlgos/interface/TFileService.h"  //to make histos
 
 //
 // class declaration
@@ -71,9 +73,12 @@ class ZmuonFilter : public edm::stream::EDFilter<> {
 
       
       std::vector<std::string> triggerlist;
-      double pTCut, etaCut, invMass4MuCut_low, invMass4MuCut_high;
-      
+      double pTCut, etaCut, invMass4MuCut_low, invMass4MuCut_high; //these come from the cfg
+      bool verboseFilter = true; //instead of having it come from the cfg, doing it out a hacky way here
       double muon_mass = 0.1056583715; 
+      
+      std::unordered_map<std::string,TH1*> phase0_histContainer_; //for phase0_CutFlow histo
+      
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -108,7 +113,11 @@ pTCut = iConfig.getParameter<double>("pTCut");
 etaCut = iConfig.getParameter<double>("etaCut");
 invMass4MuCut_low = iConfig.getParameter<double>("invMass4MuCut_low");
 invMass4MuCut_high = iConfig.getParameter<double>("invMass4MuCut_high");
+//verboseFilter      = iConfig.getParameter<bool>("verboseFilter"); //Not sure this will work when applyZmuonFilter is set to false, so trying it a hacky way first
 
+edm::Service<TFileService> fs; //creating a TFileService instance
+
+phase0_histContainer_ ["phase0_CutFlow"]   = fs->make<TH1F>("phase0_CutFlow",  ";phase0_CutFlow;Z+Upsi Candidate",3,0,3); //creating phase0_CutFlow histo in the phase0_histContainer_
 }
 
 
@@ -156,6 +165,9 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   //Check if there are at least four mu in the event
    if ((int)muons->size() <= 3){
+       if (verboseFilter){
+          phase0_histContainer_["phase0_CutFlow"]->AddBinContent(1);
+       }
        return false; // If there are not at least four muons, the filter function will return false 
     }
    else { 
@@ -193,6 +205,9 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
  if (!flagPassTrigger) { //If, after going through all the trigger bits, we have not switched the flagPassTrigger to true and it is still false, reject the event 
 //       std::cout << "DID NOT PASS TRIGGER" << std::endl;
+       if (verboseFilter){
+          phase0_histContainer_["phase0_CutFlow"]->AddBinContent(2);
+       }
        return false;
   }
   
@@ -213,7 +228,7 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                   math::PtEtaPhiMLorentzVector lepton3(iM3->pt(), iM3->eta(), iM3->phi(), muon_mass);
                   math::PtEtaPhiMLorentzVector lepton4(iM4->pt(), iM4->eta(), iM4->phi(), muon_mass);
                   
-                  if (iM1->charge() + iM2->charge() + iM3->charge() + iM4->charge() == 0
+                  if ((iM1->charge() + iM2->charge() + iM3->charge() + iM4->charge() == 0)
                     && iM1->pt() >= pTCut && iM2->pt() >= pTCut && iM3->pt() >= pTCut && iM4->pt() >= pTCut
                      && fabs(iM1->eta()) <= etaCut && fabs(iM2->eta()) <= etaCut && fabs(iM3->eta()) <= etaCut && fabs(iM4->eta()) <= etaCut
                      && (lepton1 + lepton2 + lepton3 + lepton4).mass() >= invMass4MuCut_low
@@ -258,6 +273,10 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (!flagTotCharge_pT_Eta_InvMassOf4Mu) { //If, after going through all the sets of 4 mu, we have not flipped our flagTotCharge_pT_Eta_InvMassOf4Mu to true, reject the event
 //  //     std::cout << iM1->pt(), iM2->pt(), iM3->pt(), iM4->pt() << std::endl;
  //       std::cout << "FAILED flagTotCharge_pT_Eta_InvMassOf4Mu" << std::endl; 
+       if (verboseFilter) {
+          phase0_histContainer_["phase0_CutFlow"]->AddBinContent(3);
+       
+       }
        return false;
    }
   
