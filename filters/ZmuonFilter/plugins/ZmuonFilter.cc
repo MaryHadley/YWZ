@@ -118,6 +118,8 @@ invMass4MuCut_high = iConfig.getParameter<double>("invMass4MuCut_high");
 edm::Service<TFileService> fs; //creating a TFileService instance
 
 phase0_histContainer_ ["phase0_CutFlow"]   = fs->make<TH1F>("phase0_CutFlow",  ";phase0_CutFlow;Z+Upsi Candidate",3,0,3); //creating phase0_CutFlow histo in the phase0_histContainer_
+for(std::unordered_map<std::string,TH1*>::iterator it=phase0_histContainer_.begin();   it!=phase0_histContainer_.end();   it++) it->second->Sumw2(); //call Sumw2 on all the hists in phase0_histContainer_  
+
 }
 
 
