@@ -50,8 +50,8 @@ if options.applyZmuonFilter:
 #     pfCands = cms.InputTag("packedPFCandidates")  #not needed here
      pTCut = cms.double(2.),
      etaCut = cms.double(3.),
-     invMass4MuCut_low = cms.double(50.),
-     invMass4MuCut_high = cms.double(500.), #this is essentially not doing anything
+     invMass4MuCut_low = cms.double(50), #usually 50
+    #invMass4MuCut_high = cms.double(500.), #this is essentially not doing anything
   )
    process.nEventsTotal = cms.EDProducer("EventCountProducer")
    process.nEventsFiltered = cms.EDProducer("EventCountProducer")
@@ -85,8 +85,9 @@ process.source = cms.Source("PoolSource",
 #                                           "file:../YZ_4MuFS_DPS_MiniAOD_2016UL_Yfirst_Zsecond_03_10_2020.root",
 #                                          "file:../YZ_4MuFS_DPS_MiniAOD_2016UL_Zfirst_Ysecond_03_10_2020.root",
 #                                           "file:../YZ_4MuFS_DPS_MiniAOD_2016UL_Yfirst_Zsecond_06_11_2020.root",
-                                            "file:020353D5-EB7E-3A42-928B-64ABB6449999.root",
+#                                            "file:020353D5-EB7E-3A42-928B-64ABB6449999.root",
 #                                            "file:../miniAOD_Marys_LHE.root",
+                                              "file:Y1S3S11_Z_4Mu_HO_SPS_MiniAOD_shortTest_11_June_2021.root",
                                     ),
    duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
@@ -100,7 +101,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string("ZupsiTo4Mu_25Nov2020_removePhase1SoftMuCut_data.root")
+   fileName = cms.string("ZupsiTo4Mu_18June2021_SPS_LHE_test_newNormalNoMassHigh.root")
 )
 
 #process.maxEvents.input = 1000
