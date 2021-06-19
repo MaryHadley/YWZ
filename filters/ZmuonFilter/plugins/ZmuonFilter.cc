@@ -73,7 +73,7 @@ class ZmuonFilter : public edm::stream::EDFilter<> {
 
       
       std::vector<std::string> triggerlist;
-      double pTCut, etaCut, invMass4MuCut_low, invMass4MuCut_high; //these come from the cfg
+      double pTCut, etaCut, invMass4MuCut_low; // invMass4MuCut_high; //these come from the cfg
       bool verboseFilter = true; //instead of having it come from the cfg, doing it out a hacky way here
       double muon_mass = 0.1056583715; 
       
@@ -112,7 +112,7 @@ triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getPa
 pTCut = iConfig.getParameter<double>("pTCut");
 etaCut = iConfig.getParameter<double>("etaCut");
 invMass4MuCut_low = iConfig.getParameter<double>("invMass4MuCut_low");
-invMass4MuCut_high = iConfig.getParameter<double>("invMass4MuCut_high");
+//invMass4MuCut_high = iConfig.getParameter<double>("invMass4MuCut_high");
 //verboseFilter      = iConfig.getParameter<bool>("verboseFilter"); //Not sure this will work when applyZmuonFilter is set to false, so trying it a hacky way first
 
 edm::Service<TFileService> fs; //creating a TFileService instance
@@ -159,21 +159,21 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(muonsToken_, muons);
   
   //Flag initializations for each event 
-  bool flagAtLeast4Mu = false; 
+  bool flagAtLeast4Mu = false; //set to true, commented out 4Mu code so I know it's not doing anything  
 //  std::cout << "flagAtLeast4Mu is initialized to: " << flagAtLeast4Mu << std::endl;
   
-  bool flagPassTrigger = false;
+  bool flagPassTrigger = false;//change to true so this cut is not doing anything right now
 //  std::cout << "flagPassTrigger is initialized to: " << flagPassTrigger << std::endl;
   
   //Check if there are at least four mu in the event
-   if ((int)muons->size() <= 3){
-       if (verboseFilter){
-          phase0_histContainer_["phase0_CutFlow"]->AddBinContent(1);
-       }
-       return false; // If there are not at least four muons, the filter function will return false 
+  if ((int)muons->size() <= 3){
+      if (verboseFilter){
+         phase0_histContainer_["phase0_CutFlow"]->AddBinContent(1);
+      }
+      return false; // If there are not at least four muons, the filter function will return false 
     }
-   else { 
-        flagAtLeast4Mu = true;
+  else { 
+       flagAtLeast4Mu = true;
 //        std::cout << "flatAtLeasat4Mu is true" << std::endl;
     
     }
@@ -233,8 +233,8 @@ ZmuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                   if ((iM1->charge() + iM2->charge() + iM3->charge() + iM4->charge() == 0)
                     && iM1->pt() >= pTCut && iM2->pt() >= pTCut && iM3->pt() >= pTCut && iM4->pt() >= pTCut
                      && fabs(iM1->eta()) <= etaCut && fabs(iM2->eta()) <= etaCut && fabs(iM3->eta()) <= etaCut && fabs(iM4->eta()) <= etaCut
-                     && (lepton1 + lepton2 + lepton3 + lepton4).mass() >= invMass4MuCut_low
-                     &&  (lepton1 + lepton2 + lepton3 + lepton4).mass() <= invMass4MuCut_high){
+                    && (lepton1 + lepton2 + lepton3 + lepton4).mass() >= invMass4MuCut_low){
+   //                  &&  (lepton1 + lepton2 + lepton3 + lepton4).mass() <= invMass4MuCut_high){
 //  //                   std::cout << "invMass4Mu is  " <<(lepton1 + lepton2 + lepton3 + lepton4).mass() << std::endl;  //Recall that for events with more than one Y+Z candidate, the inv4MuMass might be over 120, but don't freak out, you are just guaranteeing there is at least 1 candidate in the event in the right range 
 //                  //   if ((lepton1 + lepton2 + lepton3 + lepton4).mass() > 120) {
 //                  //      std::cout << "BARK" << std::endl;
@@ -369,7 +369,7 @@ ZmuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
  desc.add<double>("pTCut", 0); //these values provided for ptCut, etaCut, invMass4MuCut_low are defaults and will be overwritten by what you put in the cfg
  desc.add<double>("etaCut", 4); //I have put in really loose cuts that basically do nothing here
  desc.add<double>("invMass4MuCut_low", 0); //Thank you to Gabriele Benelli and Jan-Frederik Schulte for their tips on getting this fillDescription part working!
- desc.add<double>("invMass4MuCut_high", 10000);
+// desc.add<double>("invMass4MuCut_high", 10000);
  descriptions.add("ZmuonFilter", desc);
 
 
