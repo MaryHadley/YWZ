@@ -15,6 +15,7 @@
 #include <TTree.h>
 
 //test comment
+//test comment 2
 
 // for vertexing                                                                                                                                                                                        
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -1305,8 +1306,9 @@ void ZmuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
          if (gen_particle->pdgId() == UPSI_2S ||gen_particle->pdgId() == UPSI_3S){
             std::cout << "FOUND UPSI_2S or UPSI_3S" << std::endl;
             std::cout << gen_particle->pdgId() << std::endl;
-            std::cout << gen_particle->daughter(0)->pdgId() << std::endl;
-            std::cout << gen_particle->daughter(1)->pdgId() << std::endl;
+            std::cout << gen_particle->mass() << std::endl;
+           // std::cout << gen_particle->daughter(0)->pdgId() << std::endl;
+           // std::cout << gen_particle->daughter(1)->pdgId() << std::endl;
           //  std::cout << gen_particle->daughter(2)->pdgId() << std::endl;
         }
       registered_upsi = false;
