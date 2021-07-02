@@ -118,9 +118,9 @@ void run(string file){//, string file2){
   
   
   
-  double mu_mu_from_Z_Prob_Cut = 0.05; //Fiddle with this number!! //these "probs"
+  double mu_mu_from_Z_Prob_Cut = 0.05; 
   
-  double mu_mu_from_upsi_Prob_Cut = 0.05; //check this number
+  double mu_mu_from_upsi_Prob_Cut = 0.05; 
   
   
   
@@ -382,10 +382,10 @@ void run(string file){//, string file2){
            
  //          survivor_Z_first_upsi_phase1_second_pair_12_34_56 = true;
           
-           Z_mass = (lepton1 + lepton2).M();
-           upsi_mass = (lepton3 + lepton4).M();
-           temp_Z_mass.push_back(Z_mass);
-           temp_upsi_mass.push_back(upsi_mass);
+         //  Z_mass = (lepton1 + lepton2).M();
+         //  upsi_mass = (lepton3 + lepton4).M();
+           temp_Z_mass.push_back((lepton1 + lepton2).M());
+           temp_upsi_mass.push_back((lepton3 + lepton4).M());
            
        //     if (temp_Z_mass.size() > 1) {
 //                std::cout << "POODLE" << std::endl;
@@ -482,10 +482,10 @@ void run(string file){//, string file2){
             }
         
              //If we get here, we have a survivor
-            Z_mass = (lepton3 + lepton4).M();
-           upsi_mass = (lepton1 + lepton2).M();
-           temp_Z_mass.push_back(Z_mass);
-           temp_upsi_mass.push_back(upsi_mass);
+           // Z_mass_ = (lepton3 + lepton4).M();
+          // upsi_mass = (lepton1 + lepton2).M();
+           temp_Z_mass.push_back((lepton3 + lepton4).M());
+           temp_upsi_mass.push_back((lepton1 + lepton2).M());
          }
     
       }
@@ -585,7 +585,8 @@ void run(string file){//, string file2){
     
          if (upsi_phase1_first_Z_second_pair_13_24_56) {
            // std::cout << "PLACEHOLDER!" << std::endl; 
-           
+        
+           //Z cuts
             if (lepton2.Pt() < lead_mu_from_Z_pT_Cut  || lepton4.Pt() < sublead_mu_from_Z_pT_Cut){
                 std::cout << "FAILED Z mu Pt Cuts" << std::endl;
                 continue;
@@ -611,6 +612,8 @@ void run(string file){//, string file2){
                std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
                continue; 
            }
+           
+           //Upsi cuts
             
             if (lepton1.Pt() < mu_from_upsi_pT_Cut || lepton3.Pt() < mu_from_upsi_pT_Cut){
                std::cout << "FAILED upsi mu pT cuts!" << std::endl; 
@@ -843,6 +846,7 @@ void run(string file){//, string file2){
    if (temp_Z_mass.size() == 1){
      fillCount += 1; 
      Z_mass =  temp_Z_mass.at(0);
+     upsi_mass = temp_upsi_mass.at(0);
      aux->Fill();
     }
   //    fillCount += 1;
