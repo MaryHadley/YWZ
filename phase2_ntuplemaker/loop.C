@@ -236,7 +236,7 @@ void run(string file){//, string file2){
       
       h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Fill(TREE->big4MuVtx->at(i)); //fill it  before we cut on it
         
-      if (TREE->big4MuVtx->at(i) > big4MuVtx_Prob_Cut){ //CONFIRMED that TMath::Prob returns a p value, so low indicates stat significance. The name Prob is just incredibly misleading...//I think the greater than, which is currently here, is correct. Before I had less than, but I think that was wrong. //Earlier comments hereWARNING I THINK THIS CUT WAS INVERTED!!!! WARNING WARNING WARNING CHECK ME!!!!! I think this is essentially returning a p value, and we want low p values, so should be less than the cut 
+      if (TREE->big4MuVtx->at(i) < big4MuVtx_Prob_Cut){ //KEEP HIGH P VALUES! THINK P FOR PROBABILITY! CONFIRMED that TMath::Prob returns a p value, so low indicates stat significance. CONFIRMED WE WANT TO THROW AWAY LOW P VALUES, SEE NOTES IN JULY_2021_LAB_NOTEBOOK!
 //         std::cout << "FAILED big4MuVtx_Prob_Cut! Throwing away this quad!" << std::endl; 
 //         std::cout << TREE->big4MuVtx->at(i) << std::endl; 
          big4MuVtx_Prob_Cut_fail_count +=1;
@@ -322,7 +322,7 @@ void run(string file){//, string file2){
            
            h_dimuon_from_upsi_before_Cut ->Fill(TREE->dimuon1vtx->at(i));
            
-           if (TREE->dimuon1vtx->at(i) > mu_mu_from_Z_Prob_Cut){
+           if (TREE->dimuon1vtx->at(i) < mu_mu_from_Z_Prob_Cut){
               std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
               continue; 
            }
@@ -374,7 +374,7 @@ void run(string file){//, string file2){
                continue; 
            }
            
-           if (TREE->dimuon2vtx->at(i) > mu_mu_from_upsi_Prob_Cut){
+           if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
                continue; 
            }
@@ -387,11 +387,11 @@ void run(string file){//, string file2){
            temp_Z_mass.push_back(Z_mass);
            temp_upsi_mass.push_back(upsi_mass);
            
-           if (temp_Z_mass.size() > 1) {
-               std::cout << "POODLE" << std::endl;
-               poodleCount += 1;
-
-            }
+       //     if (temp_Z_mass.size() > 1) {
+//                std::cout << "POODLE" << std::endl;
+//                poodleCount += 1;
+// 
+//             }
             
 //            //this is dirty and not quite right, right now you are keeping the higher pT option, need to put in another bool!! FIX ME 
 //            //throw away events with more than 1 Z + upsi candidate, these probably occur because of using the same leptons in multiple quads. Can write more detailed explanation later!!
@@ -440,7 +440,7 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            if (TREE->dimuon2vtx->at(i) > mu_mu_from_Z_Prob_Cut){
+            if (TREE->dimuon2vtx->at(i) < mu_mu_from_Z_Prob_Cut){
                std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
                continue; 
             }
@@ -476,12 +476,16 @@ void run(string file){//, string file2){
                 continue;           
             }
             
-            if (TREE->dimuon1vtx->at(i) > mu_mu_from_upsi_Prob_Cut){
+            if (TREE->dimuon1vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
                 std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
                 continue; 
             }
         
-        
+             //If we get here, we have a survivor
+            Z_mass = (lepton3 + lepton4).M();
+           upsi_mass = (lepton1 + lepton2).M();
+           temp_Z_mass.push_back(Z_mass);
+           temp_upsi_mass.push_back(upsi_mass);
          }
     
       }
@@ -537,7 +541,7 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            if (TREE->dimuon1vtx->at(i) > mu_mu_from_Z_Prob_Cut){
+            if (TREE->dimuon1vtx->at(i) < mu_mu_from_Z_Prob_Cut){
                std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
                continue; 
             }
@@ -573,7 +577,7 @@ void run(string file){//, string file2){
             
             }
             
-            if (TREE->dimuon2vtx->at(i) > mu_mu_from_upsi_Prob_Cut){
+            if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
                 std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
                 continue; 
             }
@@ -603,7 +607,7 @@ void run(string file){//, string file2){
                continue; 
             }
             
-           if (TREE->dimuon2vtx->at(i) > mu_mu_from_Z_Prob_Cut){
+           if (TREE->dimuon2vtx->at(i) < mu_mu_from_Z_Prob_Cut){
                std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
                continue; 
            }
@@ -635,7 +639,7 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            if (TREE->dimuon1vtx->at(i) > mu_mu_from_upsi_Prob_Cut){
+            if (TREE->dimuon1vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
                continue; 
             }
@@ -690,7 +694,7 @@ void run(string file){//, string file2){
                continue; 
             }
          
-           if (TREE->dimuon1vtx->at(i) > mu_mu_from_Z_Prob_Cut) {
+           if (TREE->dimuon1vtx->at(i) < mu_mu_from_Z_Prob_Cut) {
               std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
               continue; 
             }
@@ -724,7 +728,7 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            if (TREE->dimuon2vtx->at(i) > mu_mu_from_upsi_Prob_Cut){
+            if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
                continue; 
             }
@@ -753,7 +757,7 @@ void run(string file){//, string file2){
                continue; 
             }
              
-             if (TREE->dimuon2vtx->at(i) > mu_mu_from_Z_Prob_Cut){
+             if (TREE->dimuon2vtx->at(i) < mu_mu_from_Z_Prob_Cut){
                std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
                continue; 
              }
@@ -789,7 +793,7 @@ void run(string file){//, string file2){
                 continue; 
              }
              
-             if (TREE->dimuon2vtx->at(i) > mu_mu_from_upsi_Prob_Cut){
+             if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
                 std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
                 continue; 
              }
