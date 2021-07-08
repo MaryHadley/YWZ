@@ -291,18 +291,33 @@ public :
 #endif
 
 #ifdef tree_cxx
-tree::tree(TTree *tree) : fChain(0) 
-{
-// if parameter tree is not specified (or zero), connect the file
-// used to generate this class and read the Tree.
-   if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("totalRun2018A_DoubleMuUL_Run2018A_11Nov2020.root");
-      if (!f || !f->IsOpen()) {
-         f = new TFile("totalRun2018A_DoubleMuUL_Run2018A_11Nov2020.root");
-      }
-      TDirectory * dir = (TDirectory*)f->Get("totalRun2018A_DoubleMuUL_Run2018A_11Nov2020.root:/ZmuonAnalyzer");
-      dir->GetObject("tree",tree);
+// tree::tree(TTree *tree) : fChain(0) 
+// {
+// // if parameter tree is not specified (or zero), connect the file
+// // used to generate this class and read the Tree.
+//    if (tree == 0) {
+//       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("totalRun2018A_DoubleMuUL_Run2018A_11Nov2020.root");
+//       if (!f || !f->IsOpen()) {
+//          f = new TFile("totalRun2018A_DoubleMuUL_Run2018A_11Nov2020.root");
+//       }
+//       TDirectory * dir = (TDirectory*)f->Get("totalRun2018A_DoubleMuUL_Run2018A_11Nov2020.root:/ZmuonAnalyzer");
+//       dir->GetObject("tree",tree);
+// 
+//    }
+//    Init(tree);
+// }
 
+tree::tree(TTree *tree) : fChain(0)
+{
+//if parameter tree is not specified (or zero), connect the file
+//used to generate this class and read the Tree.
+   if (tree == 0) {
+      TFile *f = root_file;
+      if (!f || !f->IsOpen()) {
+         f = root_file;
+      }
+      TDirectory * dir = (TDirectory*)f->Get("ZmuonAnalyzer");
+      dir->GetObject("tree",tree);
    }
    Init(tree);
 }
