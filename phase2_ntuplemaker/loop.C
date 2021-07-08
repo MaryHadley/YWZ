@@ -36,10 +36,11 @@ void run(string file){//, string file2){
   
   TH1F *h_big4MuVtxProb_before_big4MuVtx_Prob_Cut = new TH1F("h_big4MuVtxProb_before_big4MuVtx_Prob_Cut", "h_big4MuVtxProb_before_big4MuVtx_Prob_Cut",200, 0, 1); h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->SetXTitle("big4MuVtxProb_before_big4MuVtx_Prob_Cut");
   
-  TH1F *h_dimuon_from_Z_Prob_before_Cut = new TH1F("h_dimuon_from_Z_Prob_before_Cut", "h_dimuon_from_Z_Prob_before_Cut", 200, 0, 1); h_dimuon_from_Z_Prob_before_Cut->SetXTitle("h_dimuon_from_Z_Prob_before_Cut");
+//  TH1F *h_dimuon_from_Z_Prob_before_Cut = new TH1F("h_dimuon_from_Z_Prob_before_Cut", "h_dimuon_from_Z_Prob_before_Cut", 200, 0, 1); h_dimuon_from_Z_Prob_before_Cut->SetXTitle("h_dimuon_from_Z_Prob_before_Cut");
   
-  TH1F *h_dimuon_from_upsi_before_Cut  = new TH1F("h_dimuon_from_upsi_before_Cut ",  "h_dimuon_from_upsi_before_Cut ", 200, 0, 1);  h_dimuon_from_upsi_before_Cut ->SetXTitle("h_dimuon_from_upsi_before_Cut ");
+//  TH1F *h_dimuon_from_upsi_before_Cut  = new TH1F("h_dimuon_from_upsi_before_Cut ",  "h_dimuon_from_upsi_before_Cut ", 200, 0, 1);  h_dimuon_from_upsi_before_Cut ->SetXTitle("h_dimuon_from_upsi_before_Cut ");
   
+  TH1F *h_ambig_quad = new TH1F("h_ambi_quad",    "h_ambi_quad", 5, -0.5, 4.5);  h_ambig_quad  ->SetXTitle("Sum of pair_12_34_56, pair_12_34_56, pair_13_24_56, pair_14_23_56");
   //Ignoring MC for the moment 
   TH1F *h_truth_Z_mass    = new TH1F("h_truth_Z_mass",    "h_truth_Z_mass", 20, 66., 116.);  h_truth_Z_mass->SetMarkerSize(0); //If I change the binning above, would also want to change it here so the truth and recovered plots have same scale 
   
@@ -117,10 +118,10 @@ void run(string file){//, string file2){
   double upsi_RAPIDITY_Cut = 2.4; //we are cutting on the rapidity of the upsi, not on the rapidity of its daughter muons
   
   
+  //Eliminating this cut because it's redundant and we don't save the info to handle the correspondence of a particular dimuon(1,2)vtx pair to the right quad correctly
+ // double mu_mu_from_Z_Prob_Cut = 0.05; 
   
-  double mu_mu_from_Z_Prob_Cut = 0.05; 
-  
-  double mu_mu_from_upsi_Prob_Cut = 0.05; 
+ // double mu_mu_from_upsi_Prob_Cut = 0.05; 
   
   
   
@@ -151,7 +152,7 @@ void run(string file){//, string file2){
   double sublead_pT_mu_from_upsi_RAPIDITY = -99; 
   
   
-  TFile *ntuple = new TFile("ntuple_skimmed_maryTest_23Nov2020.root", "RECREATE");
+  TFile *ntuple = new TFile("ntuple_skimmed_maryTest_8July2021.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   aux->Branch("mass1_quickAndDirty", &mass1_quickAndDirty);
@@ -191,11 +192,12 @@ void run(string file){//, string file2){
 ///////////////////////////
 //////    D A T A    //////
 ///////////////////////////
-
+  int eventCounter = 0;
   int entries = (TREE->fChain)->GetEntries(); //might want to change to GetEntriesFast by that can wait
   for(int iEntry=0; iEntry<entries; iEntry++) {
     (TREE->fChain)->GetEntry(iEntry);
-
+     eventCounter += 1;
+    
     double temp_comparison_pt_upsilon = 0;
     double temp_comparison_pt_z = 0;
     
@@ -227,6 +229,12 @@ void run(string file){//, string file2){
    //    if ( (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_13_24_56->at(i) == 1) || (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1)
 //            || (TREE->pair_13_24_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1)
 //            || (TREE->pair_12_34_56->at(i) == 1 && TREE->pair_13_24_56->at(i) == 1 && TREE->pair_14_23_56->at(i) == 1) )
+     
+     int theSum;
+     
+     theSum = TREE->pair_12_34_56->at(i) + TREE->pair_13_24_56->at(i) + TREE->pair_14_23_56->at(i);
+     std::cout << "theSum: " << theSum << std::endl;
+     h_ambig_quad->Fill(theSum);
 
      if ( TREE->pair_12_34_56->at(i) + TREE->pair_13_24_56->at(i) + TREE->pair_14_23_56->at(i) > 1) { //cleaner way suggested by S.L., equivalent to what I tried above but shorter!
              std::cout << "FOUND PAIRING AMBIGUOUS QUAD OF MUONS, WILL THROW IT AWAY" << std::endl;
@@ -320,12 +328,12 @@ void run(string file){//, string file2){
            
            //vertex probability cut, fill it before we cut on it
            
-           h_dimuon_from_upsi_before_Cut ->Fill(TREE->dimuon1vtx->at(i));
+  //          h_dimuon_from_upsi_before_Cut ->Fill(TREE->dimuon1vtx->at(i)); WARNING WARNING should be dimuon2vtx //this is WRONG but not important right now, I don't do anything with it. WRONG
            
-           if (TREE->dimuon1vtx->at(i) < mu_mu_from_Z_Prob_Cut){
-              std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
-              continue; 
-           }
+           // if (TREE->dimuon1vtx->at(i) < mu_mu_from_Z_Prob_Cut){
+//               std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
+//               continue; 
+//            }
            
            //end z cuts 
   
@@ -374,10 +382,10 @@ void run(string file){//, string file2){
                continue; 
            }
            
-           if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
-               std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
-               continue; 
-           }
+          //  if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
+//                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
+//                continue; 
+//            }
            //If we get here, we have a survivor 
            
  //          survivor_Z_first_upsi_phase1_second_pair_12_34_56 = true;
@@ -440,10 +448,10 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            if (TREE->dimuon2vtx->at(i) < mu_mu_from_Z_Prob_Cut){
-               std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
-               continue; 
-            }
+           //  if (TREE->dimuon2vtx->at(i) < mu_mu_from_Z_Prob_Cut){
+//                std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
+//                continue; 
+//             }
             
             //End Z cuts
             
@@ -476,10 +484,10 @@ void run(string file){//, string file2){
                 continue;           
             }
             
-            if (TREE->dimuon1vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
-                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
-                continue; 
-            }
+        //     if (TREE->dimuon1vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
+//                 std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
+//                 continue; 
+//             }
         
              //If we get here, we have a survivor
            // Z_mass_ = (lepton3 + lepton4).M();
@@ -490,7 +498,7 @@ void run(string file){//, string file2){
     
       }
       
-      //I think I don't need this 
+       
       if (TREE->pair_13_24_56->at(i) == 1){
          
          bool Z_first_upsi_phase1_second_pair_13_24_56 = false;
@@ -541,10 +549,10 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            if (TREE->dimuon1vtx->at(i) < mu_mu_from_Z_Prob_Cut){
-               std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
-               continue; 
-            }
+          //   if (TREE->dimuon1vtx->at(i) < mu_mu_from_Z_Prob_Cut){
+//                std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
+//                continue; 
+//             }
             
             //end Z cuts
             
@@ -577,10 +585,12 @@ void run(string file){//, string file2){
             
             }
             
-            if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
-                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
-                continue; 
-            }
+            // if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
+//                 std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
+//                 continue; 
+//             }
+              temp_Z_mass.push_back((lepton1 + lepton3).M());
+              temp_upsi_mass.push_back((lepton2 + lepton4).M());
          }
     
          if (upsi_phase1_first_Z_second_pair_13_24_56) {
@@ -608,10 +618,10 @@ void run(string file){//, string file2){
                continue; 
             }
             
-           if (TREE->dimuon2vtx->at(i) < mu_mu_from_Z_Prob_Cut){
-               std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
-               continue; 
-           }
+         //   if (TREE->dimuon2vtx->at(i) < mu_mu_from_Z_Prob_Cut){
+//                std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
+//                continue; 
+//            }
            
            //Upsi cuts
             
@@ -642,10 +652,13 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            if (TREE->dimuon1vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
-               std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
-               continue; 
-            }
+           //  if (TREE->dimuon1vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
+//                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
+//                continue; 
+//             }
+
+              temp_Z_mass.push_back((lepton2+lepton4).M());
+              temp_upsi_mass.push_back((lepton1+lepton3).M());
          }
     
     }
@@ -697,10 +710,10 @@ void run(string file){//, string file2){
                continue; 
             }
          
-           if (TREE->dimuon1vtx->at(i) < mu_mu_from_Z_Prob_Cut) {
-              std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
-              continue; 
-            }
+     //       if (TREE->dimuon1vtx->at(i) < mu_mu_from_Z_Prob_Cut) {
+//               std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
+//               continue; 
+//             }
             
             //end Z cuts 
             
@@ -731,10 +744,12 @@ void run(string file){//, string file2){
                continue; 
             }
             
-            if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
-               std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
-               continue; 
-            }
+        //     if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
+//                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
+//                continue; 
+//             }
+               temp_Z_mass.push_back((lepton1 + lepton4).M());
+               temp_upsi_mass.push_back((lepton2+lepton3).M());
          }
          
          if (upsi_phase1_first_Z_second_pair_14_23_56) {
@@ -760,10 +775,10 @@ void run(string file){//, string file2){
                continue; 
             }
              
-             if (TREE->dimuon2vtx->at(i) < mu_mu_from_Z_Prob_Cut){
-               std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
-               continue; 
-             }
+           //   if (TREE->dimuon2vtx->at(i) < mu_mu_from_Z_Prob_Cut){
+//                std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
+//                continue; 
+//              }
              
              //end Z cuts
              
@@ -796,11 +811,12 @@ void run(string file){//, string file2){
                 continue; 
              }
              
-             if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
-                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
-                continue; 
-             }
-         
+            //  if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){ //WARNING this is a bug, should have been dimuon1vtx!!
+//                 std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl; 
+//                 continue; 
+//              }
+                temp_Z_mass.push_back((lepton2+lepton3).M());
+                temp_upsi_mass.push_back((lepton1+lepton4).M());
          }
       }
     
@@ -874,7 +890,7 @@ std::cout << "QuickCheckCount:  " << QuickCheckCount << std::endl;
 std::cout << "fillCount:  " << fillCount << std::endl; 
 std::cout << "gotToEndCount:  " << gotToEndCount << std::endl; 
 std::cout << "poodleCount:  " << poodleCount << std::endl; 
-
+std::cout << "eventCounter:  " << eventCounter << std::endl;
 
 
 ///////////////////////
@@ -919,10 +935,16 @@ std::cout << "poodleCount:  " << poodleCount << std::endl;
   h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Write();
   h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->SaveAs("h_big4MuVtxProb_before_big4MuVtx_Prob_Cut.pdf");
   
-  TCanvas *c_dimuon_vtx = new TCanvas("c_dimuon_vtx", "c_dimuon_vtx", 1000, 500); c_dimuon_vtx->Divide(2,1); //the numbers in the canvas declaration are width then height 
-  c_dimuon_vtx->cd(1); h_dimuon_from_Z_Prob_before_Cut->Draw("e1");
-  h_dimuon_from_Z_Prob_before_Cut->Write();
-  c_dimuon_vtx->SaveAs("c_dimuon_vtx.pdf");
+  TCanvas *c_ambig_quad_count = new TCanvas("c_ambig_quad_count", "c_ambig_quad_count");
+  c_ambig_quad_count->cd();
+  h_ambig_quad->Draw();
+  h_ambig_quad->Write();
+  c_ambig_quad_count->SaveAs("c_ambig_quad_count.pdf");
+  
+//  TCanvas *c_dimuon_vtx = new TCanvas("c_dimuon_vtx", "c_dimuon_vtx", 1000, 500); c_dimuon_vtx->Divide(2,1); //the numbers in the canvas declaration are width then height 
+//  c_dimuon_vtx->cd(1); h_dimuon_from_Z_Prob_before_Cut->Draw("e1");
+//  h_dimuon_from_Z_Prob_before_Cut->Write();
+ // c_dimuon_vtx->SaveAs("c_dimuon_vtx.pdf");
 
   ntuple->Write();
   ntuple->Close();
