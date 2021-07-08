@@ -28,7 +28,9 @@ void run(string file){//, string file2){
   root_file = new TFile(file.c_str(),"READ");
   TREE   = new tree((TTree*)root_file->Get("tree"));
   TREEMC = new treeMC((TTree*)root_file->Get("treemc"));
-
+  
+  //Announce what root_file is
+  std::cout << "Processing file:  " << root_file << std::endl;
 
   // h i s t o g r a m s
   TH1F *h_reco_Z_mass_noNewCuts    = new TH1F("h_reco_Z_mass_noNewCuts",    "h_reco_Z_mass_noNewCuts", 20, 66., 116.);  h_reco_Z_mass_noNewCuts   ->SetXTitle("m_{#mu#mu} [GeV]"); //might want to change the binning, this is currently 20 bins to cover a range of 5
@@ -41,6 +43,11 @@ void run(string file){//, string file2){
 //  TH1F *h_dimuon_from_upsi_before_Cut  = new TH1F("h_dimuon_from_upsi_before_Cut ",  "h_dimuon_from_upsi_before_Cut ", 200, 0, 1);  h_dimuon_from_upsi_before_Cut ->SetXTitle("h_dimuon_from_upsi_before_Cut ");
   
   TH1F *h_ambig_quad = new TH1F("h_ambi_quad",    "h_ambi_quad", 5, -0.5, 4.5);  h_ambig_quad  ->SetXTitle("Sum of pair_12_34_56, pair_12_34_56, pair_13_24_56, pair_14_23_56");
+  
+  TH1F *h_cutflow_allQuadCuts = new TH1F("h_cutflow_allQuadCuts", "h_cutflow_allQuadCounts", 3, -0.5, 2.5); h_cutflow_allQuadCuts->SetXTitle("Cuts involving overall quad");
+  
+  TH1F *h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56 = new TH1F("h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56","h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56", 15, -0.5, 14.5); h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->SetXTitle("Cutflow for the Z_first_upsi_phase1_second_pair_12_34_56 case");
+  
   //Ignoring MC for the moment 
   TH1F *h_truth_Z_mass    = new TH1F("h_truth_Z_mass",    "h_truth_Z_mass", 20, 66., 116.);  h_truth_Z_mass->SetMarkerSize(0); //If I change the binning above, would also want to change it here so the truth and recovered plots have same scale 
   
@@ -204,9 +211,57 @@ void run(string file){//, string file2){
     //I think this is where I want in my temp_<someVar> vectors!! CHECK ME
     std::vector<double> temp_Z_mass;
     std::vector<double> temp_upsi_mass;
+    
+    std::vector<double> temp_Z_pT;
+    std::vector<double> temp_Z_eta;
+    std::vector<double>temp_Z_RAPIDITY;
+    std::vector<double> temp_upsi_pT;
+    std::vector<double> temp_upsi_eta;
+    std::vector<double> temp_upsi_RAPIDITY;
+    
+    std::vector<double> temp_lead_pT_mu_from_Z_pT;
+    std::vector<double> temp_lead_pT_mu_from_Z_eta;
+    std::vector<double> temp_lead_pT_mu_from_Z_RAPIDITY;
+    std::vector<double> temp_sublead_pT_mu_from_Z_pT;
+    std::vector<double> temp_sublead_pT_mu_from_Z_eta;
+    std::vector<double> temp_sublead_pT_mu_from_Z_RAPIDITY;
+    
+    std::vector<double> temp_lead_pT_mu_from_upsi_pT;
+    std::vector<double> temp_lead_pT_mu_from_upsi_eta;
+    std::vector<double> temp_lead_pT_mu_from_upsi_RAPIDITY;
+    std::vector<double> temp_sublead_pT_mu_from_upsi_pT;
+    std::vector<double> temp_sublead_pT_mu_from_upsi_eta;
+    std::vector<double> temp_sublead_pT_mu_from_upsi_RAPIDITY;
+
+    
     temp_Z_mass.clear();
-    std::cout <<"temp_Z_mass.size()" <<  temp_Z_mass.size() << std::endl; 
+    
+    
+//    std::cout <<"temp_Z_mass.size()" <<  temp_Z_mass.size() << std::endl; 
     temp_upsi_mass.clear();
+    
+    temp_Z_pT.clear();
+    temp_Z_eta.clear();
+    temp_Z_RAPIDITY.clear();
+    temp_upsi_pT.clear();
+    temp_upsi_eta.clear();
+    temp_upsi_RAPIDITY.clear();
+   
+    temp_lead_pT_mu_from_Z_pT.clear();
+    temp_lead_pT_mu_from_Z_eta.clear();
+    temp_lead_pT_mu_from_Z_RAPIDITY.clear();
+    temp_sublead_pT_mu_from_Z_pT.clear();
+    temp_sublead_pT_mu_from_Z_eta.clear();
+    temp_sublead_pT_mu_from_Z_RAPIDITY.clear();
+    
+    temp_lead_pT_mu_from_upsi_pT.clear();
+    temp_lead_pT_mu_from_upsi_eta.clear();
+    temp_lead_pT_mu_from_upsi_RAPIDITY.clear();
+    temp_sublead_pT_mu_from_upsi_pT.clear();
+    temp_sublead_pT_mu_from_upsi_eta.clear();
+    temp_sublead_pT_mu_from_upsi_RAPIDITY.clear();
+    
+    
     mass1_quickAndDirty = 0.; mass2_quickAndDirty = 0.;
     
  //   survivor_Z_first_upsi_phase1_second_pair_12_34_56 = false; //I think I don't need this 
@@ -222,6 +277,7 @@ void run(string file){//, string file2){
       h_reco_Upsi_mass_noNewCuts->Fill( (lepton3+lepton4).M() );
       h_reco_Z_mass_noNewCuts->Fill( (lepton1+lepton2).M() );
       
+      h_cutflow_allQuadCuts->AddBinContent(1); //here are all the candidate quads
       //Cuts involving the overall quad //
       /////////////////////////////////////
       
@@ -241,6 +297,7 @@ void run(string file){//, string file2){
              pair_AMBIGOUS_muQuad_count += 1;
              continue;
         }
+      h_cutflow_allQuadCuts->AddBinContent(2); // here are the quads that survive the ambiguous pair cut
       
       h_big4MuVtxProb_before_big4MuVtx_Prob_Cut->Fill(TREE->big4MuVtx->at(i)); //fill it  before we cut on it
         
@@ -251,6 +308,7 @@ void run(string file){//, string file2){
          continue;
          }  
       
+      h_cutflow_allQuadCuts->AddBinContent(3); // here are the quads that survive the prob cut
       
       
       std:: cout << "Checking what TMath::Prob gives, let's try TMath::Prob(3.84, 1)   " << TMath::Prob(3.84, 1) << std::endl; //https://en.wikipedia.org/wiki/Chi-square_distribution //confirmed that this gives out what we think it should, aka this returns .05
@@ -274,6 +332,7 @@ void run(string file){//, string file2){
          bool upsi_phase1_first_Z_second_pair_12_34_56 = false; 
         // std::cout << "TREE->pair_12_34_56->at(i) ==1" << std::endl;
          pair_12_34_56_count += 1;
+        
          
 //         std::cout << (lepton1 + lepton2).M()<< std::endl; 
          
@@ -282,6 +341,7 @@ void run(string file){//, string file2){
               Z_first_upsi_phase1_second_pair_12_34_56 = true;
               Z_first_upsi_phase1_second_pair_12_34_56_count +=1;
               std::cout << "Z_first_upsi_phase1_second_pair_12_34_56 = true!" <<std::endl; 
+              h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->AddBinContent(1);
            }
         }
          
@@ -304,13 +364,14 @@ void run(string file){//, string file2){
                 FailureCount += 1;
                 continue;
              }
+            h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->AddBinContent(2);
             
             if (fabs(lepton1.Eta()) > mu_from_Z_eta_Cut || fabs(lepton2.Eta()) > mu_from_Z_eta_Cut){
                 std::cout << "FAILED Z mu eta Cuts!" << std::endl; 
                 FailureCount += 1;
                 continue;
             }
-            
+            h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->AddBinContent(3);
             //std::cout << "TREE->lepton1_isTightMuon->at(i): " << TREE->lepton1_isTightMuon->at(i) << std::endl;
          
            if (TREE->lepton1_isTightMuon->at(i) + TREE->lepton2_isTightMuon->at(i) != 2){  //both of them need to be tight, which has a value of 1, 1 +1 =2 
@@ -319,12 +380,15 @@ void run(string file){//, string file2){
                continue;
            
            } 
+           h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->AddBinContent(4);
            
            if (fabs(TREE->lepton1_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut || fabs(TREE->lepton2_impactParameterSignificance->at(i)) > mu_from_Z_3DIPSig_Cut){
                std::cout << "FAILED mu froom Z IP sig cut!" << std::endl;
                FailureCount += 1; 
                continue; 
             }
+            h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->AddBinContent(5);
+            
            
            //vertex probability cut, fill it before we cut on it
            
@@ -356,6 +420,7 @@ void run(string file){//, string file2){
                FailureCount += 1; 
                continue; 
            }
+           h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->AddBinContent(6);
            
            if (fabs(lepton3.Eta()) > mu_from_upsi_eta_Cut || fabs(lepton4.Eta()) > mu_from_upsi_eta_Cut){
                std::cout << "FAILED upsi  mu eta cuts!" << std::endl; 
@@ -363,25 +428,30 @@ void run(string file){//, string file2){
                continue; 
            }
            
+           h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->AddBinContent(7);
+           
            if (  (lepton3 + lepton4).M()    < upsi_mass_low_phase2 || (lepton3 + lepton4).M() > upsi_mass_high_phase2 ){
                std::cout << "FAILED the tighter phase2 upsi mass cuts!" << std::endl;
                FailureCount +=1; 
                continue;  
            }
-           
+          
+           h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->AddBinContent(8);
+          
            if (TREE->lepton3_isSoftMuon->at(i) + TREE->lepton4_isSoftMuon->at(i) !=2){
                std::cout << "FAILED mu from upsi must be soft cut" << std::endl;
                FailureCount += 1; 
                continue; 
            }
            
+           h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->AddBinContent(9);
           // if ( fabs(lepton3.Rapidity()) > mu_from_upsi_RAPIDITY_Cut || fabs(lepton4.Rapidity()) > mu_from_upsi_RAPIDITY_Cut ){
                if (   fabs((lepton3 + lepton4).Rapidity()) > upsi_RAPIDITY_Cut ){
                std::cout << "FAILED upsi RAPIDITY cut!" << std::endl; 
                FailureCount +=1;
                continue; 
            }
-           
+           h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->AddBinContent(10);
           //  if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
 //                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
 //                continue; 
@@ -859,7 +929,7 @@ void run(string file){//, string file2){
    }  
  
   //the final survivor, one per event at most 
-   if (temp_Z_mass.size() == 1){
+   if (temp_Z_mass.size() == 1  && temp_upsi_mass.size() == 1){
      fillCount += 1; 
      Z_mass =  temp_Z_mass.at(0);
      upsi_mass = temp_upsi_mass.at(0);
@@ -946,7 +1016,22 @@ std::cout << "eventCounter:  " << eventCounter << std::endl;
 //  h_dimuon_from_Z_Prob_before_Cut->Write();
  // c_dimuon_vtx->SaveAs("c_dimuon_vtx.pdf");
 
-  ntuple->Write();
-  ntuple->Close();
+  TCanvas *c_cutflow_allQuadCuts = new TCanvas("c_cutflow_allQuadCuts", "c_cutflow_allQuadCuts");
+  c_cutflow_allQuadCuts->cd();
+  h_cutflow_allQuadCuts->Draw();
+  h_cutflow_allQuadCuts->Write();
+  c_cutflow_allQuadCuts->SaveAs("h_cutflow_allQuadCuts.pdf");
+  
+  TCanvas *c_cutflow_Z_first_upsi_phase1_second_pair_12_34_56 = new TCanvas("c_cutflow_Z_first_upsi_phase1_second_pair_12_34_56", "c_cutflow_Z_first_upsi_phase1_second_pair_12_34_56");
+  c_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->cd();
+  h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Draw();
+  h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Write();
+  c_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->SaveAs("h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56.pdf");
+  
+ 
+
+
+ntuple->Write();
+ntuple->Close();
 
 }
