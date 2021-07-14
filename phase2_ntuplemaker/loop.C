@@ -29,8 +29,11 @@ void run(string file){//, string file2){
   TREE   = new tree((TTree*)root_file->Get("tree"));
   TREEMC = new treeMC((TTree*)root_file->Get("treemc"));
   
-  //Announce what root_file is
-  std::cout << "Processing file:  " << root_file << std::endl;
+  //Announce what root_file is, thanks to Maxi for showing me how to do this
+  std::cout << "////////////////////////////////////////" << std::endl;
+  std::cout << "Processing file:  " << file.c_str() << std::endl;
+  std::cout << "////////////////////////////////////////" << std::endl;
+  
 
   // h i s t o g r a m s
   TH1F *h_reco_Z_mass_noNewCuts    = new TH1F("h_reco_Z_mass_noNewCuts",    "h_reco_Z_mass_noNewCuts", 20, 66., 116.);  h_reco_Z_mass_noNewCuts   ->SetXTitle("m_{#mu#mu} [GeV]"); //might want to change the binning, this is currently 20 bins to cover a range of 5
@@ -44,10 +47,17 @@ void run(string file){//, string file2){
   
   TH1F *h_ambig_quad = new TH1F("h_ambi_quad",    "h_ambi_quad", 5, -0.5, 4.5);  h_ambig_quad  ->SetXTitle("Sum of pair_12_34_56, pair_12_34_56, pair_13_24_56, pair_14_23_56");
   
-  TH1F *h_cutflow_allQuadCuts = new TH1F("h_cutflow_allQuadCuts", "h_cutflow_allQuadCounts", 3, -0.5, 2.5); h_cutflow_allQuadCuts->SetXTitle("Cuts involving overall quad");
+  TH1F *h_cutflow_allQuadCuts = new TH1F("h_cutflow_allQuadCuts", "h_cutflow_allQuadCounts", 4, -0.5, 3.5); h_cutflow_allQuadCuts->SetXTitle("Cuts involving overall quad");
   
   TH1F *h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56 = new TH1F("h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56","h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56", 15, -0.5, 14.5); h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->SetXTitle("Cutflow for the Z_first_upsi_phase1_second_pair_12_34_56 case");
   
+  TH1F *h_pfIso_lep1 = new TH1F("h_pfIso_lep1", "h_pfIso_lep1", 60, 0, 3); h_pfIso_lep1->SetXTitle("PF Isolation for lep1");
+  
+  TH1F *h_pfIso_lep2 = new TH1F("h_pfIso_lep2", "h_pfIso_lep2", 60, 0, 3); h_pfIso_lep2->SetXTitle("PF Isolation for lep2");
+  
+  TH1F *h_pfIso_lep3 = new TH1F("h_pfIso_lep3", "h_pfIso_lep3", 60, 0, 3); h_pfIso_lep3->SetXTitle("PF Isolation for lep3");
+  
+  TH1F *h_pfIso_lep4 = new TH1F("h_pfIso_lep4", "h_pfIso_lep4", 60, 0, 3); h_pfIso_lep4->SetXTitle("PF Isolation for lep4");
   //Ignoring MC for the moment 
   TH1F *h_truth_Z_mass    = new TH1F("h_truth_Z_mass",    "h_truth_Z_mass", 20, 66., 116.);  h_truth_Z_mass->SetMarkerSize(0); //If I change the binning above, would also want to change it here so the truth and recovered plots have same scale 
   
@@ -56,6 +66,21 @@ void run(string file){//, string file2){
 
   // v a r i a b l e s
   double muon_mass = 105.6583 / 1000.; //get mass in GeV
+  
+  //boolean flags
+  
+  bool doMCTruthMatching = false;
+  
+  if (!doMCTruthMatching){
+     std::cout << "NOT performing MC truth matching" << std::endl;
+     std::cout << "////////////////////////////////" << std::endl;
+
+  }
+  
+  if (doMCTruthMatching){
+     std::cout << "Performing MC truth matching! Make sure you are running on MC!" << std::endl; 
+     std::cout << "/////////////////////////////////////////////////////////////" << std::endl; 
+  }
   
   //counters
   int pair_12_34_56_count = 0;
@@ -81,6 +106,8 @@ void run(string file){//, string file2){
   int upsi_phase1_first_Z_second_pair_14_23_56_count = 0;
   
   int GotHereCount_Z_first_upsi_phase1_second_pair_12_34_56 = 0;
+  
+  int pfIso_Fail_Count = 0;
   
   int FailureCount = 0;
   
@@ -113,7 +140,7 @@ void run(string file){//, string file2){
   
   double sublead_mu_from_Z_pT_Cut = 15;
   
-  double mu_from_upsi_pT_Cut = 4; 
+  double mu_from_upsi_pT_Cut = 4; //We could lower this and gain back a lot of muons, is it worth it in terms of signal to background trade off? TO DISCUSS
   
   double mu_from_Z_eta_Cut = 2.4;
   
@@ -130,6 +157,7 @@ void run(string file){//, string file2){
   
  // double mu_mu_from_upsi_Prob_Cut = 0.05; 
   
+  double pfIso_Cut = 0.35;
   
   
   
@@ -142,24 +170,30 @@ void run(string file){//, string file2){
   double Z_pT = -99;
   double Z_eta = -99;
   double  Z_RAPIDITY = -99;
+  double Z_phi = -99;
   double upsi_pT = -99;
   double upsi_eta = -99;
   double upsi_RAPIDITY = -99; 
+  double upsi_phi = -99;
   double lead_pT_mu_from_Z_pT = -99;
   double lead_pT_mu_from_Z_eta = -99;
   double lead_pT_mu_from_Z_RAPIDITY = -99;
+  double lead_pT_mu_from_Z_phi = -99;
   double sublead_pT_mu_from_Z_pT = -99;
   double sublead_pT_mu_from_Z_eta = -99;
   double sublead_pT_mu_from_Z_RAPIDITY = -99;
+  double sublead_pT_mu_from_Z_phi = -99;
   double lead_pT_mu_from_upsi_pT = -99;
   double lead_pT_mu_from_upsi_eta = -99;
   double lead_pT_mu_from_upsi_RAPIDITY = -99;
+  double lead_pT_mu_from_upsi_phi = -99;
   double sublead_pT_mu_from_upsi_pT = -99;
   double sublead_pT_mu_from_upsi_eta = -99;
   double sublead_pT_mu_from_upsi_RAPIDITY = -99; 
+  double sublead_pT_mu_from_upsi_phi = -99;
   
   
-  TFile *ntuple = new TFile("ntuple_skimmed_maryTest_8July2021.root", "RECREATE");
+  TFile *ntuple = new TFile("ntuple_skimmed_maryTest_12July2021.root", "RECREATE");
   TTree *aux;
   aux = new TTree("tree", "tree");
   aux->Branch("mass1_quickAndDirty", &mass1_quickAndDirty);
@@ -175,25 +209,31 @@ void run(string file){//, string file2){
   aux->Branch("Z_pT", &Z_pT);
   aux->Branch("Z_eta", &Z_eta);
   aux->Branch("Z_RAPIDITY", &Z_RAPIDITY);
+  aux->Branch("Z_phi", &Z_phi);
   aux->Branch("upsi_pT", &upsi_pT);
   aux->Branch("upsi_eta", &upsi_eta);
   aux->Branch("upsi_RAPIDITY", &upsi_RAPIDITY);
+  aux->Branch("upsi_phi", &upsi_phi);
   
   //muons from Z branches
   aux->Branch("lead_pT_mu_from_Z_pT", &lead_pT_mu_from_Z_pT);
   aux->Branch("lead_pT_mu_from_Z_eta", &lead_pT_mu_from_Z_eta);
   aux->Branch("lead_pT_mu_from_Z_RAPIDITY", &lead_pT_mu_from_Z_RAPIDITY);
+  aux->Branch("lead_pT_mu_from_Z_phi", &lead_pT_mu_from_Z_phi);
   aux->Branch("sublead_pT_mu_from_Z_pT", &sublead_pT_mu_from_Z_pT);
   aux->Branch("sublead_pT_mu_from_Z_eta", &sublead_pT_mu_from_Z_eta);
   aux->Branch("sublead_pT_mu_from_Z_RAPIDITY", &sublead_pT_mu_from_Z_RAPIDITY);
+  aux->Branch("sublead_pT_mu_from_Z_phi", &sublead_pT_mu_from_Z_phi);
   
   //muons from upsi branches
   aux->Branch("lead_pT_mu_from_upsi_pT", &lead_pT_mu_from_upsi_pT);
   aux->Branch("lead_pT_mu_from_upsi_eta", &lead_pT_mu_from_upsi_eta);
   aux->Branch("lead_pT_mu_from_upsi_RAPIDITY", &lead_pT_mu_from_upsi_RAPIDITY);
+  aux->Branch("lead_pT_mu_from_upsi_phi", &lead_pT_mu_from_upsi_phi);
   aux->Branch("sublead_pT_mu_from_upsi_pT", &sublead_pT_mu_from_upsi_pT);
   aux->Branch("sublead_pT_mu_from_upsi_eta", &sublead_pT_mu_from_upsi_eta);
   aux->Branch("sublead_pT_mu_from_upsi_RAPIDITY", &sublead_pT_mu_from_upsi_RAPIDITY); 
+  aux->Branch("sublead_pT_mu_from_upsi_phi", &sublead_pT_mu_from_upsi_phi);
   
 
 ///////////////////////////
@@ -215,24 +255,30 @@ void run(string file){//, string file2){
     std::vector<double> temp_Z_pT;
     std::vector<double> temp_Z_eta;
     std::vector<double>temp_Z_RAPIDITY;
+    std::vector<double>temp_Z_phi;
     std::vector<double> temp_upsi_pT;
     std::vector<double> temp_upsi_eta;
     std::vector<double> temp_upsi_RAPIDITY;
+    std::vector<double> temp_upsi_phi;
     
     std::vector<double> temp_lead_pT_mu_from_Z_pT;
     std::vector<double> temp_lead_pT_mu_from_Z_eta;
     std::vector<double> temp_lead_pT_mu_from_Z_RAPIDITY;
+    std::vector<double> temp_lead_pT_mu_from_Z_phi;
     std::vector<double> temp_sublead_pT_mu_from_Z_pT;
     std::vector<double> temp_sublead_pT_mu_from_Z_eta;
     std::vector<double> temp_sublead_pT_mu_from_Z_RAPIDITY;
+    std::vector<double> temp_sublead_pT_mu_from_Z_phi;
     
     std::vector<double> temp_lead_pT_mu_from_upsi_pT;
     std::vector<double> temp_lead_pT_mu_from_upsi_eta;
     std::vector<double> temp_lead_pT_mu_from_upsi_RAPIDITY;
+    std::vector<double> temp_lead_pT_mu_from_upsi_phi;
     std::vector<double> temp_sublead_pT_mu_from_upsi_pT;
     std::vector<double> temp_sublead_pT_mu_from_upsi_eta;
     std::vector<double> temp_sublead_pT_mu_from_upsi_RAPIDITY;
-
+    std::vector<double> temp_sublead_pT_mu_from_upsi_phi;
+   
     
     temp_Z_mass.clear();
     
@@ -243,24 +289,32 @@ void run(string file){//, string file2){
     temp_Z_pT.clear();
     temp_Z_eta.clear();
     temp_Z_RAPIDITY.clear();
+    temp_Z_phi.clear();
+    
     temp_upsi_pT.clear();
     temp_upsi_eta.clear();
     temp_upsi_RAPIDITY.clear();
-   
+    temp_upsi_phi.clear();
+    
     temp_lead_pT_mu_from_Z_pT.clear();
     temp_lead_pT_mu_from_Z_eta.clear();
     temp_lead_pT_mu_from_Z_RAPIDITY.clear();
+    temp_lead_pT_mu_from_Z_phi.clear();
+    
     temp_sublead_pT_mu_from_Z_pT.clear();
     temp_sublead_pT_mu_from_Z_eta.clear();
     temp_sublead_pT_mu_from_Z_RAPIDITY.clear();
+    temp_sublead_pT_mu_from_Z_phi.clear();
     
     temp_lead_pT_mu_from_upsi_pT.clear();
     temp_lead_pT_mu_from_upsi_eta.clear();
     temp_lead_pT_mu_from_upsi_RAPIDITY.clear();
+    temp_lead_pT_mu_from_upsi_phi.clear();
+    
     temp_sublead_pT_mu_from_upsi_pT.clear();
     temp_sublead_pT_mu_from_upsi_eta.clear();
     temp_sublead_pT_mu_from_upsi_RAPIDITY.clear();
-    
+    temp_sublead_pT_mu_from_upsi_phi.clear();
     
     mass1_quickAndDirty = 0.; mass2_quickAndDirty = 0.;
     
@@ -289,7 +343,7 @@ void run(string file){//, string file2){
      int theSum;
      
      theSum = TREE->pair_12_34_56->at(i) + TREE->pair_13_24_56->at(i) + TREE->pair_14_23_56->at(i);
-     std::cout << "theSum: " << theSum << std::endl;
+//     std::cout << "theSum: " << theSum << std::endl;
      h_ambig_quad->Fill(theSum);
 
      if ( TREE->pair_12_34_56->at(i) + TREE->pair_13_24_56->at(i) + TREE->pair_14_23_56->at(i) > 1) { //cleaner way suggested by S.L., equivalent to what I tried above but shorter!
@@ -311,11 +365,98 @@ void run(string file){//, string file2){
       h_cutflow_allQuadCuts->AddBinContent(3); // here are the quads that survive the prob cut
       
       
-      std:: cout << "Checking what TMath::Prob gives, let's try TMath::Prob(3.84, 1)   " << TMath::Prob(3.84, 1) << std::endl; //https://en.wikipedia.org/wiki/Chi-square_distribution //confirmed that this gives out what we think it should, aka this returns .05
-       std:: cout << "Checking what TMath::Prob gives, let's try TMath::Prob(3.32, 9)   " << TMath::Prob(3.32, 9) << std::endl;
+ //     std:: cout << "Checking what TMath::Prob gives, let's try TMath::Prob(3.84, 1)   " << TMath::Prob(3.84, 1) << std::endl; //https://en.wikipedia.org/wiki/Chi-square_distribution //confirmed that this gives out what we think it should, aka this returns .05
+//       std:: cout << "Checking what TMath::Prob gives, let's try TMath::Prob(3.32, 9)   " << TMath::Prob(3.32, 9) << std::endl;
       
-      //Put in iso003 cuts here, that's the last cut involving the quad TO DO //Crab running to be able to do this!!
-    
+      //Put in iso003 cuts here, that's the last cut involving the quad //this part taken from https://github.com/cms-ljmet/FWLJMET/blob/c319f38c1e34cf9f0277bd00231e6b75c889523b/LJMet/plugins/MultiLepEventSelector.cc#L542-L548 thank you Sinan for pointing me to this!
+      
+      //lepton1 
+      
+      double chIso_lep1 = TREE->lepton1_iso03hadron->at(i);
+  //    std::cout << "chIso_lep1:  " << chIso_lep1 << std::endl;
+ 
+      double nhIso_lep1 = TREE->lepton1_iso03neutralHadron->at(i);
+ //     std::cout << "nhIso_lep1  " << nhIso_lep1 << std::endl; 
+
+      double gIso_lep1 = TREE->lepton1_iso03photon->at(i); //g for gamma aka the photon
+//      std::cout << "gIso_lep1  " << gIso_lep1 << std::endl;
+      
+      double puIso_lep1 = TREE->lepton1_iso03PU->at(i);
+//      std::cout << "puIso_lep1  " << puIso_lep1 << std::endl;
+      
+      double pT_lep1 = TREE->lepton1_pt->at(i);
+      
+      double pfIso_lep1 = (chIso_lep1 + std::max(0.,nhIso_lep1 + gIso_lep1 - 0.5*puIso_lep1))/pT_lep1;
+      
+//      std::cout << "pfIso_lep1 " << pfIso_lep1 << std::endl; 
+      h_pfIso_lep1->Fill(pfIso_lep1);
+     
+      //lepton2
+      
+      double chIso_lep2 = TREE->lepton2_iso03hadron->at(i);
+//      std::cout << "chIso_lep2:  " << chIso_lep2 << std::endl;
+ 
+      double nhIso_lep2 = TREE->lepton2_iso03neutralHadron->at(i);
+//      std::cout << "nhIso_lep2  " << nhIso_lep2 << std::endl; 
+
+      double gIso_lep2 = TREE->lepton2_iso03photon->at(i); //g for gamma aka the photon
+ //     std::cout << "gIso_lep2  " << gIso_lep2 << std::endl;
+      
+      double puIso_lep2 = TREE->lepton2_iso03PU->at(i);
+ //     std::cout << "puIso_lep2  " << puIso_lep2 << std::endl;
+      
+      double pT_lep2 = TREE->lepton2_pt->at(i);
+      
+      double pfIso_lep2 = (chIso_lep2 + std::max(0.,nhIso_lep2 + gIso_lep2 - 0.5*puIso_lep2))/pT_lep2;
+      
+      h_pfIso_lep2->Fill(pfIso_lep2);
+      
+      //lepton3
+      
+      double chIso_lep3 = TREE->lepton3_iso03hadron->at(i);
+//      std::cout << "chIso_lep3:  " << chIso_lep3 << std::endl;
+ 
+      double nhIso_lep3 = TREE->lepton3_iso03neutralHadron->at(i);
+  //    std::cout << "nhIso_lep3  " << nhIso_lep3 << std::endl; 
+
+      double gIso_lep3 = TREE->lepton3_iso03photon->at(i); //g for gamma aka the photon
+ //     std::cout << "gIso_lep3  " << gIso_lep3 << std::endl;
+      
+      double puIso_lep3 = TREE->lepton3_iso03PU->at(i);
+ //     std::cout << "puIso_lep3  " << puIso_lep3 << std::endl;
+      
+      double pT_lep3 = TREE->lepton3_pt->at(i);
+      
+      double pfIso_lep3 = (chIso_lep3 + std::max(0.,nhIso_lep3 + gIso_lep3 - 0.5*puIso_lep3))/pT_lep3;
+      
+      h_pfIso_lep3->Fill(pfIso_lep3);
+      
+      //lepton4
+      double chIso_lep4 = TREE->lepton4_iso03hadron->at(i);
+  //    std::cout << "chIso_lep4:  " << chIso_lep4 << std::endl;
+ 
+      double nhIso_lep4 = TREE->lepton4_iso03neutralHadron->at(i);
+ //     std::cout << "nhIso_lep4  " << nhIso_lep4 << std::endl; 
+
+      double gIso_lep4 = TREE->lepton4_iso03photon->at(i); //g for gamma aka the photon
+ //     std::cout << "gIso_lep4  " << gIso_lep4 << std::endl;
+      
+      double puIso_lep4 = TREE->lepton4_iso03PU->at(i);
+ //     std::cout << "puIso_lep4  " << puIso_lep4 << std::endl;
+      
+      double pT_lep4 = TREE->lepton4_pt->at(i);
+      
+      double pfIso_lep4 = (chIso_lep4 + std::max(0.,nhIso_lep4 + gIso_lep4 - 0.5*puIso_lep4))/pT_lep4;
+      
+      h_pfIso_lep4->Fill(pfIso_lep4);
+      
+      if (pfIso_lep1 > pfIso_Cut || pfIso_lep2 > pfIso_Cut || pfIso_lep3 > pfIso_Cut || pfIso_lep4 > pfIso_Cut){
+         std::cout << "FAILED pfIso Cut!" << std::endl;
+         pfIso_Fail_Count += 1;
+         continue;
+      }
+      
+      h_cutflow_allQuadCuts->AddBinContent(4); //here are the quads that survive pfIso cut
       //end cuts involving overall quad /////////////
       //////////////////////////////////////////////
     
@@ -390,26 +531,7 @@ void run(string file){//, string file2){
             h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->AddBinContent(5);
             
            
-           //vertex probability cut, fill it before we cut on it
-           
-  //          h_dimuon_from_upsi_before_Cut ->Fill(TREE->dimuon1vtx->at(i)); WARNING WARNING should be dimuon2vtx //this is WRONG but not important right now, I don't do anything with it. WRONG
-           
-           // if (TREE->dimuon1vtx->at(i) < mu_mu_from_Z_Prob_Cut){
-//               std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
-//               continue; 
-//            }
-           
-           //end z cuts 
-  
- //          if (TREE->diumon1vtx->at(i))
-     
-     //Some testing stuff       
-   //        std::cout << "TREE->dimuon1vtx->at(i)  " << TREE->dimuon1vtx->at(i) << std::endl; 
-           
-  //         if (TREE->dimuon1vtx->size() > 1){
-   //          std::cout << "GARGOYLE" << std::endl; 
-   //        }
-   //        std::cout << "TREE->dimuon1vtx->size() " << TREE->dimuon1vtx->size() << std::endl; 
+    
            
            //End Z cuts
            
@@ -462,31 +584,54 @@ void run(string file){//, string file2){
           
          //  Z_mass = (lepton1 + lepton2).M();
          //  upsi_mass = (lepton3 + lepton4).M();
-           temp_Z_mass.push_back((lepton1 + lepton2).M());
-           temp_upsi_mass.push_back((lepton3 + lepton4).M());
            
-       //     if (temp_Z_mass.size() > 1) {
-//                std::cout << "POODLE" << std::endl;
-//                poodleCount += 1;
-// 
-//             }
-            
-//            //this is dirty and not quite right, right now you are keeping the higher pT option, need to put in another bool!! FIX ME 
-//            //throw away events with more than 1 Z + upsi candidate, these probably occur because of using the same leptons in multiple quads. Can write more detailed explanation later!!
-//            if (temp_Z_mass.size() > 1) {
-//               std::cout << "POODLE" << std::endl; 
-// //              std::cout << (lepton3 + lepton4).M() << std::endl; 
-//               FailureCount += 1; 
-//             //  continue;
-//            }
+           //Here I would have to turn this block into if !doMCTruthMatching , do the stuff below //flagPoodle
+           if (!doMCTruthMatching){
+           //Z and upsi masses
+              temp_Z_mass.push_back((lepton1 + lepton2).M());
+              temp_upsi_mass.push_back((lepton3 + lepton4).M());
+           
+           //Z pT, eta, RAPIDITY, phi
+             temp_Z_pT.push_back((lepton1+lepton2).Pt());
+             temp_Z_eta.push_back((lepton1+lepton2).Eta());
+             temp_Z_RAPIDITY.push_back((lepton1+lepton2).Rapidity());
+             temp_Z_phi.push_back((lepton1+lepton2).Phi());
+ //          std::cout << "temp_Z_phi.at(0): " << temp_Z_phi.at(0) << std::endl;
+          
+           //Upsi pT, eta, RAPIDITY, phi
+             temp_upsi_pT.push_back((lepton3+lepton4).Pt());
+             temp_upsi_eta.push_back((lepton3+lepton4).Eta());
+             temp_upsi_RAPIDITY.push_back((lepton3+lepton4).Rapidity());
+             temp_upsi_phi.push_back((lepton3+lepton4).Phi());
+           
+           //Muons from Z, pT, eta, RAPIDITY,phi
+            temp_lead_pT_mu_from_Z_pT.push_back(lepton1.Pt());
+            temp_lead_pT_mu_from_Z_eta.push_back(lepton1.Eta());
+            temp_lead_pT_mu_from_Z_RAPIDITY.push_back(lepton1.Rapidity());
+            temp_lead_pT_mu_from_Z_phi.push_back(lepton1.Phi());
+            temp_sublead_pT_mu_from_Z_pT.push_back(lepton2.Pt());
+            temp_sublead_pT_mu_from_Z_eta.push_back(lepton2.Eta());
+            temp_sublead_pT_mu_from_Z_RAPIDITY.push_back(lepton2.Rapidity());
+            temp_sublead_pT_mu_from_Z_phi.push_back(lepton2.Phi());
+           
+           //Muons from upsi, pT, eta, Rapidity, phi
+            temp_lead_pT_mu_from_upsi_pT.push_back(lepton3.Pt());
+            temp_lead_pT_mu_from_upsi_eta.push_back(lepton3.Eta());
+            temp_lead_pT_mu_from_upsi_RAPIDITY.push_back(lepton3.Rapidity());
+            temp_lead_pT_mu_from_upsi_phi.push_back(lepton3.Phi());
+           
+            temp_sublead_pT_mu_from_upsi_pT.push_back(lepton4.Pt());
+            temp_sublead_pT_mu_from_upsi_eta.push_back(lepton4.Eta());
+            temp_sublead_pT_mu_from_upsi_RAPIDITY.push_back(lepton4.Rapidity());
+            temp_sublead_pT_mu_from_upsi_phi.push_back(lepton4.Phi());            
+           }
             GotHereCount_Z_first_upsi_phase1_second_pair_12_34_56 += 1;
-      //       if (temp_Z_mass.size() == 2) {
-//                poodleCount2 += 1;
-//             }
-//            std::cout  << "Recovered Z_mass:  " << Z_mass << std::endl; 
-//            std::cout << "Recovered upsi_mass: " << upsi_mass << std::endl; 
-//            aux->Fill();
-// END dirty block
+           //then I would have to write a new if doMCTruthMatching block, do the truth matching // flagPoodle
+    
+// 
+
+            
+      //      
            
          
          }
@@ -562,8 +707,43 @@ void run(string file){//, string file2){
              //If we get here, we have a survivor
            // Z_mass_ = (lepton3 + lepton4).M();
           // upsi_mass = (lepton1 + lepton2).M();
-           temp_Z_mass.push_back((lepton3 + lepton4).M());
-           temp_upsi_mass.push_back((lepton1 + lepton2).M());
+           
+           if (!doMCTruthMatching){
+           
+             temp_Z_mass.push_back((lepton3 + lepton4).M());
+             temp_upsi_mass.push_back((lepton1 + lepton2).M());
+           
+           //pT, eta, RAPIDITY, phi
+             temp_Z_pT.push_back((lepton3+lepton4).Pt());
+             temp_Z_eta.push_back((lepton3+lepton4).Eta());
+             temp_Z_RAPIDITY.push_back((lepton3+lepton4).Rapidity());
+             temp_Z_phi.push_back((lepton3+lepton4).Phi());
+           
+             temp_upsi_pT.push_back((lepton1+lepton2).Pt());
+             temp_upsi_eta.push_back((lepton1+lepton2).Eta());
+             temp_upsi_RAPIDITY.push_back((lepton1+lepton2).Rapidity());
+             temp_upsi_phi.push_back((lepton1+lepton2).Phi());
+           
+             temp_lead_pT_mu_from_Z_pT.push_back(lepton3.Pt());
+             temp_lead_pT_mu_from_Z_eta.push_back(lepton3.Eta());
+             temp_lead_pT_mu_from_Z_RAPIDITY.push_back(lepton3.Rapidity());
+             temp_lead_pT_mu_from_Z_phi.push_back(lepton3.Phi());
+           
+             temp_sublead_pT_mu_from_Z_pT.push_back(lepton4.Pt());
+             temp_sublead_pT_mu_from_Z_eta.push_back(lepton4.Eta());
+             temp_sublead_pT_mu_from_Z_RAPIDITY.push_back(lepton4.Rapidity());
+             temp_sublead_pT_mu_from_Z_phi.push_back(lepton4.Phi());
+           
+             temp_lead_pT_mu_from_upsi_pT.push_back(lepton1.Pt());
+             temp_lead_pT_mu_from_upsi_eta.push_back(lepton1.Eta());
+             temp_lead_pT_mu_from_upsi_RAPIDITY.push_back(lepton1.Rapidity());
+             temp_lead_pT_mu_from_upsi_phi.push_back(lepton1.Phi());
+           
+             temp_sublead_pT_mu_from_upsi_pT.push_back(lepton2.Pt());
+             temp_sublead_pT_mu_from_upsi_eta.push_back(lepton2.Eta());
+             temp_sublead_pT_mu_from_upsi_RAPIDITY.push_back(lepton2.Rapidity());
+             temp_sublead_pT_mu_from_upsi_phi.push_back(lepton2.Phi());
+             }
          }
     
       }
@@ -655,16 +835,45 @@ void run(string file){//, string file2){
             
             }
             
-            // if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
-//                 std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
-//                 continue; 
-//             }
-              temp_Z_mass.push_back((lepton1 + lepton3).M());
-              temp_upsi_mass.push_back((lepton2 + lepton4).M());
+            if (!doMCTruthMatching){
+                temp_Z_mass.push_back((lepton1 + lepton3).M());
+                temp_upsi_mass.push_back((lepton2 + lepton4).M());
+              
+              //Pt, eta, Rapidity, Phi
+                temp_Z_pT.push_back((lepton1+lepton3).Pt());
+                temp_Z_eta.push_back((lepton1+lepton3).Eta());
+                temp_Z_RAPIDITY.push_back((lepton1+lepton3).Rapidity());
+                temp_Z_phi.push_back((lepton1+lepton3).Phi());
+              
+                temp_upsi_pT.push_back((lepton2+lepton4).Pt());
+                temp_upsi_eta.push_back((lepton2+lepton4).Eta());
+                temp_upsi_RAPIDITY.push_back((lepton2+lepton4).Rapidity());
+                temp_upsi_phi.push_back((lepton2+lepton4).Phi());
+              
+                temp_lead_pT_mu_from_Z_pT.push_back(lepton1.Pt());
+                temp_lead_pT_mu_from_Z_eta.push_back(lepton1.Eta());
+                temp_lead_pT_mu_from_Z_RAPIDITY.push_back(lepton1.Rapidity());
+                temp_lead_pT_mu_from_Z_phi.push_back(lepton1.Phi());
+              
+                temp_sublead_pT_mu_from_Z_pT.push_back(lepton3.Pt());
+                temp_sublead_pT_mu_from_Z_eta.push_back(lepton3.Eta());
+                temp_sublead_pT_mu_from_Z_RAPIDITY.push_back(lepton3.Rapidity());
+                temp_sublead_pT_mu_from_Z_phi.push_back(lepton3.Phi());
+              
+                temp_lead_pT_mu_from_upsi_pT.push_back(lepton2.Pt());
+                temp_lead_pT_mu_from_upsi_eta.push_back(lepton2.Eta());
+                temp_lead_pT_mu_from_upsi_RAPIDITY.push_back(lepton2.Rapidity());
+                temp_lead_pT_mu_from_upsi_phi.push_back(lepton2.Phi());
+              
+                temp_sublead_pT_mu_from_upsi_pT.push_back(lepton4.Pt());
+                temp_sublead_pT_mu_from_upsi_eta.push_back(lepton4.Eta());
+                temp_sublead_pT_mu_from_upsi_RAPIDITY.push_back(lepton4.Rapidity());
+                temp_sublead_pT_mu_from_upsi_phi.push_back(lepton4.Phi());
+              }
          }
     
          if (upsi_phase1_first_Z_second_pair_13_24_56) {
-           // std::cout << "PLACEHOLDER!" << std::endl; 
+           
         
            //Z cuts
             if (lepton2.Pt() < lead_mu_from_Z_pT_Cut  || lepton4.Pt() < sublead_mu_from_Z_pT_Cut){
@@ -688,10 +897,7 @@ void run(string file){//, string file2){
                continue; 
             }
             
-         //   if (TREE->dimuon2vtx->at(i) < mu_mu_from_Z_Prob_Cut){
-//                std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
-//                continue; 
-//            }
+
            
            //Upsi cuts
             
@@ -722,13 +928,43 @@ void run(string file){//, string file2){
                continue; 
             }
             
-           //  if (TREE->dimuon1vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
-//                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
-//                continue; 
-//             }
-
-              temp_Z_mass.push_back((lepton2+lepton4).M());
-              temp_upsi_mass.push_back((lepton1+lepton3).M());
+   
+            if (!doMCTruthMatching){
+                temp_Z_mass.push_back((lepton2+lepton4).M());
+                temp_upsi_mass.push_back((lepton1+lepton3).M());
+              
+              //Pt,Eta, Rapidity, Phi of Z, upsi
+                temp_Z_pT.push_back((lepton2+lepton4).Pt());
+                temp_Z_eta.push_back((lepton2+lepton4).Eta());
+                temp_Z_RAPIDITY.push_back((lepton2+lepton4).Rapidity());
+                temp_Z_phi.push_back((lepton2 + lepton4).Phi());
+              
+                temp_upsi_pT.push_back((lepton1+lepton3).Pt());
+                temp_upsi_eta.push_back((lepton1+lepton3).Eta());
+                temp_upsi_RAPIDITY.push_back((lepton1+lepton3).Rapidity());
+                temp_upsi_phi.push_back((lepton1+lepton3).Phi());
+              
+              //pT, eta, Rapidity, Phi of daughter muons 
+                temp_lead_pT_mu_from_Z_pT.push_back(lepton2.Pt());
+                temp_lead_pT_mu_from_Z_eta.push_back(lepton2.Eta());
+                temp_lead_pT_mu_from_Z_RAPIDITY.push_back(lepton2.Rapidity());
+                temp_lead_pT_mu_from_Z_phi.push_back(lepton2.Phi());
+              
+                temp_sublead_pT_mu_from_Z_pT.push_back(lepton4.Pt());
+                temp_sublead_pT_mu_from_Z_eta.push_back(lepton4.Eta());
+                temp_sublead_pT_mu_from_Z_RAPIDITY.push_back(lepton4.Rapidity());
+                temp_sublead_pT_mu_from_Z_phi.push_back(lepton4.Phi());
+              
+                temp_lead_pT_mu_from_upsi_pT.push_back(lepton1.Pt());
+                temp_lead_pT_mu_from_upsi_eta.push_back(lepton1.Eta());
+                temp_lead_pT_mu_from_upsi_RAPIDITY.push_back(lepton1.Rapidity());
+                temp_lead_pT_mu_from_upsi_phi.push_back(lepton1.Phi());
+              
+                temp_sublead_pT_mu_from_upsi_pT.push_back(lepton3.Pt());
+                temp_sublead_pT_mu_from_upsi_eta.push_back(lepton3.Eta());
+                temp_sublead_pT_mu_from_upsi_RAPIDITY.push_back(lepton3.Rapidity()); 
+                temp_sublead_pT_mu_from_upsi_phi.push_back(lepton3.Phi());
+              }
          }
     
     }
@@ -757,7 +993,7 @@ void run(string file){//, string file2){
          }
          
          if (Z_first_upsi_phase1_second_pair_14_23_56){
-          //  std::cout << "PLACEHOLDER!" << std::endl; 
+          
             
             if (lepton1.Pt() < lead_mu_from_Z_pT_Cut  || lepton4.Pt() < sublead_mu_from_Z_pT_Cut){
                 std::cout << "FAILED Z mu Pt Cuts" << std::endl;
@@ -780,10 +1016,7 @@ void run(string file){//, string file2){
                continue; 
             }
          
-     //       if (TREE->dimuon1vtx->at(i) < mu_mu_from_Z_Prob_Cut) {
-//               std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
-//               continue; 
-//             }
+   
             
             //end Z cuts 
             
@@ -814,12 +1047,47 @@ void run(string file){//, string file2){
                continue; 
             }
             
-        //     if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){
-//                std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl;
-//                continue; 
-//             }
-               temp_Z_mass.push_back((lepton1 + lepton4).M());
-               temp_upsi_mass.push_back((lepton2+lepton3).M());
+ 
+            if (!doMCTruthMatching){
+                 temp_Z_mass.push_back((lepton1 + lepton4).M());
+                 temp_upsi_mass.push_back((lepton2+lepton3).M());
+               
+               //Pt, Eta, Phi, Rapidity of Z, upsi
+                 temp_Z_pT.push_back((lepton1 + lepton4).Pt());
+                 temp_Z_eta.push_back((lepton1+lepton4).Eta());
+                 temp_Z_RAPIDITY.push_back((lepton1+lepton4).Rapidity());
+                 temp_Z_phi.push_back((lepton1+lepton4).Phi());
+//                
+                 temp_upsi_pT.push_back((lepton2+lepton3).Pt());
+                 temp_upsi_eta.push_back((lepton2+lepton3).Eta());
+                 temp_upsi_RAPIDITY.push_back((lepton2+lepton3).Rapidity());
+                 temp_upsi_phi.push_back((lepton2+lepton3).Phi());
+               
+               //Pt, Eta, phi, Rapidity of daughter muons
+                 temp_lead_pT_mu_from_Z_pT.push_back(lepton1.Pt());
+                 temp_lead_pT_mu_from_Z_eta.push_back(lepton1.Eta());
+                 temp_lead_pT_mu_from_Z_RAPIDITY.push_back(lepton1.Rapidity());
+                 temp_lead_pT_mu_from_Z_phi.push_back(lepton1.Phi());
+               
+                 temp_sublead_pT_mu_from_Z_pT.push_back(lepton4.Pt());
+                 temp_sublead_pT_mu_from_Z_eta.push_back(lepton4.Eta());
+                 temp_sublead_pT_mu_from_Z_RAPIDITY.push_back(lepton4.Rapidity());
+                 temp_sublead_pT_mu_from_Z_phi.push_back(lepton4.Phi());
+               
+                 temp_lead_pT_mu_from_upsi_pT.push_back(lepton2.Pt());
+                 temp_lead_pT_mu_from_upsi_eta.push_back(lepton2.Eta());
+                 temp_lead_pT_mu_from_upsi_RAPIDITY.push_back(lepton2.Rapidity());
+                 temp_lead_pT_mu_from_upsi_phi.push_back(lepton2.Phi());
+               
+                 temp_sublead_pT_mu_from_upsi_pT.push_back(lepton3.Pt());
+                 temp_sublead_pT_mu_from_upsi_eta.push_back(lepton3.Eta());
+                 temp_sublead_pT_mu_from_upsi_RAPIDITY.push_back(lepton3.Rapidity()); 
+                 temp_sublead_pT_mu_from_upsi_phi.push_back(lepton3.Phi());
+              }
+               
+               
+               
+               
          }
          
          if (upsi_phase1_first_Z_second_pair_14_23_56) {
@@ -845,10 +1113,7 @@ void run(string file){//, string file2){
                continue; 
             }
              
-           //   if (TREE->dimuon2vtx->at(i) < mu_mu_from_Z_Prob_Cut){
-//                std::cout << "FAILED mu_mu_from_Z_Prob_Cut" << std::endl;
-//                continue; 
-//              }
+          
              
              //end Z cuts
              
@@ -881,12 +1146,43 @@ void run(string file){//, string file2){
                 continue; 
              }
              
-            //  if (TREE->dimuon2vtx->at(i) < mu_mu_from_upsi_Prob_Cut){ //WARNING this is a bug, should have been dimuon1vtx!!
-//                 std::cout << "FAILED mu_mu_from_upsi_Prob_Cut" << std::endl; 
-//                 continue; 
-//              }
-                temp_Z_mass.push_back((lepton2+lepton3).M());
-                temp_upsi_mass.push_back((lepton1+lepton4).M());
+          
+             if (!doMCTruthMatching){
+                  temp_Z_mass.push_back((lepton2+lepton3).M());
+                  temp_upsi_mass.push_back((lepton1+lepton4).M());
+                
+                //pT, eta, phi, rapidity of Z, upsi
+                  temp_Z_pT.push_back((lepton2+lepton3).Pt());
+                  temp_Z_eta.push_back((lepton2+lepton3).Eta());
+                  temp_Z_RAPIDITY.push_back((lepton2+lepton3).Rapidity());
+                  temp_Z_phi.push_back((lepton2+lepton3).Phi());
+                
+                  temp_upsi_pT.push_back((lepton1+lepton4).Pt());
+                  temp_upsi_eta.push_back((lepton1+lepton4).Eta());
+                  temp_upsi_RAPIDITY.push_back((lepton1+lepton4).Rapidity());
+                  temp_upsi_phi.push_back((lepton1+lepton4).Phi());
+                
+                //Pt, eta, phi, rapidity of daughter muons
+                  temp_lead_pT_mu_from_Z_pT.push_back(lepton2.Pt());
+                  temp_lead_pT_mu_from_Z_eta.push_back(lepton2.Eta());
+                  temp_lead_pT_mu_from_Z_RAPIDITY.push_back(lepton2.Rapidity());
+                  temp_lead_pT_mu_from_Z_phi.push_back(lepton2.Phi());
+                
+                  temp_sublead_pT_mu_from_Z_pT.push_back(lepton3.Pt());
+                  temp_sublead_pT_mu_from_Z_eta.push_back(lepton3.Eta());
+                  temp_sublead_pT_mu_from_Z_RAPIDITY.push_back(lepton3.Rapidity());
+                  temp_sublead_pT_mu_from_Z_phi.push_back(lepton3.Phi());
+                 
+                  temp_lead_pT_mu_from_upsi_pT.push_back(lepton1.Pt());
+                  temp_lead_pT_mu_from_upsi_eta.push_back(lepton1.Eta());
+                  temp_lead_pT_mu_from_upsi_RAPIDITY.push_back(lepton1.Rapidity());
+                  temp_lead_pT_mu_from_upsi_phi.push_back(lepton1.Phi());
+                
+                  temp_sublead_pT_mu_from_upsi_pT.push_back(lepton4.Pt());
+                  temp_sublead_pT_mu_from_upsi_eta.push_back(lepton4.Eta());
+                  temp_sublead_pT_mu_from_upsi_RAPIDITY.push_back(lepton4.Rapidity()); 
+                  temp_sublead_pT_mu_from_upsi_phi.push_back(lepton4.Phi());
+                }
          }
       }
     
@@ -931,8 +1227,37 @@ void run(string file){//, string file2){
   //the final survivor, one per event at most 
    if (temp_Z_mass.size() == 1  && temp_upsi_mass.size() == 1){
      fillCount += 1; 
+     
      Z_mass =  temp_Z_mass.at(0);
      upsi_mass = temp_upsi_mass.at(0);
+     
+     Z_pT = temp_Z_pT.at(0);
+     Z_eta = temp_Z_eta.at(0);
+     Z_RAPIDITY = temp_Z_RAPIDITY.at(0);
+     Z_phi = temp_Z_phi.at(0); 
+     upsi_pT = temp_upsi_pT.at(0);
+     upsi_eta = temp_upsi_eta.at(0);
+     upsi_RAPIDITY = temp_upsi_RAPIDITY.at(0);
+     upsi_phi =temp_upsi_phi.at(0);
+  
+     lead_pT_mu_from_Z_pT = temp_lead_pT_mu_from_Z_pT.at(0);
+     lead_pT_mu_from_Z_eta = temp_lead_pT_mu_from_Z_eta.at(0);
+     lead_pT_mu_from_Z_RAPIDITY = temp_lead_pT_mu_from_Z_RAPIDITY.at(0);
+     lead_pT_mu_from_Z_phi = temp_lead_pT_mu_from_Z_phi.at(0); 
+     sublead_pT_mu_from_Z_pT = temp_sublead_pT_mu_from_Z_pT.at(0);
+     sublead_pT_mu_from_Z_eta = temp_sublead_pT_mu_from_Z_eta.at(0);
+     sublead_pT_mu_from_Z_RAPIDITY =temp_sublead_pT_mu_from_Z_RAPIDITY.at(0);
+     sublead_pT_mu_from_Z_phi =temp_sublead_pT_mu_from_Z_phi.at(0); 
+ 
+     lead_pT_mu_from_upsi_pT = temp_lead_pT_mu_from_upsi_pT.at(0);
+     lead_pT_mu_from_upsi_eta = temp_lead_pT_mu_from_upsi_eta.at(0);
+     lead_pT_mu_from_upsi_RAPIDITY = temp_lead_pT_mu_from_upsi_RAPIDITY.at(0);
+     lead_pT_mu_from_upsi_phi = temp_lead_pT_mu_from_upsi_phi.at(0); 
+     sublead_pT_mu_from_upsi_pT = temp_sublead_pT_mu_from_upsi_pT.at(0);
+     sublead_pT_mu_from_upsi_eta = temp_sublead_pT_mu_from_upsi_eta.at(0);
+     sublead_pT_mu_from_upsi_RAPIDITY = temp_sublead_pT_mu_from_upsi_RAPIDITY.at(0); 
+     sublead_pT_mu_from_upsi_phi =  temp_sublead_pT_mu_from_upsi_phi.at(0); 
+    
      aux->Fill();
     }
   //    fillCount += 1;
@@ -946,7 +1271,8 @@ std::cout << "pair_12_34_56_count: " << pair_12_34_56_count << std::endl;
 std::cout << "pair_13_24_56_count: " << pair_13_24_56_count << std::endl;
 std::cout << "pair_14_23_56_count: " << pair_14_23_56_count << std::endl; 
 std::cout << "pair_AMBIGOUS_muQuad_count: " << pair_AMBIGOUS_muQuad_count << std::endl;
-std::cout << "big4MuVtx_Prob_Cut_fail_count: " << big4MuVtx_Prob_Cut_fail_count << std::endl; 
+std::cout << "big4MuVtx_Prob_Cut_fail_count: " << big4MuVtx_Prob_Cut_fail_count << std::endl;
+std::cout << "pfIso_Fail_Count:  " << pfIso_Fail_Count << std::endl; 
 std::cout << "Z_first_upsi_phase1_second_pair_12_34_56_count: " << Z_first_upsi_phase1_second_pair_12_34_56_count << std::endl;
 std::cout << "upsi_phase1_first_Z_second_pair_12_34_56_count: " << upsi_phase1_first_Z_second_pair_12_34_56_count << std::endl; 
 std::cout << "Z_first_upsi_phase1_second_pair_13_24_56_count: " << Z_first_upsi_phase1_second_pair_13_24_56_count << std::endl;
@@ -955,11 +1281,11 @@ std::cout << "Z_first_upsi_phase1_second_pair_14_23_56_count: " << Z_first_upsi_
 std::cout << "upsi_phase1_first_Z_second_pair_14_23_56_count: " << upsi_phase1_first_Z_second_pair_14_23_56_count << std::endl; 
 
 std::cout << "GotHereCount_Z_first_upsi_phase1_second_pair_12_34_56_Z_first_upsi_phase1_second_pair_12_34_56:  " << GotHereCount_Z_first_upsi_phase1_second_pair_12_34_56 << std::endl; 
-std::cout << "FailureCount:  " << FailureCount << std::endl;
-std::cout << "QuickCheckCount:  " << QuickCheckCount << std::endl;
+//std::cout << "FailureCount:  " << FailureCount << std::endl;
+//std::cout << "QuickCheckCount:  " << QuickCheckCount << std::endl;
 std::cout << "fillCount:  " << fillCount << std::endl; 
 std::cout << "gotToEndCount:  " << gotToEndCount << std::endl; 
-std::cout << "poodleCount:  " << poodleCount << std::endl; 
+//std::cout << "poodleCount:  " << poodleCount << std::endl; 
 std::cout << "eventCounter:  " << eventCounter << std::endl;
 
 
@@ -1027,6 +1353,14 @@ std::cout << "eventCounter:  " << eventCounter << std::endl;
   h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Draw();
   h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->Write();
   c_cutflow_Z_first_upsi_phase1_second_pair_12_34_56->SaveAs("h_cutflow_Z_first_upsi_phase1_second_pair_12_34_56.pdf");
+  
+  TCanvas *c_pfIso_lepN = new TCanvas("c_pfIso_lepN", "c_pfIso_lepN"); c_pfIso_lepN->Divide(2,2);
+  c_pfIso_lepN->cd(1); h_pfIso_lep1->Draw();
+  c_pfIso_lepN->cd(2); h_pfIso_lep2->Draw();
+  c_pfIso_lepN->cd(3); h_pfIso_lep3->Draw();
+  c_pfIso_lepN->cd(4); h_pfIso_lep4->Draw();
+  h_pfIso_lep1->Write(); h_pfIso_lep2->Write(); h_pfIso_lep3->Write(); h_pfIso_lep4->Write();
+  c_pfIso_lepN->SaveAs("c_pfIso_lepN.pdf");
   
  
 
